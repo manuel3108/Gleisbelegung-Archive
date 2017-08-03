@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Plugin_Gleisbelegung">
+    <output-path>$PROJECT_DIR$/out/artifacts/Plugin_Gleisbelegung</output-path>
+    <root id="archive" name="Plugin_Gleisbelegung.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/out/production/Plugin Gleisbelegung/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="Plugin Gleisbelegung" />
+    </root>
+  </artifact>
+</component>
