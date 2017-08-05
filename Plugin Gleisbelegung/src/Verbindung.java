@@ -1,3 +1,13 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+
+Erstellt und hält die Verbindung mit der Schnitstelle aufrecht.
+ */
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -6,9 +16,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class Verbindung extends Main{
-    public Socket socket;
-    private XMLHandler xml;
+    public Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
+    private XMLHandler xml;     //Verarbeitet die Empfangenen Daten in einer Eigenen Klasse
 
+    //Führt einige notwendige Kommunikationsschritte mit der Verbindung durch und Verlangt u.a. Uhrzeit und Bahnsteige
     public Verbindung(Socket socket){
         try {
             this.socket = socket;
@@ -76,6 +87,7 @@ public class Verbindung extends Main{
         }
     }
 
+    //Sendet Daten-Anfragen an die Plugin-Schnitstelle
     private int setSocketCode(String s){
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -88,6 +100,7 @@ public class Verbindung extends Main{
         }
     }
 
+    //Aktualisiert die Daten aller Züge
     public void update(){
         setSocketCode("<zugliste />");
         ArrayList<ArrayList<ArrayList<String[]>>> zugliste = xml.readLines();
@@ -284,6 +297,7 @@ public class Verbindung extends Main{
         }
     }
 
+    //Checkt ob ein Zug einen Nachfolger hat.
     private Zug getFlaggedTrain(String content) {
         if(content.contains("(") && content.contains(")")){
             char[] in = content.toCharArray();

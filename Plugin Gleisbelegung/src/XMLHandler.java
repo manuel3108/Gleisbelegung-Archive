@@ -1,3 +1,11 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Achtung: Dies ist eine höchst sensible Klasse. Vor dem ändern unbedingt ein Backup der Klasse machen, aus diesem Grund gibt es hier auch keine Anmerkungen
+ */
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

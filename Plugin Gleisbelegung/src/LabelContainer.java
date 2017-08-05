@@ -1,3 +1,13 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+
+Repräsentiert immer eine Tabellen-Zelle in einer Tabelle
+ */
+
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -9,14 +19,14 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class LabelContainer extends Main{
-    private Label l;
-    private int labelIndex;
-    private ArrayList<Zug> trains;
-    private long time = -1;
-    private int bahnsteig;
-    private int borderSolution;
-    private ArrayList<LabelContainer> labelTime;
+    private Label l;                                //Textfeld um Text schreiben zu können
+    private int labelIndex;                         //speichert den in der @Fenster-Klsse vergebenen labelIndex
+    private ArrayList<Zug> trains;                  //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
+    private long time = -1;                         //Die Zeit die in der jeweiligen Zeile die richtige ist.
+    private int bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
+    private ArrayList<LabelContainer> labelTime;    //Übergabe von labelTime aus der @Fenster-Klasse
 
+    //Speichert alle übergebenen Daten
     public LabelContainer(int labelIndex, int bahnsteig, ArrayList<LabelContainer> labelTime){
         this.labelTime = labelTime;
         this.bahnsteig = bahnsteig;
@@ -42,6 +52,7 @@ public class LabelContainer extends Main{
         }
     }
 
+    //get-set labelIndex
     public int getLabelIndex() {
         return labelIndex;
     }
@@ -49,9 +60,12 @@ public class LabelContainer extends Main{
         this.labelIndex = labelIndex;
     }
 
+    //get Label l
     public Label getLabel(){
         return l;
     }
+
+    //get-set long time
     public long getTime() {
         return time;
     }
@@ -59,6 +73,7 @@ public class LabelContainer extends Main{
         this.time = time;
     }
 
+    //add-remove Zug von trains-Liste
     public void addTrain(Zug z){
         trains.add(z);
         updateLabel();
@@ -85,6 +100,7 @@ public class LabelContainer extends Main{
         l.setOnMouseEntered(e -> showTrainInformations());
     }
 
+    //verschiedene Methoden um die Container zu aktualisieren
     public void updateLabel(){
         Platform.runLater(() -> {
             if(trains.size() == 0){
@@ -137,6 +153,7 @@ public class LabelContainer extends Main{
         Platform.runLater(() -> l.setText(text));
     }
 
+    //Hintergrundfarbe des Containers anhand der Zugnummer erzeugen
     private String prepareTrainStyle(String zugName){
         int index = zugName.indexOf('(')-1;
         char[] name = zugName.toCharArray();
@@ -171,6 +188,7 @@ public class LabelContainer extends Main{
         return out;
     }
 
+    //Bereite die Umrandungen für die Container vor (5 und 60 Minütige Linie)
     private String prepareBorder(){
         String fullHour = "-fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 1 1 0; ";
         String fiveMin = "-fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 1 1 0; ";
@@ -214,10 +232,12 @@ public class LabelContainer extends Main{
         }
     }
 
+    //get trains
     public ArrayList<Zug> getTrains(){
         return trains;
     }
 
+    //get-set Bahnsteige
     public int getBahnsteig() {
         return bahnsteig;
     }
@@ -225,6 +245,7 @@ public class LabelContainer extends Main{
         this.bahnsteig = bahnsteig;
     }
 
+    //Zeige die Zuginformationen auf dem informations Panel aus @Main
     public void showTrainInformations(){
         int heightCounter = 0;
 
@@ -283,6 +304,7 @@ public class LabelContainer extends Main{
         informations.setPrefHeight(heightCounter);
     }
 
+    //Hebe den Container hervor, wenn ein Zug aus dem Container in der Suche identifiziert wird
     public void highlight(){
         Runnable r = () -> {
             try {

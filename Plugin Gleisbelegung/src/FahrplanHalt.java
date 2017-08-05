@@ -1,16 +1,27 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+
+Speichert alle Daten für einen FahrplanHalt
+ */
+
 import java.util.ArrayList;
 
 public class FahrplanHalt {
-    private Zug z;
-    private long ankuft;
-    private long abfahrt;
-    private String gleis;
-    private String plangleis;
-    private String flags;
-    private ArrayList<LabelContainer> drawnTo;
-    private boolean drawable;
-    private Zug flaggedTrain;
+    private Zug z;                                  //Der Zug zu dem der Halt gehört
+    private long ankuft;                            //Die GEPLANTE Ankunft des Zuges
+    private long abfahrt;                           //Die GEPLANTE Abfahrt des Zuges
+    private String gleis;                           //Das GEPLANTE Gleis des Zuges
+    private String plangleis;                       //Das aktuelle Gleis
+    private String flags;                           //Die Flags des Haltes
+    private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
+    private boolean drawable;                       //Ist der Zug zeichenbar
+    private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
 
+    //Speichert gegebene Seite
     public FahrplanHalt(ArrayList<String[]> fahrplan, Zug z){
         this.z = z;
         this.abfahrt = Long.parseLong(fahrplan.get(0)[1]);
@@ -24,6 +35,7 @@ public class FahrplanHalt {
         flaggedTrain = null;
     }
 
+    //get-set Ankunft
     public long getAnkuft() {
         return ankuft;
     }
@@ -31,6 +43,7 @@ public class FahrplanHalt {
         this.ankuft = ankuft;
     }
 
+    //get-set Abfahrt
     public long getAbfahrt() {
         return abfahrt;
     }
@@ -38,6 +51,7 @@ public class FahrplanHalt {
         this.abfahrt = abfahrt;
     }
 
+    //get-set Gleis
     public String getGleis() {
         return gleis;
     }
@@ -45,6 +59,7 @@ public class FahrplanHalt {
         this.gleis = gleis;
     }
 
+    //get-set Plangleis
     public String getPlangleis() {
         return plangleis;
     }
@@ -52,6 +67,7 @@ public class FahrplanHalt {
         this.plangleis = plangleis;
     }
 
+    //get-set Flags
     public String getFlags() {
         return flags;
     }
@@ -59,17 +75,36 @@ public class FahrplanHalt {
         this.flags = flags;
     }
 
+    //get-set FlaggedTrain
+    public Zug getFlaggedTrain() {
+        return flaggedTrain;
+    }
+    public void setFlaggedTrain(Zug flaggedTrain) {
+        this.flaggedTrain = flaggedTrain;
+    }
+
+    //get-set Drawable
+    public boolean isDrawable() {
+        return drawable;
+    }
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
+    }
+
+    //Entferne den Halt überall wo er gemalt wurde
     public void removeDrawnTo() {
         for(LabelContainer lc : drawnTo){
             lc.removeTrain(z);
         }
         drawnTo = new ArrayList<>();
     }
+    //Füge einen LabelContainer hinzu, auf welchem der Halt gezeichnet wurde
     public void addDrawnTo(LabelContainer lc) {
         lc.addTrain(z);
         this.drawnTo.add(lc);
     }
 
+    //get DrawnTo
     public LabelContainer getDrawnTo(int index){
         if(drawnTo.size() != 0){
             return  drawnTo.get(index);
@@ -79,19 +114,5 @@ public class FahrplanHalt {
     }
     public ArrayList<LabelContainer> getDrawnTo(){
         return drawnTo;
-    }
-
-    public boolean isDrawable() {
-        return drawable;
-    }
-    public void setDrawable(boolean drawable) {
-        this.drawable = drawable;
-    }
-
-    public Zug getFlaggedTrain() {
-        return flaggedTrain;
-    }
-    public void setFlaggedTrain(Zug flaggedTrain) {
-        this.flaggedTrain = flaggedTrain;
     }
 }

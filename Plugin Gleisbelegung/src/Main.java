@@ -1,3 +1,14 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+
+In dieser Klasse werden viele Variablen gespeichert, da jede Klasse diese Klasse extendet.
+Hier befindet sich auch die Hauptschleife des Plugins.
+ */
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -6,7 +17,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,43 +25,49 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Main extends Application implements Runnable{
-    static long currentGameTime;
-    static ArrayList<Zug> zuege;
-    static String[] bahnsteige;
-    static boolean[] bahnsteigeSichtbar;
-    static boolean lastUpdateSuccessful;
-    static Stage primaryStage;
-    static int settingsUpdateInterwall = 15;
-    static int settingsVorschau = 60;
-    static int settingsGridWidth = 100;
-    static int settingsFontSize = 18;
-    static boolean settingsPlaySound = true;
-    static boolean settingsShowInformations = true;
-    static boolean settingsDebug = false;
-    static long spielStart = System.currentTimeMillis();
-    static Pane fehlerMeldungen;
-    static Pane informations;
-    static PrintWriter logFile;
-    static Pane pZugSuche;
-    static int errorCounter = 0;
-    static int maxErrorCounter = 10;
-    static double stageWidth = 1000;
-    static double stageHeight = 500;
+    static long currentGameTime;                            //Speichert die aktuelle Zeit in Milisekunden, heißt 1 Minute entspricht 1000*60
+    static boolean lastUpdateSuccessful;                    //Aktuall keine Verwendung
 
-    private Verbindung v;
-    private Update u;
-    private Fenster f;
-    private String host;
-    private int version = 7;
-    private long lastRefresh = System.currentTimeMillis();
+    static ArrayList<Zug> zuege;                            //Hier werden alle Zug-Objekte gespeichert
+    static String[] bahnsteige;                             //Speichert die Namen aller Bahnsteige in einem Array
+    static boolean[] bahnsteigeSichtbar;                    //Speichert ob die jeweiligen Bahnsteige sichtbar sind oder nicht (true = sichtbar; fals = versteckt)
+
+    static Stage primaryStage;                              //Ist das Objekt für das aktuelle Fenster
+
+    static int settingsUpdateInterwall = 15;                //Wie oft das Fenster (die Tabelle) aktualisiert wird.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsVorschau = 60;                       //Wie viele Zeilen die Tabelle hat.                         (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsGridWidth = 100;                     //Wie breit die einzelnen Spalten sind.                     (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsFontSize = 18;                       //Wie groß die Schriftgröße ist.                            (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static boolean settingsPlaySound = true;                //Soll bei einer Mehrfahcbelegung ein Ton abgespielt werden.(Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static boolean settingsShowInformations = true;         //Zeige die Informationenpanel.                             (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static boolean settingsDebug = false;                   //Sollen zusätzliche Informationen geschrieben werden.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+
+    static long spielStart = System.currentTimeMillis();    //Zu welcher Uhrzeit das Spiel gestartet wurde.             (Wird auch bei automatischem Neustart neu gesetzt)
+    private long lastRefresh = System.currentTimeMillis();  //Zu welcher Uhrzeit das Plugin zum letzten mal aktualisiert wurde
+    static Pane fehlerMeldungen;                            //Panel für Fehlermeldungen auf der rechten Seite.          (Wird bald entfernt)
+    static Pane informations;                               //Panel für alle Zuginformation                             (Zugnummer, Verspätung etc.)
+    static PrintWriter logFile;                             //
+    static Pane pZugSuche;                                  //Panel mit der Zugsuche
+    static int errorCounter = 0;                            //Zählt alle auftreten Fehler für einen eventuellen automatischen Neustart
+    static int maxErrorCounter = 10;                        //Ist der obrige Wert größer als dieser, wird das Plugin automatisch neu gestartet.
+    static double stageWidth = 1000;                        //Standartmäßige Fenster-Breite                             (Wir bei Veränderung der Breite aktualisiert)
+    static double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
+
+    private Verbindung v;                                   //Objekt der Verbindungs-Klasse                             (Übernimmt Kommunikation mit der Schnittstelle)
+    private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
+    private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
+
+    private String host;                                    //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
+    private int version = 7;                                //Aktualle Version des Plugins
     private static AudioClip audio;
     private Socket socket;
 
-
+    //Standartmäßige Methode bei Java Fx-Apps
     public static void main(String[] args) {
         launch(args);
     }
 
+    //Erste Aufgerufene Methode (Ip-Abfrage, Updates-checken, Fenster erzeugen)
     @Override
     public void start(Stage primaryStage) throws Exception{
         u = new Update();
@@ -99,11 +115,13 @@ public class Main extends Application implements Runnable{
         Main.primaryStage.show();
     }
 
+    //Schreibt DEBUG-Informationen auf dei Konsole (nur wenn settingsDebug = true)
     public static void debugMessage(String message, boolean newLine){
         if(settingsDebug && newLine) System.out.println(message);
         else if(settingsDebug) System.out.print(message);
     }
 
+    //Setzt das Loading.... Beim ersten Erzeugen der Tabelle
     public void setLoadingScene(){
         Label l = new Label("Bereite vor...");
         l.setStyle("-fx-text-fill: white;");
@@ -120,6 +138,7 @@ public class Main extends Application implements Runnable{
         primaryStage.setScene(s);
     }
 
+    //Startet die Verbindung zur Schnitstelle
     public void startLoading(String host) {
         this.host = host;
 
@@ -142,6 +161,7 @@ public class Main extends Application implements Runnable{
         t.start();
     }
 
+    //Liest die Vorhanden Einstellungen und überschreibt die Standart-Werte
     private void readSettings(){
         try {
             File f = File.createTempFile("temp", ".txt");
@@ -162,6 +182,7 @@ public class Main extends Application implements Runnable{
         }
     }
 
+    //Hier werden Fehlermeldungen in ein neues Fenster eingetragen (wie z.B. beim automatischen Neustart)
     public static void errorWindow(int exitPoint, String fehlermeldung){
         Runnable r = () -> {
             Platform.runLater(() -> {
@@ -209,6 +230,7 @@ public class Main extends Application implements Runnable{
         new Thread(r).start();
     }
 
+    //Der Sound, der der Gespielt wird, wenn eine Mehrachbelegung entsteht
     public static void playColisonSound(){
         if(settingsPlaySound){
             try{
@@ -220,6 +242,7 @@ public class Main extends Application implements Runnable{
         }
     }
 
+    //Schreibt Fehlermeldungen auf das Panel fehlerMeldungen
     public static void addMessageToErrorPane(String message){
         Label l = new Label(message);
         l.setFont(Font.font(settingsFontSize-5));
@@ -240,6 +263,7 @@ public class Main extends Application implements Runnable{
         }
     }
 
+    //Hauptschleife des Plugins
     @Override
     public void run() {
         long timeFromLastUpdate = 0;

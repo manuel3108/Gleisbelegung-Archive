@@ -1,3 +1,13 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+
+Erzeugen und Updaten der Gui (u.a. die Tabelle und die Informationen)
+ */
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -17,25 +27,28 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Fenster extends Main {
-    private Label simZeit;
-    private Button einstellungen;
-    private Label pluginName;
-    private GridPane gp;
-    private GridPane gpTime;
-    private GridPane gpPlatform;
-    private ScrollPane spContent;
-    private ScrollPane spTime;
-    private ScrollPane spPlatform;
-    private ScrollPane spInformations;
-    private ArrayList<ArrayList<LabelContainer>> grid;
-    public ArrayList<LabelContainer> labelTime;
-    private ArrayList<LabelContainer> labelPlatform;
-    private ScrollBar scrollBarWidth;
-    private ScrollBar scrollBarHeight;
-    private int labelIndexCounter;
-    private Scene s;
-    private TextField zugSuche;
+    private Label pluginName;                           //Textfeld welches den Namen des Plugin in der Linken oberen Ecke speichert
+    private Label simZeit;                              //Textfeld welches die Simzeit in der rechte oberen Ecke speichert
+    private Button einstellungen;                       //Button um das Fenster mit den Einstellungen zu öffnen
+    private int labelIndexCounter;                      //Zählt die Textfelder auf der y-Achse mit um eine Identifikation zu ermöglichen
+    private Scene s;                                    //Hält die Scene mit der Tabelle gespeichert,
+    private TextField zugSuche;                         //Textbox um den gesuchrten Zugnamen einzugeben
 
+    private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
+    private ScrollPane spContent;                       //Das ist das Scroll-Feld welches um die Tabelle von oben gewrappt wird.
+    private GridPane gpTime;                            //Speichert die Zeiten in einer einzelnen Tabelle
+    private ScrollPane spTime;                          //Wrappt die Zeiten-Tabelle in ein Scroll-Feld
+    private GridPane gpPlatform;                        //Eine Tabelle für die Bahnsteige
+    private ScrollPane spPlatform;                      //Wrappt die Bahnssteige in ein Scroll-Feld
+    private ScrollPane spInformations;                  //Scroll-Feld fr das in der @Main-Klasse deklariert Feld informations
+    private ScrollBar scrollBarWidth;                   //Scroll-Balken um die Tabelle bewegen zu können
+    private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
+
+    private ArrayList<ArrayList<LabelContainer>> grid;  //Speichert alle LabelContainer die die Tabell an sich darstellen
+    public ArrayList<LabelContainer> labelTime;         //Speichert alle LabelContainer die eine Zeit anzeigen
+    private ArrayList<LabelContainer> labelPlatform;    //Speichert alle LabelContainer die Bahnsteigsnamen enthalten
+
+    //Erzeugt alle Listen und erzeugt die LabelContainer mit Informationen, welche vorher von der @VErbindungs-Klasse bereitgestellt werden
     public Fenster() {
         grid = new ArrayList<>();
         labelTime = new ArrayList<>();
@@ -225,6 +238,7 @@ public class Fenster extends Main {
         updateUi();
     }
 
+    //Methode, die aufgerufen wird, wenn der Text in dem Text-Suchfeld für Züge verändert wird
     private void searchTrain(String text){
         ArrayList<Zug> trains = new ArrayList<>();
         for(Zug zTemp : zuege){
@@ -340,6 +354,7 @@ public class Fenster extends Main {
         });
     }
 
+    //Scrollt den in der vorherigen Methode bestiommten Zug in das Sichtfeld der Tabelle
     private void scrollPaneTo(double x, double y, FahrplanHalt fh) throws Exception{
         scrollBarWidth.adjustValue(x);
         scrollBarHeight.adjustValue(y);
@@ -378,10 +393,12 @@ public class Fenster extends Main {
         t.start();*/
     }
 
+    //Setzt die Scene s, sobal der Konstruktor der Klasse @Fenster zuende ausgeführt wurde
     public void setGridScene(){
         primaryStage.setScene(s);
     }
 
+    //Zeichnet jeweils einen Zug auf die für ihn bestimmten LabelContainer
     private void drawTrain(Zug z){
         z.removeFromGrid();
         try{
@@ -436,6 +453,7 @@ public class Fenster extends Main {
         }
     }
 
+    //Aktualisiert die Aktuelle-Simzeit sekündlich. (Aufgerufen durch @Main.run())
     public void updateSimTime(int updatingIn){
         Date dNow = new Date(currentGameTime);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm:ss");
@@ -445,6 +463,7 @@ public class Fenster extends Main {
         Platform.runLater(() -> pluginName.setText("Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
     }
 
+    //Checkt alle Züge ob sie eine aktualisierung benötigen und führt diese ggf. aus.
     public void update(){
         for(Zug z : zuege){
             if(z.isNeedUpdate()){
@@ -457,6 +476,7 @@ public class Fenster extends Main {
         }
     }
 
+    //Aktualisiert die Gui bei einer Veränderung der Fenstegröße
     public void updateUi(){
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
@@ -508,6 +528,7 @@ public class Fenster extends Main {
         }
     }
 
+    //Entfernt die erste Zeile der Tabelle und fügt am Ende der Tabell eine nue Zeile hinzu (minütlich, aufgerufen von @Main.run())
     public void refreshGrid(){
         for (int i = 0; i < bahnsteige.length; i++) {
             Platform.runLater(() -> {
@@ -563,6 +584,7 @@ public class Fenster extends Main {
         updateSomeTrains(currentGameTime + settingsVorschau*1000*60 - 2000);
     }
 
+    //Aktualisiert die Züge, die Innerhalb der gegebenn Zeit eine Abfahrtszeit haben (Aufgerufen durch @Fenster.refreshGrid(), nachdem einen neue Zeile hinzugefügt wurde)
     private void updateSomeTrains(long time){
         for(Zug z : zuege){
             try{
@@ -597,6 +619,7 @@ public class Fenster extends Main {
         }
     }
 
+    //Methode welches ein neues Fenster für die Einstellungen öffnet und es befüllt
     private void settings() {
         int stageWidth = 500;
         int stageHeight = 200;
@@ -770,6 +793,7 @@ public class Fenster extends Main {
         stage.setOnCloseRequest(e -> einstellungen.setDisable(false));
     }
 
+    //Unter dem Einstellungsfenster führt ein Klick auf "Speicern" zu dieser Methode. Hier werden alle EInstellungen in einer Textdatei gespeichert
     private void writeSettings(){
         try {
             File f = File.createTempFile("temp", ".txt");
@@ -793,6 +817,7 @@ public class Fenster extends Main {
         }
     }
 
+    //Hier werden die geänderten Einstellungen auf die Gui angewendet
     private void updateSettings(){
         for (int i = 0; i < grid.size(); i++) {
             for (int j = 0; j < grid.get(i).size(); j++) {
@@ -820,6 +845,7 @@ public class Fenster extends Main {
         einstellungen.setFont(Font.font(settingsFontSize));
     }
 
+    //Ist ein Bahnsteig sichtbar oder nicht. Hier wird das esetzt
     private void showPlatform(int index, boolean visible){
         if(visible){
             for (int i = 0; i < grid.size(); i++) {

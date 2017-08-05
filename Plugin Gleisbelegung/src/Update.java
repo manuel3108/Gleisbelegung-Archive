@@ -1,3 +1,13 @@
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+
+Checkt auf eine neue Version
+ */
+
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,6 +20,8 @@ import java.nio.file.Files;
 import java.util.Scanner;
 
 public class Update {
+
+    //Checkt auf neue Versionen
     public void checkForNewVersion(int currentVersion){
         try {
             URL url = new URL("http://www.manuel-serret.bplaced.net/Gleisbelegung/version.txt");
