@@ -74,7 +74,7 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2635">
+            <state relative-caret-position="234">
               <caret line="278" column="33" lean-forward="false" selection-start-line="278" selection-start-column="33" selection-end-line="278" selection-end-column="33" />
               <folding>
                 <element signature="method#debugMessage#0;class#Main#0" expanded="false" />
@@ -91,10 +91,9 @@
       <file leaf-file-name="Fenster.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Fenster.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="378" column="62" lean-forward="false" selection-start-line="378" selection-start-column="62" selection-end-line="378" selection-end-column="62" />
+            <state relative-caret-position="192">
+              <caret line="414" column="76" lean-forward="false" selection-start-line="414" selection-start-column="76" selection-end-line="414" selection-end-column="76" />
               <folding>
-                <element signature="method#Fenster#0;class#Fenster#0" expanded="false" />
                 <element signature="method#searchTrain#0;class#Fenster#0" expanded="false" />
                 <element signature="method#scrollPaneTo#0;class#Fenster#0" expanded="false" />
                 <element signature="method#updateSimTime#0;class#Fenster#0" expanded="false" />
@@ -103,7 +102,7 @@
                 <element signature="method#refreshGrid#0;class#Fenster#0" expanded="false" />
                 <element signature="method#updateSomeTrains#0;class#Fenster#0" expanded="false" />
                 <element signature="method#settings#0;class#Fenster#0" expanded="false" />
-                <element signature="e#29102#30038#0" expanded="false" />
+                <element signature="e#29814#30750#0" expanded="false" />
                 <element signature="method#writeSettings#0;class#Fenster#0" expanded="false" />
                 <element signature="method#updateSettings#0;class#Fenster#0" expanded="false" />
                 <element signature="method#showPlatform#0;class#Fenster#0" expanded="false" />
@@ -115,11 +114,16 @@
       <file leaf-file-name="LabelContainer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/LabelContainer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2108">
-              <caret line="158" column="35" lean-forward="false" selection-start-line="158" selection-start-column="35" selection-end-line="158" selection-end-column="35" />
+            <state relative-caret-position="285">
+              <caret line="80" column="13" lean-forward="true" selection-start-line="80" selection-start-column="13" selection-end-line="80" selection-end-column="13" />
               <folding>
                 <element signature="method#addTrain#0;class#LabelContainer#0" expanded="false" />
-                <element signature="method#removeTrain#0;class#LabelContainer#0" expanded="false" />
+                <element signature="e#4617#4756#0" expanded="false" />
+                <element signature="method#updateLabel#2;class#LabelContainer#0" expanded="false" />
+                <element signature="method#prepareTrainStyle#0;class#LabelContainer#0" expanded="false" />
+                <element signature="method#prepareBorder#0;class#LabelContainer#0" expanded="false" />
+                <element signature="method#prepareBorderForLabelTime#0;class#LabelContainer#0" expanded="false" />
+                <element signature="method#showTrainInformations#0;class#LabelContainer#0" expanded="false" />
                 <element signature="method#highlight#0;class#LabelContainer#0" expanded="false" />
               </folding>
             </state>
@@ -129,7 +133,7 @@
       <file leaf-file-name="Verbindung.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Verbindung.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1020">
+            <state relative-caret-position="852">
               <caret line="65" column="23" lean-forward="false" selection-start-line="65" selection-start-column="12" selection-end-line="65" selection-end-column="23" />
               <folding>
                 <element signature="method#getFlaggedTrain#0;class#Verbindung#0" expanded="false" />
@@ -214,9 +218,9 @@
         <option value="$PROJECT_DIR$/src/Zug.java" />
         <option value="$PROJECT_DIR$/src/XMLHandler.java" />
         <option value="$PROJECT_DIR$/src/Verbindung.java" />
-        <option value="$PROJECT_DIR$/src/Fenster.java" />
         <option value="$PROJECT_DIR$/src/Main.java" />
         <option value="$PROJECT_DIR$/src/LabelContainer.java" />
+        <option value="$PROJECT_DIR$/src/Fenster.java" />
       </list>
     </option>
   </component>
@@ -244,21 +248,26 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
-              <item name="Plugin Gleisbelegung ohne Git" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Plugin Gleisbelegung ohne Git" type="462c0819:PsiDirectoryNode" />
+              <item name="Plugin Gleisbelegung" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Plugin Gleisbelegung" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Plugin Gleisbelegung" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Plugin Gleisbelegung" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
-      <pane id="AndroidView" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -272,7 +281,7 @@
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="dynamic.classpath" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Plugin Gleisbelegung" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -559,17 +568,18 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32976446" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32976446" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3522484" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.11418144" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.11418144" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Statistic" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -589,7 +599,6 @@
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32976446" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -933,16 +942,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Verbindung.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1020">
-          <caret line="65" column="23" lean-forward="false" selection-start-line="65" selection-start-column="12" selection-end-line="65" selection-end-column="23" />
-          <folding>
-            <element signature="method#getFlaggedTrain#0;class#Verbindung#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/XMLHandler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -966,21 +965,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/LabelContainer.java">
+    <entry file="file://$PROJECT_DIR$/src/Verbindung.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2108">
-          <caret line="158" column="35" lean-forward="false" selection-start-line="158" selection-start-column="35" selection-end-line="158" selection-end-column="35" />
+        <state relative-caret-position="852">
+          <caret line="65" column="23" lean-forward="false" selection-start-line="65" selection-start-column="12" selection-end-line="65" selection-end-column="23" />
           <folding>
-            <element signature="method#addTrain#0;class#LabelContainer#0" expanded="false" />
-            <element signature="method#removeTrain#0;class#LabelContainer#0" expanded="false" />
-            <element signature="method#highlight#0;class#LabelContainer#0" expanded="false" />
+            <element signature="method#getFlaggedTrain#0;class#Verbindung#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2635">
+        <state relative-caret-position="234">
           <caret line="278" column="33" lean-forward="false" selection-start-line="278" selection-start-column="33" selection-end-line="278" selection-end-column="33" />
           <folding>
             <element signature="method#debugMessage#0;class#Main#0" expanded="false" />
@@ -993,12 +990,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/LabelContainer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="80" column="13" lean-forward="true" selection-start-line="80" selection-start-column="13" selection-end-line="80" selection-end-column="13" />
+          <folding>
+            <element signature="method#addTrain#0;class#LabelContainer#0" expanded="false" />
+            <element signature="e#4617#4756#0" expanded="false" />
+            <element signature="method#updateLabel#2;class#LabelContainer#0" expanded="false" />
+            <element signature="method#prepareTrainStyle#0;class#LabelContainer#0" expanded="false" />
+            <element signature="method#prepareBorder#0;class#LabelContainer#0" expanded="false" />
+            <element signature="method#prepareBorderForLabelTime#0;class#LabelContainer#0" expanded="false" />
+            <element signature="method#showTrainInformations#0;class#LabelContainer#0" expanded="false" />
+            <element signature="method#highlight#0;class#LabelContainer#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Fenster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="378" column="62" lean-forward="false" selection-start-line="378" selection-start-column="62" selection-end-line="378" selection-end-column="62" />
+        <state relative-caret-position="192">
+          <caret line="414" column="76" lean-forward="false" selection-start-line="414" selection-start-column="76" selection-end-line="414" selection-end-column="76" />
           <folding>
-            <element signature="method#Fenster#0;class#Fenster#0" expanded="false" />
             <element signature="method#searchTrain#0;class#Fenster#0" expanded="false" />
             <element signature="method#scrollPaneTo#0;class#Fenster#0" expanded="false" />
             <element signature="method#updateSimTime#0;class#Fenster#0" expanded="false" />
@@ -1007,7 +1020,7 @@
             <element signature="method#refreshGrid#0;class#Fenster#0" expanded="false" />
             <element signature="method#updateSomeTrains#0;class#Fenster#0" expanded="false" />
             <element signature="method#settings#0;class#Fenster#0" expanded="false" />
-            <element signature="e#29102#30038#0" expanded="false" />
+            <element signature="e#29814#30750#0" expanded="false" />
             <element signature="method#writeSettings#0;class#Fenster#0" expanded="false" />
             <element signature="method#updateSettings#0;class#Fenster#0" expanded="false" />
             <element signature="method#showPlatform#0;class#Fenster#0" expanded="false" />

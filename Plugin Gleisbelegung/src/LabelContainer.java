@@ -66,9 +66,18 @@ public class LabelContainer extends Main{
         l.setOnMouseEntered(e -> showTrainInformations());
     }
     public void removeTrain(Zug z) {
+        int size = trains.size();
         for (int i = 0; i < trains.size(); i++) {
             if(trains.get(i).getZugId() == z.getZugId()){
                 trains.remove(i);
+            }
+        }
+
+        while(trains.size() > size - 1){
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
         updateLabel();
@@ -115,7 +124,13 @@ public class LabelContainer extends Main{
         });
     }
     public void updateLabel(String text){
-        Platform.runLater(() -> l.setText(text));
+        Platform.runLater(() -> {
+            l.setText(text);
+
+            if(bahnsteig == -1){
+                prepareBorderForLabelTime();
+            }
+        });
     }
     public void updateLabel(String text, long time){
         this.time = time;
@@ -158,7 +173,7 @@ public class LabelContainer extends Main{
 
     private String prepareBorder(){
         String fullHour = "-fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 1 1 0; ";
-        String fiveMin = "-fx-border-color: yellow #505050 #9bc9a9 yellow; -fx-border-width: 0 1 1 0; ";
+        String fiveMin = "-fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 1 1 0; ";
         String normal = "-fx-border-color: yellow #505050 #505050 yellow; -fx-border-width: 0 1 1 0; ";
 
         String out = "";
@@ -182,6 +197,21 @@ public class LabelContainer extends Main{
         }
 
         return out;
+    }
+    private void prepareBorderForLabelTime(){
+        String in = l.getText();
+
+        String fullHour = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 5 1 0; ";
+        String fiveMin = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 5 1 0; ";
+        String normal = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #505050 yellow; -fx-border-width: 0 5 1 0; ";
+
+        if(in.endsWith("00")){
+            l.setStyle(fullHour);
+        } else if(in.endsWith("5") || in.endsWith("0")){
+            l.setStyle(fiveMin);
+        } else{
+            l.setStyle(normal);
+        }
     }
 
     public ArrayList<Zug> getTrains(){

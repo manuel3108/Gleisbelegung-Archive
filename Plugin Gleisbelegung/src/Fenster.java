@@ -187,13 +187,13 @@ public class Fenster extends Main {
             dNow = new Date(currentGameTime + i*1000*60);
             ft = new SimpleDateFormat("HH:mm");
             labelTime.get(i).updateLabel(ft.format(dNow));
-            labelTime.get(i).getLabel().setStyle(labelTime.get(i).getLabel().getStyle() + "-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 5 1 0");
+            //labelTime.get(i).getLabel().setStyle(labelTime.get(i).getLabel().getStyle() + "-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 5 1 0");
 
             gpTime.add(labelTime.get(i).getLabel(), 0, i);
         }
 
         for (int i = 0; i < bahnsteige.length; i++) {
-            labelPlatform.add(i, new LabelContainer(i,-1, labelTime));
+            labelPlatform.add(i, new LabelContainer(i,-2, labelTime));
             labelPlatform.get(i).updateLabel(bahnsteige[i]);
             labelPlatform.get(i).getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
 
@@ -323,6 +323,16 @@ public class Fenster extends Main {
                             } catch(Exception e){
                                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
                             }
+
+                            Runnable r = () -> {
+                                try {
+                                    Thread.sleep(2000);
+                                    zugSuche.selectAll();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            };
+                            new Thread(r).start();
                         }
                     }
                 }
@@ -339,7 +349,6 @@ public class Fenster extends Main {
             fh.getDrawnTo(i).highlight();
         }
 
-        zugSuche.selectAll();
         /*LabelContainer lc = fh.getDrawnTo(0);   BBUUGGSS
 
         double scrollValueX = (x - scrollBarWidth.getValue()) / 100;
@@ -385,7 +394,9 @@ public class Fenster extends Main {
                             if(z.getFahrplan(i).isDrawable()){
                                 long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
                                 long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung()*1000*60;
-                                if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
+                                if(eFlag.getVerspaetung() < 0){
+                                    abfahrt = eFlag.getFahrplan(0).getAbfahrt();
+                                } else if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
                                     abfahrt = ankunft + 4*1000*60;
                                 }
 
@@ -400,7 +411,9 @@ public class Fenster extends Main {
                             if(z.getFahrplan(i).isDrawable()){
                                 long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
                                 long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                                if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
+                                if(z.getVerspaetung() < 0){
+                                    abfahrt = z.getFahrplan(i).getAbfahrt();
+                                } else if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
                                     abfahrt = ankunft + 4*1000*60;
                                 }
 
@@ -515,7 +528,7 @@ public class Fenster extends Main {
         LabelContainer lc = new LabelContainer(labelIndexCounter-1,-1, labelTime);
         lc.updateLabel(ft.format(dNow));
         Platform.runLater(() -> {
-            lc.getLabel().setStyle(lc.getLabel().getStyle() + "-fx-border-width: 0 5 1 0; -fx-border-color: #505050");
+            //lc.getLabel().setStyle(lc.getLabel().getStyle() + "-fx-border-width: 0 5 1 0; -fx-border-color: #505050");
             gpTime.add(lc.getLabel(), 0, labelIndexCounter+1);
             labelTime.add(labelTime.size(), lc);
         });
