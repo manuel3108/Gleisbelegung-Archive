@@ -17,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -71,11 +72,15 @@ public class Fenster extends Main {
         einstellungen = new Button();
         einstellungen.setText("Einstellungen");
         einstellungen.setFont(Font.font(settingsFontSize - 2));
-        einstellungen.setTranslateX(stageWidth / 2);
+        einstellungen.setTranslateX(stageWidth / 2 - 150);
         einstellungen.setOnAction(e -> settings());
 
+        refresh.setText("Refresh");
+        refresh.setFont(Font.font(settingsFontSize - 2));
+        refresh.setTranslateX(stageWidth / 2);
+
         Pane topP = new Pane();
-        topP.getChildren().addAll(pluginName, simZeit, einstellungen);
+        topP.getChildren().addAll(pluginName, simZeit, einstellungen, refresh);
 
         scrollBarWidth = new ScrollBar();
         scrollBarWidth.setOrientation(Orientation.HORIZONTAL);
@@ -257,6 +262,14 @@ public class Fenster extends Main {
                 trainName.setStyle("-fx-text-fill: white");
                 trainName.setFont(Font.font(settingsFontSize-2));
                 trainName.setTranslateY(heightCounter);
+                if(z.getFahrplan() != null){
+                    for(FahrplanHalt fh : z.getFahrplan()){
+                        if(fh.getFlaggedTrain() != null){
+                            trainName.setText(trainName.getText() + " => " + fh.getFlaggedTrain().getZugName() + fh.getFlaggedTrain().getVerspaetungToString());
+                            break;
+                        }
+                    }
+                }
 
                 Label vonBis = new Label(z.getVon() + " - " + z.getNach());
                 vonBis.setStyle("-fx-text-fill: white");
@@ -321,9 +334,13 @@ public class Fenster extends Main {
 
                 heightCounter += 75;
             }
-            heightCounter += 300;
 
-            informations.setPrefHeight(heightCounter);
+            if(heightCounter > (stageHeight/2-70)){
+                //informations.setMinHeight(heightCounter);
+                informations.setPrefHeight(heightCounter);
+            } else{
+                informations.setMinHeight(stageHeight/2-70);
+            }
         }
 
         Platform.runLater(() -> {
@@ -346,7 +363,12 @@ public class Fenster extends Main {
                                     e.printStackTrace();
                                 }
                             };
-                            new Thread(r).start();
+
+                            try{
+                                new Thread(r).start();
+                            } catch(Exception e){
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -404,14 +426,14 @@ public class Fenster extends Main {
         try{
             for (int i = 0; i < z.getFahrplan().length; i++) {
                 for (int j = 0; j < bahnsteige.length; j++) {
-                    if(z.getFahrplan(i).getGleis().equals(bahnsteige[j])){
+                    if(bahnsteige != null && bahnsteige[j] != null && z.getFahrplan(i).getGleis().equals(bahnsteige[j])){
                         if(z.getFahrplan(i).getFlaggedTrain() != null){
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
                             if(z.getFahrplan(i).isDrawable()){
                                 long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
                                 long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung()*1000*60;
-                                if(eFlag.getVerspaetung() < 0){
+                                if(eFlag.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()){
                                     abfahrt = eFlag.getFahrplan(0).getAbfahrt();
                                 } else if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
                                     abfahrt = ankunft + 4*1000*60;
@@ -421,6 +443,11 @@ public class Fenster extends Main {
                                     LabelContainer lc = grid.get(k).get(j);
                                     if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                         z.getFahrplan(i).addDrawnTo(lc);
+
+                                        if(z.getFahrplan(i).isCrossing()){
+                                            Platform.runLater(() -> lc.getLabel().setText(lc.getLabel().getText() + " D"));
+                                            System.out.println(z.getZugName() + " Durchfahrt");
+                                        }
                                     }
                                 }
                             }
@@ -428,7 +455,7 @@ public class Fenster extends Main {
                             if(z.getFahrplan(i).isDrawable()){
                                 long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
                                 long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                                if(z.getVerspaetung() < 0){
+                                if(z.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()){
                                     abfahrt = z.getFahrplan(i).getAbfahrt();
                                 } else if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
                                     abfahrt = ankunft + 4*1000*60;
@@ -438,6 +465,10 @@ public class Fenster extends Main {
                                     LabelContainer lc = grid.get(k).get(j);
                                     if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                         z.getFahrplan(i).addDrawnTo(lc);
+
+                                        if(z.getFahrplan(i).isCrossing()){
+                                            Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, settingsFontSize-5)));
+                                        }
                                     }
                                 }
                             }
@@ -498,7 +529,8 @@ public class Fenster extends Main {
         if(!settingsShowInformations) spPlatform.setMaxWidth(stageWidth-130);
 
         simZeit.setTranslateX(primaryStage.getWidth() - 360);
-        einstellungen.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2);
+        einstellungen.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 - 75);
+        refresh.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 + 50);
 
         informations.setMinHeight(stageHeight/2-70);
         spInformations.setPrefHeight(stageHeight/2-70);

@@ -232,15 +232,19 @@ public class Verbindung extends Main{
                         updateNeeded = true;
                     } else if(z.getFahrplan() != null){
                         for (int i = 0; i < z.getFahrplan().length; i++) {
-                            if(z.getFahrplan(i).getAnkuft() != fahrplan[i].getAnkuft()){
-                                updateNeeded = true;
-                            } else if(z.getFahrplan(i).getAbfahrt() != fahrplan[i].getAbfahrt()){
-                                updateNeeded = true;
-                            } else if(! z.getFahrplan(i).getGleis().equals(fahrplan[i].getGleis())){
-                                updateNeeded = true;
-                            } else if(! z.getFahrplan(i).getPlangleis().equals(fahrplan[i].getPlangleis())){
-                                updateNeeded = true;
-                            } else if(! z.getFahrplan(i).getFlags().equals(fahrplan[i].getFlags())){
+                            if(z.getFahrplan(i) != null && z.getFahrplan(i).getAnkuft() != 0){
+                                if(z.getFahrplan(i).getAnkuft() != fahrplan[i].getAnkuft()){
+                                    updateNeeded = true;
+                                } else if(z.getFahrplan(i).getAbfahrt() != fahrplan[i].getAbfahrt()){
+                                    updateNeeded = true;
+                                } else if(! z.getFahrplan(i).getGleis().equals(fahrplan[i].getGleis())){
+                                    updateNeeded = true;
+                                } else if(! z.getFahrplan(i).getPlangleis().equals(fahrplan[i].getPlangleis())){
+                                    updateNeeded = true;
+                                } else if(! z.getFahrplan(i).getFlags().equals(fahrplan[i].getFlags())){
+                                    updateNeeded = true;
+                                }
+                            } else{
                                 updateNeeded = true;
                             }
                         }
@@ -272,7 +276,7 @@ public class Verbindung extends Main{
                 if(z.getFahrplan() != null){
                     for(FahrplanHalt fh : z.getFahrplan()){
                         try{
-                            if(fh.getFlags() != null && !fh.getFlags().equals("")){
+                            if(fh != null && fh.getFlags() != null && !fh.getFlags().equals("")){
                                 Zug flagged = getFlaggedTrain(fh.getFlags());
                                 if(flagged != null){
                                     flagged.getFahrplan(0).setDrawable(false);

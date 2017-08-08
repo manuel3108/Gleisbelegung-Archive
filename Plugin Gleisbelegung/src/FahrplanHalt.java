@@ -19,6 +19,7 @@ public class FahrplanHalt {
     private String flags;                           //Die Flags des Haltes
     private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
     private boolean drawable;                       //Ist der Zug zeichenbar
+    private boolean crossing;                       //Hat der Zug hier eine Durchfahrt
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
 
     //Speichert gegebene Seite
@@ -33,6 +34,12 @@ public class FahrplanHalt {
         this.drawnTo = new ArrayList<>();
         this.drawable = true;
         flaggedTrain = null;
+
+        if (flags.contains("D") || flags.equals("D")){
+            crossing = true;
+        } else{
+            this.crossing = false;
+        }
     }
 
     //get-set Ankunft
@@ -114,5 +121,12 @@ public class FahrplanHalt {
     }
     public ArrayList<LabelContainer> getDrawnTo(){
         return drawnTo;
+    }
+
+    public boolean isCrossing() {
+        return this.crossing;
+    }
+    public void setCrossing(boolean crossing) {
+        this.crossing = crossing;
     }
 }
