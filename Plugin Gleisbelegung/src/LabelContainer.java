@@ -3,7 +3,7 @@
 @email: manuel-serret@t-online.de
 @contact: Email, Github, STS-Forum
 
-Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode. Solltest du neue Variablen oder Methoden hinzufügen, vergiss bitte nicht sie zu implementieren.
 
 Repräsentiert immer eine Tabellen-Zelle in einer Tabelle
  */
