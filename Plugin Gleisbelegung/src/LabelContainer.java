@@ -260,6 +260,14 @@ public class LabelContainer extends Main{
             trainName.setStyle("-fx-text-fill: white");
             trainName.setFont(Font.font(settingsFontSize-2));
             trainName.setTranslateY(heightCounter);
+            if(z.getFahrplan() != null){
+                for(FahrplanHalt fh : z.getFahrplan()){
+                    if(fh.getFlaggedTrain() != null){
+                        trainName.setText(trainName.getText() + " => " + fh.getFlaggedTrain().getZugName() + fh.getFlaggedTrain().getVerspaetungToString());
+                        break;
+                    }
+                }
+            }
 
             Label vonBis = new Label(z.getVon() + " - " + z.getNach());
             vonBis.setStyle("-fx-text-fill: white");
@@ -275,12 +283,14 @@ public class LabelContainer extends Main{
                     lAbfahrt = lAnkunft + 4*1000*60;
                 }
 
+                String durchfahrt = "";
+                if(z.getFahrplan(i).isCrossing()) durchfahrt = " Df.";
 
                 Date anunft = new Date(lAnkunft);
                 Date abfahrt = new Date(lAbfahrt);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                Label l = new Label("Gleis: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
+                Label l = new Label("Gleis: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
                 l.setFont(Font.font(settingsFontSize-5));
                 l.setTranslateY(heightCounter + 55);
                 l.setPrefWidth(215);

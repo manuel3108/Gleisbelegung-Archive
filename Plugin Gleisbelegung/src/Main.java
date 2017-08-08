@@ -33,6 +33,7 @@ public class Main extends Application implements Runnable{
     static boolean[] bahnsteigeSichtbar;                    //Speichert ob die jeweiligen Bahnsteige sichtbar sind oder nicht (true = sichtbar; fals = versteckt)
 
     static Stage primaryStage;                              //Ist das Objekt für das aktuelle Fenster
+    static Button refresh;                                 //Button um das Plugin neu zu laden
 
     static int settingsUpdateInterwall = 15;                //Wie oft das Fenster (die Tabelle) aktualisiert wird.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
     static int settingsVorschau = 60;                       //Wie viele Zeilen die Tabelle hat.                         (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
@@ -61,6 +62,7 @@ public class Main extends Application implements Runnable{
     private int version = 7;                                //Aktualle Version des Plugins
     private static AudioClip audio;
     private Socket socket;
+    private Thread mainLoop;
 
     //Standartmäßige Methode bei Java Fx-Apps
     public static void main(String[] args) {
@@ -72,6 +74,9 @@ public class Main extends Application implements Runnable{
     public void start(Stage primaryStage) throws Exception{
         u = new Update();
         u.checkForNewVersion(version);
+
+        refresh = new Button();
+        refresh.setOnAction(e -> startLoading(host));
 
         socket = new Socket(host, 3691);
 
@@ -133,7 +138,7 @@ public class Main extends Application implements Runnable{
         p.setStyle("-fx-background-color: #303030");
         p.getChildren().addAll(l);
 
-        Scene s = new Scene(p, stageWidth+1, stageHeight);
+        Scene s = new Scene(p, stageWidth-30, stageHeight-80);
 
         primaryStage.setScene(s);
     }
@@ -156,9 +161,13 @@ public class Main extends Application implements Runnable{
         f.update();
         f.setGridScene();
 
-        Thread t = new Thread(this, "App-Schleife");
-        t.setDaemon(true);
-        t.start();
+        if(mainLoop != null){
+            mainLoop.stop();
+        }
+
+        mainLoop = new Thread(this, "App-Schleife");
+        mainLoop.setDaemon(true);
+        mainLoop.start();
     }
 
     //Liest die Vorhanden Einstellungen und überschreibt die Standart-Werte
