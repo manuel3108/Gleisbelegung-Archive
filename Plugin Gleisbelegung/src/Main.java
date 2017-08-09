@@ -42,6 +42,7 @@ public class Main extends Application implements Runnable{
     static boolean settingsPlaySound = true;                //Soll bei einer Mehrfahcbelegung ein Ton abgespielt werden.(Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
     static boolean settingsShowInformations = true;         //Zeige die Informationenpanel.                             (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
     static boolean settingsDebug = false;                   //Sollen zusätzliche Informationen geschrieben werden.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsInformationWith = 300;               //Breite des Informations-Panels auf der rechten Seite
 
     static long spielStart = System.currentTimeMillis();    //Zu welcher Uhrzeit das Spiel gestartet wurde.             (Wird auch bei automatischem Neustart neu gesetzt)
     private long lastRefresh = System.currentTimeMillis();  //Zu welcher Uhrzeit das Plugin zum letzten mal aktualisiert wurde
@@ -59,7 +60,7 @@ public class Main extends Application implements Runnable{
     private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host;                                    //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 7;                                //Aktualle Version des Plugins
+    private int version = 8;                                //Aktualle Version des Plugins
     private static AudioClip audio;
     private Socket socket;
     private Thread mainLoop;
@@ -186,8 +187,9 @@ public class Main extends Application implements Runnable{
             settingsShowInformations = Boolean.parseBoolean(br.readLine());
             settingsPlaySound = Boolean.parseBoolean(br.readLine());
             settingsDebug = Boolean.parseBoolean(br.readLine());
+            settingsInformationWith = Integer.parseInt(br.readLine());
         } catch (Exception e) {
-            System.out.println("Settings file not found!");
+            System.out.println("Die Einstellungsdatei wurde nicht gefunden, oder enthielt zu wenige Angaben!");
         }
     }
 

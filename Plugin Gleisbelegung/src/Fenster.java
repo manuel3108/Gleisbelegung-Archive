@@ -295,7 +295,7 @@ public class Fenster extends Main {
                         Label l = new Label("Gleis: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
                         l.setFont(Font.font(settingsFontSize-5));
                         l.setTranslateY(heightCounter + 55);
-                        l.setPrefWidth(215);
+                        l.setPrefWidth(settingsInformationWith - 25);
 
                         if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()) {
                             l.setStyle("-fx-text-fill: white; -fx-background-color: green");
@@ -360,7 +360,7 @@ public class Fenster extends Main {
                                     Thread.sleep(2000);
                                     zugSuche.selectAll();
                                 } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    //e.printStackTrace();
                                 }
                             };
 
@@ -426,7 +426,7 @@ public class Fenster extends Main {
         try{
             for (int i = 0; i < z.getFahrplan().length; i++) {
                 for (int j = 0; j < bahnsteige.length; j++) {
-                    if(bahnsteige != null && bahnsteige[j] != null && z.getFahrplan(i).getGleis().equals(bahnsteige[j])){
+                    if(bahnsteige != null && bahnsteige[j] != null && z.getFahrplan(i) != null && z.getFahrplan(i).getGleis().equals(bahnsteige[j])){
                         if(z.getFahrplan(i).getFlaggedTrain() != null){
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
@@ -517,7 +517,7 @@ public class Fenster extends Main {
         if(!settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-15);
 
         scrollBarHeight.setPrefHeight(stageHeight-90);
-        if(settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-264);
+        if(settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-settingsInformationWith-12);
         if(!settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-30);
 
         spContent.setMaxHeight(stageHeight-120);
@@ -532,8 +532,8 @@ public class Fenster extends Main {
         einstellungen.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 - 75);
         refresh.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 + 50);
 
-        informations.setMinHeight(stageHeight/2-70);
-        spInformations.setPrefHeight(stageHeight/2-70);
+        informations.setMinHeight(stageHeight/2-50);
+        spInformations.setPrefHeight(stageHeight/2-50);
         spInformations.setTranslateY(30);
         fehlerMeldungen.setPrefHeight(stageHeight/2-20);
         fehlerMeldungen.setTranslateY(stageHeight/2-20);
@@ -542,20 +542,23 @@ public class Fenster extends Main {
             informations.setMaxWidth(0);
             informations.setTranslateX(0);
             spInformations.setMaxWidth(0);
-            spInformations.setTranslateX(250);
+            spInformations.setTranslateX(settingsInformationWith);
             fehlerMeldungen.setMaxWidth(0);
-            fehlerMeldungen.setTranslateX(250);
+            fehlerMeldungen.setTranslateX(settingsInformationWith);
             pZugSuche.setMaxWidth(0);
-            pZugSuche.setTranslateX(250);
+            pZugSuche.setTranslateX(settingsInformationWith);
         } else{
-            informations.setMinWidth(235);
-            informations.setPrefWidth(235);
-            spInformations.setMinWidth(230);
-            spInformations.setPrefWidth(230);
+            informations.setMinWidth(settingsInformationWith-15);
+            informations.setPrefWidth(settingsInformationWith-15);
+            spInformations.setMinWidth(settingsInformationWith-20);
+            spInformations.setPrefWidth(settingsInformationWith-20);
             spInformations.setTranslateX(0);
-            fehlerMeldungen.setPrefWidth(250);
+            fehlerMeldungen.setMinWidth(settingsInformationWith-20);
+            fehlerMeldungen.setPrefWidth(settingsInformationWith-20);
             fehlerMeldungen.setTranslateX(0);
-            pZugSuche.setPrefWidth(0);
+            pZugSuche.setMinWidth(settingsInformationWith-20);
+            pZugSuche.setPrefWidth(settingsInformationWith-20);
+            pZugSuche.setMaxWidth(settingsInformationWith-20);
             pZugSuche.setTranslateX(0);
         }
     }
@@ -692,42 +695,50 @@ public class Fenster extends Main {
         tffs.setTranslateX(300);
         tffs.setTranslateY(100);
 
+        Label zib = new Label("Zuginformations-Breite:");
+        zib.setFont(Font.font(18));
+        zib.setTranslateY(130);
+        zib.setTranslateX(10);
+        TextField tfzib = new TextField(String.valueOf(settingsInformationWith));
+        tfzib.setTranslateX(300);
+        tfzib.setTranslateY(130);
+
         Label ezi = new Label("Zuginformationen anzeigen:");
         ezi.setFont(Font.font(18));
-        ezi.setTranslateY(130);
+        ezi.setTranslateY(160);
         ezi.setTranslateX(10);
         CheckBox cbezi = new CheckBox();
         cbezi.setTranslateX(300);
-        cbezi.setTranslateY(130);
+        cbezi.setTranslateY(160);
         cbezi.setFont(Font.font(18));
         if(settingsShowInformations) cbezi.setSelected(true);
         if(! settingsShowInformations) cbezi.setSelected(false);
 
         Label dm = new Label("Schreibe Debug-Informationen:");
         dm.setFont(Font.font(18));
-        dm.setTranslateY(160);
+        dm.setTranslateY(190);
         dm.setTranslateX(10);
         CheckBox cbdm = new CheckBox();
         cbdm.setTranslateX(300);
-        cbdm.setTranslateY(160);
+        cbdm.setTranslateY(190);
         cbdm.setFont(Font.font(18));
         if(settingsDebug) cbdm.setSelected(true);
         if(! settingsDebug) cbdm.setSelected(false);
 
         Label tmb = new Label("Ton bei Mehrfachbelegung:");
         tmb.setFont(Font.font(18));
-        tmb.setTranslateY(190);
+        tmb.setTranslateY(220);
         tmb.setTranslateX(10);
         CheckBox cbtmb = new CheckBox();
         cbtmb.setTranslateX(300);
-        cbtmb.setTranslateY(190);
+        cbtmb.setTranslateY(220);
         cbtmb.setFont(Font.font(18));
         if(settingsPlaySound) cbtmb.setSelected(true);
         if(! settingsPlaySound) cbtmb.setSelected(false);
 
         Pane gleise = new Pane();
         gleise.setTranslateX(0);
-        gleise.setTranslateY(260);
+        gleise.setTranslateY(290);
 
         CheckBox[] cb = new CheckBox[bahnsteige.length];
         int tempX = 10;
@@ -749,16 +760,16 @@ public class Fenster extends Main {
 
             gleise.getChildren().add(cb[i]);
         }
-        stageHeight += 150;
+        stageHeight += 180;
 
         Label laaoaw = new Label("Alle Gleise An- oder Abwählen:");
         laaoaw.setFont(Font.font(18));
         laaoaw.setTranslateX(10);
-        laaoaw.setTranslateY(220);
+        laaoaw.setTranslateY(250);
 
         CheckBox cbaaoaw = new CheckBox();
         cbaaoaw.setTranslateX(300);
-        cbaaoaw.setTranslateY(220);
+        cbaaoaw.setTranslateY(250);
         cbaaoaw.setFont(Font.font(18));
         cbaaoaw.setSelected(true);
         cbaaoaw.setOnAction(e -> {
@@ -780,6 +791,7 @@ public class Fenster extends Main {
             settingsVorschau = Integer.parseInt(tfv.getText());
             settingsGridWidth = Integer.parseInt(tfsb.getText());
             settingsFontSize = Integer.parseInt(tffs.getText());
+            settingsInformationWith = Integer.parseInt(tfzib.getText());
             settingsShowInformations = cbezi.isSelected();
             settingsPlaySound = cbtmb.isSelected();
             settingsDebug = cbdm.isSelected();
@@ -805,7 +817,7 @@ public class Fenster extends Main {
         Pane p = new Pane();
         p.setPrefWidth(stageWidth);
         p.setPrefHeight(stageHeight);
-        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern, tmb, cbtmb, dm, cbdm);
+        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern, tmb, cbtmb, dm, cbdm);
         p.setStyle("-fx-background: #303030; -fx-padding: 0;");
 
         ScrollPane sp = new ScrollPane(p);
@@ -841,6 +853,7 @@ public class Fenster extends Main {
             pw.println(settingsShowInformations);
             pw.println(settingsPlaySound);
             pw.println(settingsDebug);
+            pw.println(settingsInformationWith);
 
             pw.close();
         } catch (Exception e) {

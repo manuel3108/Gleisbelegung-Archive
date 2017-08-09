@@ -39,14 +39,6 @@ public class LabelContainer extends Main{
         l.setMaxWidth(settingsGridWidth);
         l.setAlignment(Pos.CENTER);
 
-        /*if(labelIndex % 2 == 0){
-            //l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0;");
-            l.setStyle("-fx-text-fill: #fff; " + prepareBorder());
-        } else{
-            //l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0;");
-            l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
-        }*/
-
         if(bahnsteig > -1){
             updateLabel();
         }
@@ -95,49 +87,49 @@ public class LabelContainer extends Main{
                 e.printStackTrace();
             }
         }
-        updateLabel();
+        Platform.runLater(this::updateLabel);
 
         l.setOnMouseEntered(e -> showTrainInformations());
     }
 
     //verschiedene Methoden um die Container zu aktualisieren
     public void updateLabel(){
-        Platform.runLater(() -> {
-            if(trains.size() == 0){
+        if(trains.size() == 0){
+            Platform.runLater(() -> {
                 l.setText("");
                 l.setTooltip(null);
-                if(labelIndex % 2 == 0){
-                    //l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0;");
+                if (labelIndex % 2 == 0) {
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder());
-                } else{
-                    //l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0;");
+                } else {
                     l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
                 }
-            } else if(trains.size() == 1){
+            });
+        } else if(trains.size() == 1){
+            Platform.runLater(() -> {
                 l.setText(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString());
                 l.setTooltip(new Tooltip(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString()));
-                //l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: #" + prepareTrainStyle(trains.get(0).getZugName()) + ";");
                 l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(trains.get(0).getZugName()) + ";");
-            } else{
+
+            });
+        } else{
+            Platform.runLater(() -> {
                 String text = "";
 
-                for(Zug z : trains){
+                for (Zug z : trains) {
                     text += z.getZugName() + trains.get(0).getVerspaetungToString() + ", ";
                 }
-                text = text.substring(0,text.length() - 2);
+                text = text.substring(0, text.length() - 2);
 
                 final String temp = text;
                 l.setText(temp);
                 l.setTooltip(new Tooltip(temp));
-
-                //l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: red;");
                 l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: red;");
 
-                if(bahnsteigeSichtbar[bahnsteig]){
+                if (bahnsteigeSichtbar[bahnsteig]) {
                     playColisonSound();
                 }
-            }
-        });
+            });
+        }
     }
     public void updateLabel(String text){
         Platform.runLater(() -> {
@@ -192,39 +184,35 @@ public class LabelContainer extends Main{
     private String prepareBorder(){
         String fullHour = "-fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 1 1 0; ";
         String fiveMin = "-fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 1 1 0; ";
+        String fiveteenMin = "-fx-border-color: yellow #505050 #95b57b yellow; -fx-border-width: 0 1 1 0; ";
         String normal = "-fx-border-color: yellow #505050 #505050 yellow; -fx-border-width: 0 1 1 0; ";
 
-        String out = "";
+        Date dNow = new Date(time);
+        SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
+        String localTime = ft.format(dNow);
 
-        if(labelIndex >= 0 && labelTime.size() > 0 && labelIndex < labelTime.size()){
-            if(labelTime.get(labelIndex).getLabel().getText().endsWith("00")){
-                out = fullHour;
-            } else if(labelTime.get(labelIndex).getLabel().getText().endsWith("5") || labelTime.get(labelIndex).getLabel().getText().endsWith("0")){
-                out = fiveMin;
-            } else{
-                out = normal;
-            }
-        } else if(labelIndex > labelTime.size()){
-            if(labelTime.get(labelTime.size()-1).getLabel().getText().endsWith("00")){
-                out = fullHour;
-            } else if(labelTime.get(labelTime.size()-1).getLabel().getText().endsWith("5") || labelTime.get(labelTime.size()-1).getLabel().getText().endsWith("0")){
-                out = fiveMin;
-            } else{
-                out = normal;
-            }
+        if(localTime.endsWith("00")){
+            return fullHour;
+        } else if(localTime.endsWith("15") || localTime.endsWith("30") || localTime.endsWith("45")){
+            return fiveteenMin;
+        } else if(localTime.endsWith("5") || localTime.endsWith("0")){
+            return fiveMin;
+        } else{
+            return normal;
         }
-
-        return out;
     }
     private void prepareBorderForLabelTime(){
         String in = l.getText();
 
         String fullHour = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 5 1 0; ";
         String fiveMin = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 5 1 0; ";
+        String fiveteenMin = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #95b57b yellow; -fx-border-width: 0 5 1 0; ";
         String normal = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #505050 yellow; -fx-border-width: 0 5 1 0; ";
 
         if(in.endsWith("00")){
             l.setStyle(fullHour);
+        } else if(in.endsWith("15") || in.endsWith("30") || in.endsWith("45")){
+            l.setStyle(fiveteenMin);
         } else if(in.endsWith("5") || in.endsWith("0")){
             l.setStyle(fiveMin);
         } else{
@@ -293,7 +281,7 @@ public class LabelContainer extends Main{
                 Label l = new Label("Gleis: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
                 l.setFont(Font.font(settingsFontSize-5));
                 l.setTranslateY(heightCounter + 55);
-                l.setPrefWidth(215);
+                l.setPrefWidth(settingsInformationWith-25);
 
                 if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: green");
@@ -318,6 +306,14 @@ public class LabelContainer extends Main{
     public void highlight(){
         Runnable r = () -> {
             try {
+                Platform.runLater(() -> l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green"));
+                Thread.sleep(1000);
+                updateLabel();
+                Thread.sleep(1000);
+                Platform.runLater(() -> l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green"));
+                Thread.sleep(1000);
+                updateLabel();
+                Thread.sleep(1000);
                 Platform.runLater(() -> l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green"));
                 Thread.sleep(1000);
                 updateLabel();
