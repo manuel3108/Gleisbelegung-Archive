@@ -1,3 +1,4 @@
+
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -15,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.io.File;
+import java.net.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Scanner;
@@ -71,7 +73,7 @@ public class Update {
                 stage.show();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 }

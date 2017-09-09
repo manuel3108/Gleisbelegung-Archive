@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class LabelContainer extends Main{
+public class LabelContainer extends Plugin_Gleisbelegung{
     private Label l;                                //Textfeld um Text schreiben zu können
     private int labelIndex;                         //speichert den in der @Fenster-Klsse vergebenen labelIndex
     private ArrayList<Zug> trains;                  //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
@@ -71,6 +71,12 @@ public class LabelContainer extends Main{
         updateLabel();
 
         l.setOnMouseEntered(e -> showTrainInformations());
+
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
     public void removeTrain(Zug z) {
         int size = trains.size();

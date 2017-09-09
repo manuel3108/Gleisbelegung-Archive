@@ -1,3 +1,4 @@
+
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -35,11 +36,7 @@ public class FahrplanHalt {
         this.drawable = true;
         flaggedTrain = null;
 
-        if (flags.contains("D") || flags.equals("D")){
-            crossing = true;
-        } else{
-            this.crossing = false;
-        }
+        crossing = flags.contains("D") || flags.equals("D");
     }
 
     //get-set Ankunft

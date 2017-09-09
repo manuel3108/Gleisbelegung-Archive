@@ -1,3 +1,4 @@
+
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -15,7 +16,7 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class Verbindung extends Main{
+public class Verbindung extends Plugin_Gleisbelegung{
     public Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
     private XMLHandler xml;     //Verarbeitet die Empfangenen Daten in einer Eigenen Klasse
 

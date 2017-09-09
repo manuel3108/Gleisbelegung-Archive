@@ -1,0 +1,411 @@
+
+/*
+@author: Manuel Serret
+@email: manuel-serret@t-online.de
+@contact: Email, Github, STS-Forum
+
+Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode. Solltest du neue Variablen oder Methoden hinzufügen, vergiss bitte nicht sie zu implementieren.
+
+In dieser Klasse werden viele Variablen gespeichert, da jede Klasse diese Klasse extendet.
+Hier befindet sich auch die Hauptschleife des Plugins.
+ */
+
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.media.AudioClip;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+
+public class Plugin_Gleisbelegung extends Application implements Runnable{
+    static long currentGameTime;                            //Speichert die aktuelle Zeit in Milisekunden, heißt 1 Minute entspricht 1000*60
+    static boolean lastUpdateSuccessful;                    //Aktuall keine Verwendung
+
+    static ArrayList<Zug> zuege;                            //Hier werden alle Zug-Objekte gespeichert
+    static String[] bahnsteige;                             //Speichert die Namen aller Bahnsteige in einem Array
+    static boolean[] bahnsteigeSichtbar;                    //Speichert ob die jeweiligen Bahnsteige sichtbar sind oder nicht (true = sichtbar; fals = versteckt)
+
+    static Stage primaryStage;                              //Ist das Objekt für das aktuelle Fenster
+    static Button refresh;                                 //Button um das Plugin neu zu laden
+
+    static int settingsUpdateInterwall = 15;                //Wie oft das Fenster (die Tabelle) aktualisiert wird.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsVorschau = 60;                       //Wie viele Zeilen die Tabelle hat.                         (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsGridWidth = 100;                     //Wie breit die einzelnen Spalten sind.                     (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsFontSize = 18;                       //Wie groß die Schriftgröße ist.                            (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static boolean settingsPlaySound = true;                //Soll bei einer Mehrfahcbelegung ein Ton abgespielt werden.(Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static boolean settingsShowInformations = true;         //Zeige die Informationenpanel.                             (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static boolean settingsDebug = false;                   //Sollen zusätzliche Informationen geschrieben werden.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
+    static int settingsInformationWith = 300;               //Breite des Informations-Panels auf der rechten Seite
+
+    static long spielStart = System.currentTimeMillis();    //Zu welcher Uhrzeit das Spiel gestartet wurde.             (Wird auch bei automatischem Neustart neu gesetzt)
+    private long lastRefresh = System.currentTimeMillis();  //Zu welcher Uhrzeit das Plugin zum letzten mal aktualisiert wurde
+    static Pane fehlerMeldungen;                            //Panel für Fehlermeldungen auf der rechten Seite.          (Wird bald entfernt)
+    static Pane informations;                               //Panel für alle Zuginformation                             (Zugnummer, Verspätung etc.)
+    static PrintWriter logFile;                             //
+    static Pane pZugSuche;                                  //Panel mit der Zugsuche
+    static int errorCounter = 0;                            //Zählt alle auftreten Fehler für einen eventuellen automatischen Neustart
+    static int maxErrorCounter = 10;                        //Ist der obrige Wert größer als dieser, wird das Plugin automatisch neu gestartet.
+    static double stageWidth = 1000;                        //Standartmäßige Fenster-Breite                             (Wir bei Veränderung der Breite aktualisiert)
+    static double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
+    static  String platform = "desktop";                    //Speichert die aktuelle Platform (Android IOS PC)
+    static StackPane firstSP;                               //Erste Benutzeroberfläche, die beim start angezeigt wird.
+
+    private Verbindung v;                                   //Objekt der Verbindungs-Klasse                             (Übernimmt Kommunikation mit der Schnittstelle)
+    private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
+    private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
+
+    private String host = "192.168.1.25";                                    //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
+    private int version = 8;                                //Aktualle Version des Plugins
+    private static AudioClip audio;
+    private Socket socket;
+    private Thread mainLoop;
+
+
+    //Erste Aufgerufene Methode (Ip-Abfrage, Updates-checken, Fenster erzeugen)
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        u = new Update();
+        u.checkForNewVersion(version);
+
+        refresh = new Button();
+        refresh.setOnAction(e -> Platform.runLater(() -> startLoading()));
+
+        platform = System.getProperty("javafx.platform", "desktop");
+
+        fehlerMeldungen = new Pane();
+
+        /*try{
+            audio = new AudioClip(getClass().getResource("Train_Horn.wav").toURI().toString());
+        } catch(Exception e){
+            audio = new AudioClip("Train_Horn.wav");
+        }*/
+        /*try {
+            audioMedia = new Media(getClass().getResource("Train_Horn.wav").toURI().toString());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }*/
+
+
+        Rectangle2D size = Screen.getPrimary().getVisualBounds();
+
+        stageHeight = size.getHeight();
+        stageWidth = size.getWidth();
+        int sceneWidth = (int) stageWidth;
+        int sceneHeight = (int) stageHeight;
+
+        firstSP = new StackPane();
+        firstSP.setStyle("-fx-background-color: #303030");
+
+        Label lHint = new Label("IP-Adress nur ändern, wenn SIM auf einem anderen Rechner läuft. \nWenn dies der Fall ist, muss auf dem SIM-Rechner die Windows-Firewall\n (wahrscheinlich auch jede andere), deaktiviert werden.");
+        lHint.setStyle("-fx-text-fill: white;");
+        lHint.setFont(Font.font(settingsFontSize));
+        lHint.setTranslateY(0);
+        lHint.applyCss();
+        lHint.layout();
+
+        Label lHost = new Label("Bitte die IP des Rechners eingeben: ");
+        lHost.setStyle("-fx-text-fill: white;");
+        lHost.setFont(Font.font(settingsFontSize));
+        lHost.setTranslateY(80);
+        lHost.setTranslateX(-120);
+        lHost.applyCss();
+        lHost.layout();
+
+        TextField tfHost = new TextField();
+        if(platform.equals("desktop")) tfHost.setText("localhost");
+        else tfHost.setText("192.168.1.25");
+
+        tfHost.setStyle("-fx-text-fill: black;");
+        tfHost.setFont(Font.font(settingsFontSize));
+        tfHost.setTranslateX(120);
+        tfHost.setTranslateY(80);
+        tfHost.setMinWidth(150);
+        tfHost.setMaxWidth(150);
+        tfHost.applyCss();
+        tfHost.layout();
+        //p.widthProperty().addListener((observable, oldValue, newValue) -> tfHost.setTranslateX(newValue.doubleValue()/2 - 75));
+
+        Button btLoad = new Button("Verbinden");
+        btLoad.setStyle("-fx-text-fill: black;");
+        btLoad.setFont(Font.font(settingsFontSize));
+        btLoad.setTranslateX((lHost.getWidth() + tfHost.getWidth())/2);
+        btLoad.setTranslateY(130);
+        btLoad.setMinWidth(150);
+        btLoad.applyCss();
+        btLoad.layout();
+        btLoad.setOnAction(e -> {
+            host = tfHost.getText();
+
+            firstSP.setStyle("-fx-background-color: #505050");
+            firstSP.applyCss();
+            firstSP.layout();
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+
+            Platform.runLater(() -> {
+                try {
+                    socket = new Socket(tfHost.getText(), 3691);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                startLoading();
+            });
+        });
+
+
+        firstSP.getChildren().addAll(lHint, lHost, tfHost, btLoad);
+        firstSP.applyCss();
+        firstSP.layout();
+        //p.setMinWidth(lHost.getWidth() + tfHost.getWidth());
+        //p.setMinHeight(lHost.getHeight() + btLoad.getHeight());
+
+
+        Scene s = new Scene(firstSP, sceneWidth, sceneHeight);
+
+        primaryStage.setScene(s);
+        primaryStage.setTitle("Plugin: Gleisbelegung");
+        primaryStage.show();
+        primaryStage.setMinWidth(1000);
+        primaryStage.setMinHeight(500);
+        if(platform.equals("desktop")) primaryStage.setMaximized(true);
+
+        try{
+            primaryStage.getIcons().add(new Image(Plugin_Gleisbelegung.class.getResourceAsStream("icon.png")));
+        } catch(Exception e){
+            try{
+                primaryStage.getIcons().add(new Image("icon.png"));
+            } catch (Exception e1){
+                e.printStackTrace();
+                e1.printStackTrace();
+            }
+        }
+
+        Plugin_Gleisbelegung.primaryStage = primaryStage;
+    }
+
+    //Schreibt DEBUG-Informationen auf dei Konsole (nur wenn settingsDebug = true)
+    public static void debugMessage(String message, boolean newLine){
+        if(settingsDebug && newLine) System.out.println(message);
+        else if(settingsDebug) System.out.print(message);
+    }
+
+    //Startet die Verbindung zur Schnitstelle
+    public void startLoading() {
+        readSettings();
+        if(v == null){
+            v = new Verbindung(socket);
+        } else{
+            zuege = new ArrayList<>();
+        }
+
+        Runnable r = () -> {
+            f = new Fenster();
+            v.update();
+            f.update();
+            f.setGridScene();
+
+            if(mainLoop != null){
+                mainLoop.stop();
+            }
+
+            mainLoop = new Thread(this, "App-Schleife");
+            mainLoop.setDaemon(true);
+            mainLoop.start();
+        };
+        new Thread(r).start();
+    }
+
+    //Liest die Vorhanden Einstellungen und überschreibt die Standart-Werte
+    private void readSettings(){
+        try {
+            File f = File.createTempFile("temp", ".txt");
+            String filePath = f.getAbsolutePath().replace(f.getName(), "");
+            f.delete();
+
+            BufferedReader br = new BufferedReader(new FileReader(filePath + "Plugin_Gleisbelegung_Settings.txt"));
+
+            settingsUpdateInterwall = Integer.parseInt(br.readLine());
+            settingsVorschau = Integer.parseInt(br.readLine());
+            settingsGridWidth = Integer.parseInt(br.readLine());
+            settingsFontSize = Integer.parseInt(br.readLine());
+            settingsShowInformations = Boolean.parseBoolean(br.readLine());
+            settingsPlaySound = Boolean.parseBoolean(br.readLine());
+            settingsDebug = Boolean.parseBoolean(br.readLine());
+            settingsInformationWith = Integer.parseInt(br.readLine());
+
+            if(!platform.equals("desktop")){
+                settingsVorschau = 30;
+            }
+        } catch (Exception e) {
+            System.out.println("Die Einstellungsdatei wurde nicht gefunden, oder enthielt zu wenige Angaben!");
+
+            if(!platform.equals("desktop")){
+                settingsUpdateInterwall = 15;
+                settingsGridWidth = 50;
+                settingsFontSize = 13;
+                settingsInformationWith = 200;
+            }
+        }
+    }
+
+    //Hier werden Fehlermeldungen in ein neues Fenster eingetragen (wie z.B. beim automatischen Neustart)
+    public static void errorWindow(int exitPoint, String fehlermeldung){
+        Runnable r = () -> {
+            Platform.runLater(() -> {
+                Stage error = new Stage();
+                Scene s;
+                Pane p;
+                Button b;
+                Label lTitle;
+                Label lText;
+
+                lTitle = new Label("Es ist ein unerwarteter Fehler aufgetreten! (Status " + exitPoint + ")");
+                lTitle.setFont(Font.font(settingsFontSize));
+                lTitle.setStyle("-fx-text-fill: red;");
+                lTitle.setTranslateY(10);
+                lTitle.setTranslateX(10);
+
+                lText = new Label(fehlermeldung);
+                lText.setFont(Font.font(settingsFontSize));
+                lText.setStyle("-fx-text-fill: white;");
+                lText.setTranslateY(60);
+                lText.setTranslateX(10);
+                lText.setPrefWidth(primaryStage.getWidth()/2-20);
+                lText.setWrapText(true);
+
+                b = new Button("Ok");
+                b.setFont(Font.font(settingsFontSize));
+                b.setTranslateX(primaryStage.getWidth()/4-20);
+                b.setTranslateY(primaryStage.getHeight()/2-100);
+                b.setOnAction(e -> error.close());
+
+                p = new Pane(lTitle, lText, b);
+                p.setStyle("-fx-background: #303030");
+
+                s = new Scene(p);
+                p.setStyle("-fx-background: #303030");
+
+                error.setTitle("Ferhlermeldung");
+                error.setWidth(primaryStage.getWidth()/2);
+                error.setHeight(primaryStage.getHeight()/2);
+                error.setScene(s);
+                error.setAlwaysOnTop(true);
+                error.show();
+            });
+        };
+        new Thread(r).start();
+    }
+
+    //Der Sound, der der Gespielt wird, wenn eine Mehrachbelegung entsteht
+    public static void playColisonSound(){
+        /*if(settingsPlaySound){
+            try{
+                audio.setVolume(0.04);
+                audio.play();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }*/
+
+        /*try {
+            Clip clip = null;
+            clip = AudioSystem.getClip();
+            clip.open(AudioSystem.getAudioInputStream(new File("Train_Horn.wav")));
+            clip.start();
+            clip.
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    //Schreibt Fehlermeldungen auf das Panel fehlerMeldungen
+    public static void addMessageToErrorPane(String message){
+        Label l = new Label(message);
+        l.setFont(Font.font(settingsFontSize-5));
+        l.setStyle("-fx-text-fill: white;");
+        l.setTranslateY(fehlerMeldungen.getChildren().size()*20);
+
+        if(fehlerMeldungen.getChildren().size() >= 10){
+            Platform.runLater(() -> {
+                fehlerMeldungen.getChildren().remove(0);
+                fehlerMeldungen.getChildren().add(l);
+
+                for(int i = 0; i < fehlerMeldungen.getChildren().size(); i++){
+                    fehlerMeldungen.getChildren().get(i).setTranslateY(i*20);
+                }
+            });
+        } else{
+            Platform.runLater(() -> fehlerMeldungen.getChildren().add(l));
+        }
+    }
+
+    //Hauptschleife des Plugins
+    @Override
+    public void run() {
+        long timeFromLastUpdate = 0;
+
+        while(errorCounter < maxErrorCounter){
+            try {
+                int time = (int) ((System.currentTimeMillis() - timeFromLastUpdate) / 1000);
+
+                if(time >= settingsUpdateInterwall){
+                    timeFromLastUpdate = System.currentTimeMillis();
+
+                    Runnable r = () -> {
+                        v.update();
+                        f.update();
+                    };
+                    new Thread(r, "Aktualisiere Verbindung und Fenster").start();
+                }
+
+                f.updateSimTime(settingsUpdateInterwall - time);
+
+                if(currentGameTime % (1000*60) >= 0 && currentGameTime % (1000*60) <= 1000){
+                    Runnable r = () -> {
+                        debugMessage("INFORMATION: Aktualisiere Tabelle...", false);
+                        f.refreshGrid();
+                        debugMessage("Beendet!", true);
+                        debugMessage("INFORMATION: Du benutzt das Plugin seit " + ((System.currentTimeMillis()-spielStart)/(1000*60)) + " Minute(n)!", true);
+                    };
+                    new Thread(r, "Aktualisiere Tabelle").start();
+                }
+
+                if((System.currentTimeMillis() - lastRefresh) % (1000*60*45) < 1000){
+                    lastRefresh = System.currentTimeMillis()-1000;
+                    break;
+                }
+
+                currentGameTime += 1000;
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                debugMessage("FEHLER: Bitte folgenden Code beachten:", true);
+                e.printStackTrace();
+            }
+        }
+
+        errorCounter = 0;
+        System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\t\tNeustart\n**********************************************************************************");
+        Platform.runLater(() -> errorWindow(0, "Das Plugin wurde aufgrund einiger Fehler neu gestartet!"));
+        Platform.runLater(() -> startLoading());
+    }
+}
