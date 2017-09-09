@@ -86,11 +86,15 @@
       <file leaf-file-name="Plugin_Gleisbelegung.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Plugin_Gleisbelegung.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="197" column="36" lean-forward="false" selection-start-line="197" selection-start-column="36" selection-end-line="197" selection-end-column="36" />
+            <state relative-caret-position="-1479">
+              <caret line="81" column="59" lean-forward="false" selection-start-line="81" selection-start-column="59" selection-end-line="81" selection-end-column="59" />
               <folding>
-                <element signature="e#0#18275#0" expanded="true" />
+                <element signature="e#0#18577#0" expanded="true" />
                 <element signature="imports" expanded="true" />
+                <element signature="method#debugMessage#0;class#Plugin_Gleisbelegung#0" expanded="false" />
+                <element signature="method#readSettings#0;class#Plugin_Gleisbelegung#0" expanded="false" />
+                <element signature="method#errorWindow#0;class#Plugin_Gleisbelegung#0" expanded="false" />
+                <element signature="method#addMessageToErrorPane#0;class#Plugin_Gleisbelegung#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -226,8 +230,8 @@
         <option value="$PROJECT_DIR$/src/XMLHandler.java" />
         <option value="$PROJECT_DIR$/src/LabelContainer.java" />
         <option value="$PROJECT_DIR$/src/Update.java" />
-        <option value="$PROJECT_DIR$/src/Plugin_Gleisbelegung.java" />
         <option value="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
+        <option value="$PROJECT_DIR$/src/Plugin_Gleisbelegung.java" />
       </list>
     </option>
   </component>
@@ -256,8 +260,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
       <pane id="Scope" />
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -268,18 +273,12 @@
             <path>
               <item name="Plugin Gleisbelegung" type="b2602c69:ProjectViewProjectNode" />
               <item name="Plugin Gleisbelegung" type="462c0819:PsiDirectoryNode" />
-              <item name=".idea" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Plugin Gleisbelegung" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Plugin Gleisbelegung" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scratches" />
     </panes>
   </component>
@@ -944,11 +943,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Plugin_Gleisbelegung.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="197" column="36" lean-forward="false" selection-start-line="197" selection-start-column="36" selection-end-line="197" selection-end-column="36" />
+        <state relative-caret-position="-1479">
+          <caret line="81" column="59" lean-forward="false" selection-start-line="81" selection-start-column="59" selection-end-line="81" selection-end-column="59" />
           <folding>
-            <element signature="e#0#18275#0" expanded="true" />
+            <element signature="e#0#18577#0" expanded="true" />
             <element signature="imports" expanded="true" />
+            <element signature="method#debugMessage#0;class#Plugin_Gleisbelegung#0" expanded="false" />
+            <element signature="method#readSettings#0;class#Plugin_Gleisbelegung#0" expanded="false" />
+            <element signature="method#errorWindow#0;class#Plugin_Gleisbelegung#0" expanded="false" />
+            <element signature="method#addMessageToErrorPane#0;class#Plugin_Gleisbelegung#0" expanded="false" />
           </folding>
         </state>
       </provider>

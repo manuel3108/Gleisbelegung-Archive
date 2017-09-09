@@ -201,6 +201,8 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         }
 
         Plugin_Gleisbelegung.primaryStage = primaryStage;
+
+        readSettings();
     }
 
     //Schreibt DEBUG-Informationen auf dei Konsole (nur wenn settingsDebug = true)
@@ -211,7 +213,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     //Startet die Verbindung zur Schnitstelle
     public void startLoading() {
-        readSettings();
         if(v == null){
             v = new Verbindung(socket);
         } else{
@@ -224,8 +225,13 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             f.update();
             f.setGridScene();
 
-            if(mainLoop != null){
-                mainLoop.stop();
+            try{
+                if(mainLoop != null){
+                    //mainLoop.stop();
+                    mainLoop = null;
+                }
+            } catch(Exception e){
+                e.printStackTrace();
             }
 
             mainLoop = new Thread(this, "App-Schleife");
@@ -363,8 +369,8 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     @Override
     public void run() {
         long timeFromLastUpdate = 0;
-
-        while(errorCounter < maxErrorCounter){
+        Thread thisThread = Thread.currentThread();
+        while(mainLoop == thisThread && errorCounter < maxErrorCounter){
             try {
                 int time = (int) ((System.currentTimeMillis() - timeFromLastUpdate) / 1000);
 
@@ -403,9 +409,11 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             }
         }
 
-        errorCounter = 0;
-        System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\t\tNeustart\n**********************************************************************************");
-        Platform.runLater(() -> errorWindow(0, "Das Plugin wurde aufgrund einiger Fehler neu gestartet!"));
-        Platform.runLater(() -> startLoading());
+        if(errorCounter >= maxErrorCounter){
+            errorCounter = 0;
+            System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\t\tNeustart\n**********************************************************************************");
+            Platform.runLater(() -> errorWindow(0, "Das Plugin wurde aufgrund einiger Fehler neu gestartet!"));
+            Platform.runLater(() -> startLoading());
+        }
     }
 }
