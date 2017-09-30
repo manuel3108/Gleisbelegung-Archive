@@ -1,4 +1,4 @@
-
+package com.gleisbelegung.plugin;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -26,11 +26,9 @@ import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class Plugin_Gleisbelegung extends Application implements Runnable{
@@ -65,23 +63,27 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     static double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
     static  String platform = "desktop";                    //Speichert die aktuelle Platform (Android IOS PC)
     static StackPane firstSP;                               //Erste Benutzeroberfläche, die beim start angezeigt wird.
+    static String bahnhofName;                              //Name des Bahnhofes
 
     private Verbindung v;                                   //Objekt der Verbindungs-Klasse                             (Übernimmt Kommunikation mit der Schnittstelle)
     private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
     private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
-    private String host = "192.168.1.25";                                    //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 8;                                //Aktualle Version des Plugins
-    private static AudioClip audio;
-    private Socket socket;
-    private Thread mainLoop;
+    private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
+    private int version = 9;                                //Aktualle Version des Plugins
+    private static AudioClip audio;                         //momentan ohne Verwendung
+    private Socket socket;                                  //hält die Kommunikation mit dem dem SIM aufrecht
+    private Thread mainLoop;                                //Dient zur Abbruchbedingung des Threads
+    private boolean ableToUpdate = false;                   //Auf false, wenn der Thread keine Aktualisierungen ausführen soll, z.B. bei einem Neustart
 
 
     //Erste Aufgerufene Methode (Ip-Abfrage, Updates-checken, Fenster erzeugen)
     @Override
     public void start(Stage primaryStage) throws Exception{
-        u = new Update();
-        u.checkForNewVersion(version);
+        if(!platform.equals("desktop")){
+            u = new Update();
+            u.checkForNewVersion(version);
+        }
 
         refresh = new Button();
         refresh.setOnAction(e -> Platform.runLater(() -> startLoading()));
@@ -203,6 +205,34 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         Plugin_Gleisbelegung.primaryStage = primaryStage;
 
         readSettings();
+
+        setOutputStreams();
+    }
+
+    public void setOutputStreams(){
+        try{
+            File f = File.createTempFile("temp", ".txt");
+            String filePath = f.getAbsolutePath().replace(f.getName(), "");
+            f.delete();
+
+            f = new File(filePath + "Plugin_Gleisbelegung_Log.txt");
+
+            if(!f.exists()){
+                f.createNewFile();
+            }
+
+            if(f.exists() && f.canRead()){
+                System.out.println("Fehler und Meldungen werden in log-Datei geschrieben! Speicherort: " + f.getAbsolutePath());
+
+                FileOutputStream fos = new FileOutputStream(f, true);
+                System.setErr(new PrintStream(fos));
+                System.setOut(new PrintStream(fos));
+
+                System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\tPlugin Start\n**********************************************************************************");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     //Schreibt DEBUG-Informationen auf dei Konsole (nur wenn settingsDebug = true)
@@ -213,30 +243,48 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     //Startet die Verbindung zur Schnitstelle
     public void startLoading() {
+        refresh.setDisable(true);
         if(v == null){
-            v = new Verbindung(socket);
+            try{
+                v = new Verbindung(socket);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         } else{
-            zuege = new ArrayList<>();
+            ableToUpdate = false;
+            f.clearOldData();
+            System.out.println("INFORMATION: Das Plugin wird neu gestartet!");
         }
 
         Runnable r = () -> {
-            f = new Fenster();
-            v.update();
-            f.update();
-            f.setGridScene();
-
             try{
-                if(mainLoop != null){
-                    //mainLoop.stop();
-                    mainLoop = null;
-                }
+                zuege = new ArrayList<>();
+
+                f = new Fenster();
+                v.update();
+                f.update();
+                f.setGridScene();
+
+                mainLoop = null;
+                Runnable r1 = () -> {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mainLoop = new Thread(this, "App-Schleife");
+                    mainLoop.setDaemon(true);
+                    mainLoop.start();
+
+                    ableToUpdate = true;
+                };
+                new Thread(r1).start();
+
             } catch(Exception e){
                 e.printStackTrace();
             }
 
-            mainLoop = new Thread(this, "App-Schleife");
-            mainLoop.setDaemon(true);
-            mainLoop.start();
+            refresh.setDisable(false);
         };
         new Thread(r).start();
     }
@@ -374,31 +422,43 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             try {
                 int time = (int) ((System.currentTimeMillis() - timeFromLastUpdate) / 1000);
 
-                if(time >= settingsUpdateInterwall){
-                    timeFromLastUpdate = System.currentTimeMillis();
+                if(ableToUpdate){
+                    if(time >= settingsUpdateInterwall){
+                        timeFromLastUpdate = System.currentTimeMillis();
 
-                    Runnable r = () -> {
-                        v.update();
-                        f.update();
-                    };
-                    new Thread(r, "Aktualisiere Verbindung und Fenster").start();
-                }
+                        Runnable r = () -> {
+                            try{
+                                if(v != null && f != null){
+                                    v.update();
+                                    f.update();
+                                }
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        };
+                        new Thread(r, "Aktualisiere Verbindung und Fenster").start();
+                    }
 
-                f.updateSimTime(settingsUpdateInterwall - time);
+                    f.updateSimTime(settingsUpdateInterwall - time);
 
-                if(currentGameTime % (1000*60) >= 0 && currentGameTime % (1000*60) <= 1000){
-                    Runnable r = () -> {
-                        debugMessage("INFORMATION: Aktualisiere Tabelle...", false);
-                        f.refreshGrid();
-                        debugMessage("Beendet!", true);
-                        debugMessage("INFORMATION: Du benutzt das Plugin seit " + ((System.currentTimeMillis()-spielStart)/(1000*60)) + " Minute(n)!", true);
-                    };
-                    new Thread(r, "Aktualisiere Tabelle").start();
-                }
+                    if(currentGameTime % (1000*60) >= 0 && currentGameTime % (1000*60) <= 1000){
+                        Runnable r = () -> {
+                            try{
+                                debugMessage("INFORMATION: Aktualisiere Tabelle...", false);
+                                f.refreshGrid();
+                                debugMessage("Beendet!", true);
+                                debugMessage("INFORMATION: Du benutzt das Plugin seit " + ((System.currentTimeMillis()-spielStart)/(1000*60)) + " Minute(n)!", true);
+                            } catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        };
+                        new Thread(r, "Aktualisiere Tabelle").start();
+                    }
 
-                if((System.currentTimeMillis() - lastRefresh) % (1000*60*45) < 1000){
-                    lastRefresh = System.currentTimeMillis()-1000;
-                    break;
+                    if((System.currentTimeMillis() - lastRefresh) % (1000*60*45) < 1000){
+                        lastRefresh = System.currentTimeMillis()-1000;
+                        break;
+                    }
                 }
 
                 currentGameTime += 1000;
@@ -411,7 +471,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
         if(errorCounter >= maxErrorCounter){
             errorCounter = 0;
-            System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\t\tNeustart\n**********************************************************************************");
+            System.out.println("FEHLER: Das Plugin wird neu gestartet.");
             Platform.runLater(() -> errorWindow(0, "Das Plugin wurde aufgrund einiger Fehler neu gestartet!"));
             Platform.runLater(() -> startLoading());
         }
