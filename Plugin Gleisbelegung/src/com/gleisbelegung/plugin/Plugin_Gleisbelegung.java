@@ -25,9 +25,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import jdk.net.Sockets;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
@@ -80,11 +85,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     //Erste Aufgerufene Methode (Ip-Abfrage, Updates-checken, Fenster erzeugen)
     @Override
     public void start(Stage primaryStage) throws Exception{
-        if(!platform.equals("desktop")){
-            u = new Update();
-            u.checkForNewVersion(version);
-        }
-
         refresh = new Button();
         refresh.setOnAction(e -> Platform.runLater(() -> startLoading()));
 
@@ -131,7 +131,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
         TextField tfHost = new TextField();
         if(platform.equals("desktop")) tfHost.setText("localhost");
-        else tfHost.setText("192.168.1.25");
+        else tfHost.setText("192.168.1.2");
 
         tfHost.setStyle("-fx-text-fill: black;");
         tfHost.setFont(Font.font(settingsFontSize));
@@ -152,7 +152,9 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         btLoad.applyCss();
         btLoad.layout();
         btLoad.setOnAction(e -> {
-            host = tfHost.getText();
+            if(socket == null){
+                host = tfHost.getText();
+            }
 
             firstSP.setStyle("-fx-background-color: #505050");
             firstSP.applyCss();
@@ -166,7 +168,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
             Platform.runLater(() -> {
                 try {
-                    socket = new Socket(tfHost.getText(), 3691);
+                    if(socket == null) socket = new Socket(tfHost.getText(), 3691);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -207,6 +209,38 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         readSettings();
 
         setOutputStreams();
+
+        if(!platform.equals("desktop")){
+
+
+            u = new Update();
+            u.checkForNewVersion(version);
+        }
+
+
+        for (int i = 0; i < 255; i++) {
+            if(socket == null){
+                final int temp = i;
+                Runnable r = () -> {
+                    try {
+                        if(InetAddress.getByName("192.168.1." + temp).isReachable(1000)){
+                            try{
+                                socket = new Socket("192.168.1." + temp, 3691);
+                                socket.setSoTimeout(1000);
+
+                                Platform.runLater(() -> tfHost.setText("192.168.1." + temp));
+                            } catch (Exception e){
+                                socket = null;
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                };
+                new Thread(r).start();
+            }
+        }
+
     }
 
     public void setOutputStreams(){

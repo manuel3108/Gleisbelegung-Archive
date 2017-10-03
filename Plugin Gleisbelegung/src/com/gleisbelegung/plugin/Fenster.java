@@ -90,6 +90,7 @@ public class Fenster extends Plugin_Gleisbelegung {
         firstLabel.setTranslateY(0);
         firstLabel.setFont(Font.font(settingsFontSize-5));
         firstLabel.setMinWidth(settingsGridWidth);
+        firstLabel.setMaxWidth(settingsGridWidth);
         firstLabel.setAlignment(Pos.CENTER);
         Platform.runLater(() -> {
             firstLabel.setText(bahnhofName);
