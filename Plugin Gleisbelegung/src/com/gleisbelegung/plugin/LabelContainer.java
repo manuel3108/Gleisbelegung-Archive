@@ -26,6 +26,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
     private long time = -1;                         //Die Zeit die in der jeweiligen Zeile die richtige ist.
     private int bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
     private ArrayList<LabelContainer> labelTime;    //Übergabe von labelTime aus der @Fenster-Klasse
+    private boolean hervorhebungDurchGleis;
 
     //Speichert alle übergebenen Daten
     public LabelContainer(int labelIndex, int bahnsteig, ArrayList<LabelContainer> labelTime) throws Exception{
@@ -33,6 +34,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         this.bahnsteig = bahnsteig;
         this.labelIndex = labelIndex;
         trains = new ArrayList<>();
+        hervorhebungDurchGleis = false;
 
         l = new Label();
         l.setFont(Font.font(settingsFontSize-5));
@@ -113,7 +115,9 @@ public class LabelContainer extends Plugin_Gleisbelegung{
             Platform.runLater(() -> {
                 l.setText("");
                 l.setTooltip(null);
-                if (labelIndex % 2 == 0) {
+                if(hervorhebungDurchGleis){
+                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "; -fx-background-color: #181818");
+                } else if (labelIndex % 2 == 0) {
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder());
                 } else {
                     l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
@@ -142,9 +146,9 @@ public class LabelContainer extends Plugin_Gleisbelegung{
                     l.setTooltip(new Tooltip(temp));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: red;");
 
-                    if (bahnsteigeSichtbar[bahnsteig]) {
+                    /*if (bahnsteigeSichtbar[bahnsteig]) {
                         playColisonSound();
-                    }
+                    }*/
                 }
             });
         }
@@ -358,5 +362,14 @@ public class LabelContainer extends Plugin_Gleisbelegung{
             }
         };
         new Thread(r).start();
+    }
+
+    public void setHervorhebungDurchGleis(boolean hervorhebungDurchGleis) {
+        this.hervorhebungDurchGleis = hervorhebungDurchGleis;
+        try {
+            updateLabel();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

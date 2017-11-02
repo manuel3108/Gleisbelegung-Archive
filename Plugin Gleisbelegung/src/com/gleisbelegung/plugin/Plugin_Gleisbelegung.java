@@ -10,12 +10,16 @@ In dieser Klasse werden viele Variablen gespeichert, da jede Klasse diese Klasse
 Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
+import com.gluonhq.charm.down.Services;
+import com.gluonhq.charm.down.plugins.StatusBarService;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -25,24 +29,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import jdk.net.Sockets;
+import javafx.stage.WindowEvent;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.channels.SocketChannel;
-import java.nio.file.Files;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Plugin_Gleisbelegung extends Application implements Runnable{
     static long currentGameTime;                            //Speichert die aktuelle Zeit in Milisekunden, heißt 1 Minute entspricht 1000*60
     static boolean lastUpdateSuccessful;                    //Aktuall keine Verwendung
 
     static ArrayList<Zug> zuege;                            //Hier werden alle Zug-Objekte gespeichert
-    static String[] bahnsteige;                             //Speichert die Namen aller Bahnsteige in einem Array
-    static boolean[] bahnsteigeSichtbar;                    //Speichert ob die jeweiligen Bahnsteige sichtbar sind oder nicht (true = sichtbar; fals = versteckt)
+    public static String[] bahnsteige;                             //Speichert die Namen aller Bahnsteige in einem Array
 
     static Stage primaryStage;                              //Ist das Objekt für das aktuelle Fenster
     static Button refresh;                                 //Button um das Plugin neu zu laden
@@ -204,6 +207,10 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             }
         }
 
+        if(!platform.equals("android")){
+            primaryStage.setOnCloseRequest(we -> checkLogOnClosing());
+        }
+
         Plugin_Gleisbelegung.primaryStage = primaryStage;
 
         readSettings();
@@ -211,7 +218,9 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         setOutputStreams();
 
         if(!platform.equals("desktop")){
-
+            Services.get(StatusBarService.class).ifPresent(service -> {
+                service.setColor(new Color(0.222,0.222,0.222,1));
+            });
 
             u = new Update();
             u.checkForNewVersion(version);
@@ -237,7 +246,9 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                         e.printStackTrace();
                     }
                 };
-                new Thread(r).start();
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                t.start();
             }
         }
 
@@ -258,11 +269,12 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             if(f.exists() && f.canRead()){
                 System.out.println("Fehler und Meldungen werden in log-Datei geschrieben! Speicherort: " + f.getAbsolutePath());
 
-                FileOutputStream fos = new FileOutputStream(f, true);
-                System.setErr(new PrintStream(fos));
-                System.setOut(new PrintStream(fos));
+                FileOutputStream fos = new FileOutputStream(f, false);
+                PrintStream ps = new PrintStream(fos);
+                System.setErr(ps);
+                System.setOut(ps);
 
-                System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\tPlugin Start\n**********************************************************************************");
+                //System.out.println("\n\n\n\n\n**********************************************************************************\n\t\t\t\t\tPlugin Start\n**********************************************************************************");
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -444,6 +456,167 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             });
         } else{
             Platform.runLater(() -> fehlerMeldungen.getChildren().add(l));
+        }
+    }
+
+    private void checkLogOnClosing(){
+        try {
+            File f = File.createTempFile("temp", ".txt");
+            String filePath = f.getAbsolutePath().replace(f.getName(), "");
+            f.delete();
+
+            f = new File(filePath + "Plugin_Gleisbelegung_Log.txt");
+
+            RandomAccessFile raf = new RandomAccessFile(f, "r");
+            String temp = raf.readLine();
+            while(temp != null && !temp.contains("java") && !temp.contains("com.")){
+                temp = raf.readLine();
+            }
+
+            if(temp != null && (temp.contains("java") || temp.contains("com."))){
+                openLogWindow();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void openLogWindow(){
+        Stage stage = new Stage();
+
+        //Label l = new Label("Während deiner aktuellen Sitzung sind Fehler aufgetreten. Durch einen Klick auf Weiter werden deine Log-Datei und deine Anregungen anonym hochgeladen.");
+        Label l = new Label("Während deiner aktuellen Sitzung sind Fehler aufgetreten. Durch einen Klick auf Weiter wird deine Log-Datei anonym hochgeladen.");
+        l.setStyle("-fx-text-fill: white");
+        l.setFont(Font.font(settingsFontSize));
+        l.setWrapText(true);
+        l.setMaxWidth(450);
+        l.setTranslateY(25);
+        l.setTranslateX(25);
+
+        /*TextField ta = new TextField();
+        ta.setFont(Font.font(settingsFontSize-3));
+        ta.setTranslateX(25);
+        ta.setTranslateY(125);
+        ta.setPrefWidth(450);
+        ta.setPrefHeight(100);*/
+
+
+        Button bno = new Button("Abbrechen");
+        bno.setFont(Font.font(settingsFontSize));
+        bno.setOnAction(e -> stage.close());
+        bno.setTranslateX(250);
+        bno.setTranslateY(150);
+
+        Button byes = new Button("Weiter");
+        byes.setFont(Font.font(settingsFontSize));
+        byes.setTranslateX(150);
+        byes.setTranslateY(150);
+        byes.setOnAction(e -> {
+            byes.setDisable(true);
+            bno.setDisable(true);
+
+            Runnable r = () -> {
+                sendLogFile(l);
+            };
+            new Thread(r).start();
+        });
+
+        Pane p = new Pane(l, byes, bno);
+        p.setStyle("-fx-background-color: #303030");
+        p.setMinSize(500,200);
+        p.setMaxSize(500, 200);
+
+        Scene s = new Scene(p,500,200);
+
+
+        stage.setScene(s);
+        stage.setTitle("Log-Datei senden?");
+
+        stage.setAlwaysOnTop(true);
+        stage.show();
+    }
+
+    public void sendLogFile(Label l){
+        try {
+            Platform.runLater(() -> l.setText("Lese Log-Datei..."));
+
+            File f = File.createTempFile("temp", ".txt");
+            String filePath = f.getAbsolutePath().replace(f.getName(), "");
+            f.delete();
+
+            f = new File(filePath + "Plugin_Gleisbelegung_Log.txt");
+
+            RandomAccessFile raf = new RandomAccessFile(f, "r");
+            String newLine = raf.readLine();
+            String log = newLine;
+            while(newLine != null){
+                log += "\n" + newLine;
+                newLine = raf.readLine();
+            }
+
+            Platform.runLater(() -> l.setText("Lade hoch..."));
+
+            String baseUrl = "http://manuel-serret.bplaced.net/Gleisbelegung/request.php";
+            //String baseUrl = "http://localhost/Webseiten/Gleisbelegung/request.php";
+
+            if(log.length() > 2000){
+                int counter = 0;
+                char[] c = log.toCharArray();
+                ArrayList<String> logArray = new ArrayList<>();
+                logArray.add("");
+
+                for (int i = 0; i < log.length(); i++) {
+                    logArray.set(counter, logArray.get(counter) + c[i]);
+
+                    if(logArray.get(counter).length() >= 2000){
+                        logArray.set(counter, logArray.get(counter).replace(" ","%20"));
+                        logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
+
+                        counter++;
+                        logArray.add(counter, "");
+                    }
+                }
+                logArray.set(counter, logArray.get(counter).replace(" ","%20"));        //für das letzte element
+                logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
+
+                URL url = new URL(baseUrl + "?action=new&message=&log=" + logArray.get(0));
+                Scanner sc = new Scanner(url.openStream());
+                int id = Integer.parseInt(sc.nextLine());
+
+                for (int i = 1; i <= logArray.size()-1; i++) {
+                    final int temp = i;
+                    Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
+
+                    System.out.println();
+                    System.out.println();
+                    System.out.println(logArray.get(i));
+                    System.out.println();
+                    System.out.println();
+
+                    url = new URL(baseUrl + "?action=add&id="+id+"&log=" + logArray.get(i));
+                    url.openStream();
+                }
+            } else{
+                Platform.runLater(() -> l.setText("Lade hoch..."));
+
+                URL url = new URL(baseUrl + "?action=new&message=&log="+log);
+                Scanner sc = new Scanner(url.openStream());
+                int id = Integer.parseInt(sc.nextLine());
+                System.out.println(id);
+            }
+
+            Platform.runLater(() -> l.setText("Fertig. Vielen Dank für deine Hilfe!"));
+            Runnable r = () -> {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Platform.exit();
+            };
+            new Thread(r).start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -82,10 +82,8 @@ public class Verbindung extends Plugin_Gleisbelegung{
 
         ArrayList<ArrayList<ArrayList<String[]>>> temp1 = xml.readLines();
         bahnsteige = new String[temp1.size()];
-        bahnsteigeSichtbar = new boolean[temp1.size()];
         for(int i = 0; i < temp1.size(); i++){
             bahnsteige[i] = temp1.get(i).get(0).get(0)[1];
-            bahnsteigeSichtbar[i] = true;
         }
     }
 

@@ -48,15 +48,13 @@ public class Fenster extends Plugin_Gleisbelegung {
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
 
-    private ArrayList<ArrayList<LabelContainer>> grid;  //Speichert alle LabelContainer die die Tabell an sich darstellen
     public ArrayList<LabelContainer> labelTime;         //Speichert alle LabelContainer die eine Zeit anzeigen
-    private ArrayList<LabelContainer> labelPlatform;    //Speichert alle LabelContainer die Bahnsteigsnamen enthalten
+    private ArrayList<Gleis> gleise;
 
     //Erzeugt alle Listen und erzeugt die LabelContainer mit Informationen, welche vorher von der @VErbindungs-Klasse bereitgestellt werden
     public Fenster() throws Exception {
-        grid = new ArrayList<>();
         labelTime = new ArrayList<>();
-        labelPlatform = new ArrayList<>();
+        gleise = new ArrayList<>();
 
         Date dNow = new Date(currentGameTime);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm:ss");
@@ -253,6 +251,7 @@ public class Fenster extends Plugin_Gleisbelegung {
 
         //prepare Grid
         int progressCounter = 0;
+        erstelleGleise();
 
         for (int i = 0; i < settingsVorschau; i++) {
             labelTime.add(i, new LabelContainer(i, -1, labelTime));
@@ -271,18 +270,21 @@ public class Fenster extends Plugin_Gleisbelegung {
         }
 
         for (int i = 0; i < bahnsteige.length; i++) {
-            labelPlatform.add(i, new LabelContainer(i,-2, labelTime));
-            labelPlatform.get(i).updateLabel(bahnsteige[i]);
-            labelPlatform.get(i).getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
+            LabelContainer lc = new LabelContainer(i,-2, labelTime);
+            lc.updateLabel(bahnsteige[i]);
+            lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
 
             int temp = i;
-            Platform.runLater(() -> gpPlatform.add(labelPlatform.get(temp).getLabel(), temp, 0));
+            Platform.runLater(() -> gpPlatform.add(lc.getLabel(), temp, 0));
 
             int tempCounter = progressCounter;
             Platform.runLater(() -> progressHint.setText("Fortschritt: " + getPercentage(tempCounter, countAllLabelContainers) + "%"));
             progressCounter++;
+
+            gleise.get(i).setGleisLabel(lc);
         }
 
+        ArrayList<ArrayList<LabelContainer>> grid = new ArrayList<>();
         for (int i = 0; i < settingsVorschau; i++) { //x
             grid.add(i, new ArrayList<>());
 
@@ -299,6 +301,7 @@ public class Fenster extends Plugin_Gleisbelegung {
 
                 progressCounter++;
             }
+
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -307,6 +310,16 @@ public class Fenster extends Plugin_Gleisbelegung {
             labelIndexCounter = i;
         }
 
+        //Bereite Gleise vor
+        for (int i = 0; i < grid.get(0).size(); i++) {
+            ArrayList<LabelContainer> t = new ArrayList<>();
+            for (ArrayList<LabelContainer> tempGrid : grid) {
+                t.add(tempGrid.get(i));
+            }
+            gleise.get(i).setSpalte(t);
+        }
+
+        grid.clear();
 
         Platform.runLater(() -> progressHint.setText("Öffne Ansicht..."));
     }
@@ -516,8 +529,8 @@ public class Fenster extends Plugin_Gleisbelegung {
                                         abfahrt = ankunft + 4*1000*60;
                                     }
 
-                                    for (int k = 0; k < grid.size(); k++) {
-                                        LabelContainer lc = grid.get(k).get(j);
+                                    for (int k = 0; k < settingsVorschau; k++) {
+                                        LabelContainer lc = gleise.get(j).getSpalte().get(k);
                                         if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                             z.getFahrplan(i).addDrawnTo(lc);
 
@@ -538,8 +551,8 @@ public class Fenster extends Plugin_Gleisbelegung {
                                         abfahrt = ankunft + 4*1000*60;
                                     }
 
-                                    for (int k = 0; k < grid.size(); k++) {
-                                        LabelContainer lc = grid.get(k).get(j);
+                                    for (int k = 0; k < settingsVorschau; k++) {
+                                        LabelContainer lc = gleise.get(j).getSpalte().get(k);
                                         if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                             z.getFahrplan(i).addDrawnTo(lc);
 
@@ -670,13 +683,15 @@ public class Fenster extends Plugin_Gleisbelegung {
         for (int i = 0; i < bahnsteige.length; i++) {
             Platform.runLater(() -> {
                 gp.getChildren().remove(0);
-                //grid.remove()
             });
         }
         Platform.runLater(() -> {
             gpTime.getChildren().remove(0);
             labelTime.remove(0);
-            grid.remove(0);
+
+            for(Gleis g : gleise){
+                g.getSpalte().remove(0);
+            }
         });
 
 
@@ -686,7 +701,6 @@ public class Fenster extends Plugin_Gleisbelegung {
         LabelContainer lc = new LabelContainer(labelIndexCounter-1,-1, labelTime);
         lc.updateLabel(ft.format(dNow));
         Platform.runLater(() -> {
-            //lc.getLabel().setStyle(lc.getLabel().getStyle() + "-fx-border-width: 0 5 1 0; -fx-border-color: #505050");
             gpTime.add(lc.getLabel(), 0, labelIndexCounter+1);
             labelTime.add(labelTime.size(), lc);
         });
@@ -694,20 +708,21 @@ public class Fenster extends Plugin_Gleisbelegung {
         ArrayList<LabelContainer> labelContainer = new ArrayList<>();
         Platform.runLater(() -> {
             try{
-                for(int i = 0; i < bahnsteige.length; i++){
+                for(int i = 0; i < gleise.size(); i++){
                     labelContainer.add(new LabelContainer(labelIndexCounter,i, labelTime));
 
                     gp.add(labelContainer.get(i).getLabel(), i+1, labelIndexCounter+1);
                     labelContainer.get(i).updateLabel("", currentGameTime + settingsVorschau*1000*60 - 2000);
 
-                    if(bahnsteigeSichtbar[i]){
+                    if(gleise.get(i).isSichtbar()){
                         labelContainer.get(i).getLabel().setPrefWidth(settingsGridWidth);
                     } else{
                         labelContainer.get(i).getLabel().setMaxWidth(0);
                         labelContainer.get(i).getLabel().setPrefWidth(0);
                         labelContainer.get(i).getLabel().setMinWidth(0);
                     }
-                    //labelContainer.get(i).updateLabel();
+
+                    if(gleise.get(i).getHebeHervor()) labelContainer.get(i).setHervorhebungDurchGleis(true);
 
                 }
             } catch(Exception e){
@@ -717,7 +732,9 @@ public class Fenster extends Plugin_Gleisbelegung {
 
 
         Platform.runLater(() -> {
-            grid.add(labelContainer);
+            for(int i = 0; i < gleise.size(); i++){
+                gleise.get(i).getSpalte().add(labelContainer.get(i));
+            }
         });
 
         labelIndexCounter++;
@@ -858,7 +875,7 @@ public class Fenster extends Plugin_Gleisbelegung {
             cb[i].setTranslateX(tempX);
             cb[i].setTranslateY(tempY);
             cb[i].setFont(Font.font(18));
-            cb[i].setSelected(bahnsteigeSichtbar[i]);
+            cb[i].setSelected(this.gleise.get(i).isSichtbar());
 
             if ((i + 1) % 3 == 0) {
                 stageHeight += 30;
@@ -917,10 +934,10 @@ public class Fenster extends Plugin_Gleisbelegung {
                 } else{
                     for (int i = 0; i < cb.length; i++) {
                         if (cb[i].isSelected()) {
-                            bahnsteigeSichtbar[i] = true;
+                            this.gleise.get(i).setSichtbar(true);
                             showPlatform(i, true);
                         } else {
-                            bahnsteigeSichtbar[i] = false;
+                            this.gleise.get(i).setSichtbar(false);
                             showPlatform(i, false);
                         }
                     }
@@ -987,24 +1004,12 @@ public class Fenster extends Plugin_Gleisbelegung {
 
     //Hier werden die geänderten Einstellungen auf die Gui angewendet
     private void updateSettings() throws Exception{
-        for (int i = 0; i < grid.size(); i++) {
-            for (int j = 0; j < grid.get(i).size(); j++) {
-                LabelContainer lc = grid.get(i).get(j);
-                lc.getLabel().setFont(Font.font(settingsFontSize-5));
-                lc.getLabel().setMaxWidth(settingsGridWidth);
-                lc.getLabel().setMinWidth(settingsGridWidth);
-            }
+        for(Gleis g : gleise){
+            g.setLabelContainerToWith(settingsGridWidth);
         }
 
         for (int i = 0; i < labelTime.size(); i++) {
             LabelContainer lc = labelTime.get(i);
-            lc.getLabel().setFont(Font.font(settingsFontSize-5));
-            lc.getLabel().setMaxWidth(settingsGridWidth);
-            lc.getLabel().setMinWidth(settingsGridWidth);
-        }
-
-        for (int i = 0; i < labelPlatform.size(); i++) {
-            LabelContainer lc = labelPlatform.get(i);
             lc.getLabel().setFont(Font.font(settingsFontSize-5));
             lc.getLabel().setMaxWidth(settingsGridWidth);
             lc.getLabel().setMinWidth(settingsGridWidth);
@@ -1023,29 +1028,9 @@ public class Fenster extends Plugin_Gleisbelegung {
     //Ist ein Bahnsteig sichtbar oder nicht. Hier wird das esetzt
     private void showPlatform(int index, boolean visible) throws Exception{
         if(visible){
-            for (int i = 0; i < grid.size(); i++) {
-                Label l = grid.get(i).get(index).getLabel();
-                l.setMinWidth(settingsGridWidth);
-                l.setMaxWidth(settingsGridWidth);
-            }
-            labelPlatform.get(index).getLabel().setMaxWidth(settingsGridWidth);
-            labelPlatform.get(index).getLabel().setMinWidth(settingsGridWidth);
+            gleise.get(index).setLabelContainerToWith(settingsGridWidth);
         } else{
-            for (int i = 0; i < grid.size(); i++) {
-                final int temp = i;
-                Platform.runLater(() -> {
-                    Label l = grid.get(temp).get(index).getLabel();
-                    l.setMaxWidth(0);
-                    l.setPrefWidth(0);
-                    l.setMinWidth(0);
-                });
-            }
-
-            Platform.runLater(() -> {
-                labelPlatform.get(index).getLabel().setMaxWidth(0);
-                labelPlatform.get(index).getLabel().setMinWidth(0);
-                labelPlatform.get(index).getLabel().setPrefWidth(0);
-            });
+            gleise.get(index).setLabelContainerToWith(0);
         }
     }
 
@@ -1055,5 +1040,11 @@ public class Fenster extends Plugin_Gleisbelegung {
         gpTime.getChildren().clear();
         gpPlatform.getChildren().clear();
         gp.getChildren().clear();
+    }
+
+    public void erstelleGleise(){
+        for (int i = 0; i < bahnsteige.length; i++) {
+            gleise.add(new Gleis(bahnsteige[i]));
+        }
     }
 }
