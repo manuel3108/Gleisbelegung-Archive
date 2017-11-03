@@ -32,10 +32,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -78,7 +76,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 9;                                //Aktualle Version des Plugins
+    private int version = 11;                                //Aktualle Version des Plugins
     private static AudioClip audio;                         //momentan ohne Verwendung
     private Socket socket;                                  //hält die Kommunikation mit dem dem SIM aufrecht
     private Thread mainLoop;                                //Dient zur Abbruchbedingung des Threads
@@ -221,7 +219,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             Services.get(StatusBarService.class).ifPresent(service -> {
                 service.setColor(new Color(0.222,0.222,0.222,1));
             });
-
+        } else{
             u = new Update();
             u.checkForNewVersion(version);
         }
@@ -579,22 +577,29 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 logArray.set(counter, logArray.get(counter).replace(" ","%20"));        //für das letzte element
                 logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
 
-                URL url = new URL(baseUrl + "?action=new&message=&log=" + logArray.get(0));
-                Scanner sc = new Scanner(url.openStream());
+                for(String s : logArray){
+                    System.out.println();
+                    System.out.println(s);
+                    System.out.println();
+                }
+
+                URL url = new URL( baseUrl + "?action=new&message=&log=" + URLEncoder.encode(logArray.get(0),java.nio.charset.StandardCharsets.UTF_8.toString()));
+                URLConnection con = url.openConnection();
+                con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+
+                Scanner sc = new Scanner(con.getInputStream());
                 int id = Integer.parseInt(sc.nextLine());
 
                 for (int i = 1; i <= logArray.size()-1; i++) {
                     final int temp = i;
                     Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
 
-                    System.out.println();
-                    System.out.println();
-                    System.out.println(logArray.get(i));
-                    System.out.println();
-                    System.out.println();
+                    url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(i), StandardCharsets.UTF_8.toString()));
+                    con = url.openConnection();
+                    con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 
-                    url = new URL(baseUrl + "?action=add&id="+id+"&log=" + logArray.get(i));
-                    url.openStream();
+
+                    con.getInputStream();
                 }
             } else{
                 Platform.runLater(() -> l.setText("Lade hoch..."));
