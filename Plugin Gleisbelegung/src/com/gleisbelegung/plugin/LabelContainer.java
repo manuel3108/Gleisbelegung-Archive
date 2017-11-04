@@ -89,7 +89,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         try{
             int size = trains.size();
             for (int i = 0; i < trains.size(); i++) {
-                if(trains.get(i).getZugId() == z.getZugId()){
+                if(i < trains.size() && trains.get(i) != null && trains.get(i).getZugId() == z.getZugId()){
                     trains.remove(i);
                 }
             }
