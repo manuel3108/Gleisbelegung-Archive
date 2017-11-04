@@ -113,16 +113,20 @@ public class Verbindung extends Plugin_Gleisbelegung{
 
         for(int i = 0; i < zugliste.size(); i++){
             try{
-                //System.out.println(zugliste.get(i).get(0).get(0)[1] + " " + zugliste.get(i).get(0).get(1)[1]);
                 boolean exists = false;
                 for(Zug z : zuege){
-                    if(!zugliste.get(i).get(0).get(0)[1].equals("") && Integer.parseInt(zugliste.get(i).get(0).get(0)[1]) == z.getZugId()){
-                        exists = true;
-                        break;
+                    try{
+                        if(!zugliste.get(i).get(0).get(0)[1].equals("") && Integer.parseInt(zugliste.get(i).get(0).get(0)[1]) == z.getZugId()){
+                            exists = true;
+                            break;
+                        }
+                    } catch (Exception e){
+                        System.out.println("GITHUB #20: " + zugliste.get(i).get(0).get(0)[1] + zugliste.get(i).get(0).get(1)[1]);
+                        e.printStackTrace();
                     }
                 }
 
-                if(! exists && !zugliste.get(i).get(0).get(0)[1].equals("") && !zugliste.get(i).get(0).get(1)[1].equals("")){
+                if(!exists && !zugliste.get(i).get(0).get(0)[1].equals("") && !zugliste.get(i).get(0).get(1)[1].equals("")){
                     //System.out.println("INFORMATION: " + zugliste.get(i).get(0).get(1)[1] + " wurde hinzugefügt!");
                     zuege.add(new Zug(Integer.parseInt(zugliste.get(i).get(0).get(0)[1]), zugliste.get(i).get(0).get(1)[1]));
                 }
