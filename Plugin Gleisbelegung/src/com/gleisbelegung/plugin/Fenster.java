@@ -288,7 +288,7 @@ public class Fenster extends Plugin_Gleisbelegung {
         for (int i = 0; i < settingsVorschau; i++) { //x
             grid.add(i, new ArrayList<>());
 
-            for (int j = 0; j < bahnsteige.length; j++) { //y
+            for (int j = 0; j < gleise.size(); j++) { //y
                 grid.get(i).add(j, new LabelContainer(i,j, labelTime));
                 grid.get(i).get(j).updateLabel("", currentGameTime + i*1000*60);
 
@@ -759,7 +759,7 @@ public class Fenster extends Plugin_Gleisbelegung {
                                     z.setNeedUpdate(true);
                                 }
                             }
-                        } else if(z.getFahrplan() != null){
+                        } else if(z.getFahrplan() != null && z.getFahrplan(i) != null){
                             long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung();
                             long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung();
 
