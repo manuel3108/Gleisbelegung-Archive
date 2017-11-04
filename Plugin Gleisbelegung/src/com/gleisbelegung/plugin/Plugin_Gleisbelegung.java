@@ -563,7 +563,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 ArrayList<String> logArray = new ArrayList<>();
                 logArray.add("");
 
-                for (int i = 0; i < log.length(); i++) {
+                for (int i = 1; i < log.length(); i++) {
                     logArray.set(counter, logArray.get(counter) + c[i]);
 
                     if(logArray.get(counter).length() >= 2000){
