@@ -21,6 +21,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
+import jdk.nashorn.internal.runtime.ECMAException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -294,7 +295,15 @@ public class Fenster extends Plugin_Gleisbelegung {
 
                 int tempI = i;
                 int tempJ = j;
-                Platform.runLater(() -> gp.add(grid.get(tempI).get(tempJ).getLabel(), tempJ+1, tempI+1));
+                Platform.runLater(() -> {
+                    try{
+                        Label l = grid.get(tempI).get(tempJ).getLabel();
+                        gp.add(l, tempJ+1, tempI+1);
+                    } catch (Exception e){
+                        System.out.println("GITHUB #24: GridSize:" + grid.size() + " GridSize I: " + grid.get(tempI).size());
+                        e.printStackTrace();
+                    }
+                });
 
                 int tempCounter = progressCounter;
                 Platform.runLater(() -> progressHint.setText("Fortschritt: " + getPercentage(tempCounter, countAllLabelContainers) + "%"));
