@@ -566,7 +566,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 for (int i = 1; i < log.length(); i++) {
                     logArray.set(counter, logArray.get(counter) + c[i]);
 
-                    if(logArray.get(counter).length() >= 2000){
+                    if(logArray.get(counter).length() >= 2000 - 10){ //-10 wegen versionsnummer
                         logArray.set(counter, logArray.get(counter).replace(" ","%20"));
                         logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
 
@@ -577,13 +577,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 logArray.set(counter, logArray.get(counter).replace(" ","%20"));        //für das letzte element
                 logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
 
-                for(String s : logArray){
-                    System.out.println();
-                    System.out.println(s);
-                    System.out.println();
-                }
-
-                URL url = new URL( baseUrl + "?action=new&message=&log=" + URLEncoder.encode(logArray.get(0),java.nio.charset.StandardCharsets.UTF_8.toString()));
+                URL url = new URL( baseUrl + "?action=new&message=v." + version + "&log=" + URLEncoder.encode(logArray.get(0),java.nio.charset.StandardCharsets.UTF_8.toString()));
                 URLConnection con = url.openConnection();
                 con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 
@@ -597,7 +591,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                     url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(i), StandardCharsets.UTF_8.toString()));
                     con = url.openConnection();
                     con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
-
 
                     con.getInputStream();
                 }

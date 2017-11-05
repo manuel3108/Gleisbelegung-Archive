@@ -751,7 +751,7 @@ public class Fenster extends Plugin_Gleisbelegung {
                         if(z.getFahrplan(i) != null && z.getFahrplan(i).getFlaggedTrain() != null){
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
-                            if(eFlag != null){
+                            if(z.getFahrplan()!= null && z.getFahrplan(i) != null && eFlag != null && eFlag.getFahrplan() != null){
                                 long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung();
                                 long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung();
 
