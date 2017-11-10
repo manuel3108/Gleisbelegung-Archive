@@ -351,6 +351,9 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             settingsDebug = Boolean.parseBoolean(br.readLine());
             settingsInformationWith = Integer.parseInt(br.readLine());
 
+            //Aufgrund zu großer Log-Dateien Standartmäßig auf false setzen: Workaround
+            settingsDebug = false;
+
             if(!platform.equals("desktop")){
                 settingsVorschau = 30;
             }
@@ -584,15 +587,27 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 Scanner sc = new Scanner(con.getInputStream());
                 int id = Integer.parseInt(sc.nextLine());
 
-                for (int i = 1; i <= logArray.size()-1; i++) {
-                    final int temp = i;
-                    Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
+                counter = 1;
+                while (counter < logArray.size()) {
+                    try{
+                        final int temp = counter;
+                        Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
 
-                    url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(i), StandardCharsets.UTF_8.toString()));
-                    con = url.openConnection();
-                    con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+                        url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(counter), StandardCharsets.UTF_8.toString()));
+                        con = url.openConnection();
+                        con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 
-                    con.getInputStream();
+                        con.getInputStream();
+
+                        counter++;
+                    } catch (Exception e){
+                        e.printStackTrace();
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
                 }
             } else{
                 Platform.runLater(() -> l.setText("Lade hoch..."));
