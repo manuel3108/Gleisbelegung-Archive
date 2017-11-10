@@ -744,7 +744,7 @@ public class Fenster extends Plugin_Gleisbelegung {
 
         Platform.runLater(() -> {
             for(int i = 0; i < gleise.size(); i++){
-                gleise.get(i).getSpalte().add(labelContainer.get(i));
+                if(gleise.get(i) != null) gleise.get(i).getSpalte().add(labelContainer.get(i));
             }
         });
 
