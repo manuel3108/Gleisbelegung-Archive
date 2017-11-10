@@ -73,7 +73,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     private Verbindung v;                                   //Objekt der Verbindungs-Klasse                             (Übernimmt Kommunikation mit der Schnittstelle)
     private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
-    private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
+    private static Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
     private int version = 11;                                //Aktualle Version des Plugins
@@ -614,6 +614,14 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             };
             new Thread(r).start();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sortiereGleiseListener(){
+        try{
+            f.sortiereGleise();
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
