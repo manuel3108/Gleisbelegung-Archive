@@ -288,12 +288,12 @@ public class Verbindung extends Plugin_Gleisbelegung{
 
         for (Zug z : zuege) {
             try{
-                if(z.getFahrplan() != null){
+                if(z != null && z.getFahrplan() != null){
                     for(FahrplanHalt fh : z.getFahrplan()){
                         try{
                             if(fh != null && fh.getFlags() != null && !fh.getFlags().equals("")){
                                 Zug flagged = getFlaggedTrain(fh.getFlags());
-                                if(flagged != null){
+                                if(flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null){
                                     flagged.getFahrplan(0).setDrawable(false);
                                     fh.setFlaggedTrain(flagged);
                                     debugMessage("ZUG: " + z.getZugName() + " (" + z.getZugId() + ") Flag: " + flagged.getZugName() + " (" + flagged.getZugId() + ")", true);
