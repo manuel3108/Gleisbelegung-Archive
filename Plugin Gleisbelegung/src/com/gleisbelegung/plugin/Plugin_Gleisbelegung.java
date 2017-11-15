@@ -76,7 +76,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     private static Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 11;                                //Aktualle Version des Plugins
+    private int version = 12;                                //Aktualle Version des Plugins
     private static AudioClip audio;                         //momentan ohne Verwendung
     private Socket socket;                                  //hält die Kommunikation mit dem dem SIM aufrecht
     private Thread mainLoop;                                //Dient zur Abbruchbedingung des Threads
@@ -171,7 +171,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 try {
                     if(socket == null) socket = new Socket(tfHost.getText(), 3691);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    //ex.printStackTrace(); //Erfolg wird später geprüft
                 }
                 startLoading();
             });
@@ -287,12 +287,15 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     //Startet die Verbindung zur Schnitstelle
     public void startLoading() {
+        boolean erfolgreich = true;
+
         refresh.setDisable(true);
         if(v == null){
             try{
                 v = new Verbindung(socket);
             } catch (Exception e){
-                e.printStackTrace();
+                erfolgreich = false;
+                //e.printStackTrace();
             }
         } else{
             ableToUpdate = false;
@@ -300,37 +303,65 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             System.out.println("INFORMATION: Das Plugin wird neu gestartet!");
         }
 
-        Runnable r = () -> {
-            try{
-                zuege = new ArrayList<>();
+        if(erfolgreich){
+            Runnable r = () -> {
+                try{
+                    zuege = new ArrayList<>();
 
-                f = new Fenster();
-                v.update();
-                f.update();
-                f.setGridScene();
+                    f = new Fenster();
+                    v.update();
+                    f.update();
+                    f.setGridScene();
 
-                mainLoop = null;
-                Runnable r1 = () -> {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    mainLoop = new Thread(this, "App-Schleife");
-                    mainLoop.setDaemon(true);
-                    mainLoop.start();
+                    mainLoop = null;
+                    Runnable r1 = () -> {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        mainLoop = new Thread(this, "App-Schleife");
+                        mainLoop.setDaemon(true);
+                        mainLoop.start();
 
-                    ableToUpdate = true;
-                };
-                new Thread(r1).start();
+                        ableToUpdate = true;
+                    };
+                    new Thread(r1).start();
 
-            } catch(Exception e){
-                e.printStackTrace();
-            }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
 
-            refresh.setDisable(false);
-        };
-        new Thread(r).start();
+                refresh.setDisable(false);
+            };
+            new Thread(r).start();
+        } else {
+            Stage error = new Stage();
+            Scene s;
+            Pane p;
+            Label lText;
+
+            lText = new Label("Die Verbindung mit dem SIM kam nicht zur stande.\n\nPrüfe ob die Plugin-Schnitstelle aktiviert ist!");
+            lText.setFont(Font.font(settingsFontSize));
+            lText.setStyle("-fx-text-fill: white;");
+            lText.setTranslateY(20);
+            lText.setTranslateX(20);
+            lText.setPrefWidth(500);
+            lText.setWrapText(true);
+
+            p = new Pane(lText);
+            p.setStyle("-fx-background: #303030");
+
+            s = new Scene(p);
+            p.setStyle("-fx-background: #303030");
+
+            error.setTitle("Ferhlermeldung");
+            error.setWidth(500);
+            error.setHeight(200);
+            error.setScene(s);
+            error.setAlwaysOnTop(true);
+            error.show();
+        }
     }
 
     //Liest die Vorhanden Einstellungen und überschreibt die Standart-Werte
