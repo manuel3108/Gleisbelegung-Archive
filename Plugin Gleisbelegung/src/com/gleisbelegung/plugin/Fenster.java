@@ -21,13 +21,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.runtime.ECMAException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 
 public class Fenster extends Plugin_Gleisbelegung {
@@ -252,6 +252,7 @@ public class Fenster extends Plugin_Gleisbelegung {
 
         //prepare Grid
         int progressCounter = 0;
+
         erstelleGleise();
 
         for (int i = 0; i < settingsVorschau; i++) {
@@ -524,8 +525,9 @@ public class Fenster extends Plugin_Gleisbelegung {
         try{
             if(z.getFahrplan() != null){
                 for (int i = 0; i < z.getFahrplan().length; i++) {
-                    for (int j = 0; j < bahnsteige.length; j++) {
-                        if(bahnsteige != null && bahnsteige[j] != null && z.getFahrplan(i) != null && z.getFahrplan(i).getGleis().equals(bahnsteige[j])){
+                    for (int j = 0; j < gleise.size(); j++) {
+                        Gleis g = gleise.get(j);
+                        if(g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getGleis().equals(g.getGleisName())){
                             if(z.getFahrplan(i).getFlaggedTrain() != null){
                                 Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
@@ -605,17 +607,16 @@ public class Fenster extends Plugin_Gleisbelegung {
 
     //Checkt alle Züge ob sie eine aktualisierung benötigen und führt diese ggf. aus.
     public void update(){
-        for(int i = 0; i < zuege.size(); i++){
-            Zug z = zuege.get(i);
-            try{
-                if(z.isNeedUpdate()){
+        for (Zug z : zuege) {
+            try {
+                if (z.isNeedUpdate()) {
                     debugMessage("ZUG: " + z.getZugName() + ": Aktualisiere...", false);
 
                     drawTrain(z);
                     z.setNeedUpdate(false);
                     z.setNewTrain(false);
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("Fehler koennen passieren :(");
                 e.printStackTrace();
             }
@@ -733,6 +734,8 @@ public class Fenster extends Plugin_Gleisbelegung {
 
                     if(gleise.get(i).getHebeHervor()) labelContainer.get(i).setHervorhebungDurchGleis(true);
 
+                    //final int temp = i;                                                                               //nur zum debuggen
+                    //Platform.runLater(() -> labelContainer.get(temp).getLabel().setText("c"+temp+" r"+labelIndexCounter));
                 }
             } catch(Exception e){
                 e.printStackTrace();
@@ -742,13 +745,16 @@ public class Fenster extends Plugin_Gleisbelegung {
 
         Platform.runLater(() -> {
             for(int i = 0; i < gleise.size(); i++){
-                gleise.get(i).getSpalte().add(labelContainer.get(i));
+                if(gleise.get(i) != null) gleise.get(i).getSpalte().add(labelContainer.get(i));
             }
         });
 
         labelIndexCounter++;
 
         updateSomeTrains(currentGameTime + settingsVorschau*1000*60 - 2000);
+
+        //Workaround for Bug
+        sortiereGleise();
     }
 
     //Aktualisiert die Züge, die Innerhalb der gegebenn Zeit eine Abfahrtszeit haben (Aufgerufen durch @Fenster.refreshGrid(), nachdem einen neue Zeile hinzugefügt wurde)
@@ -941,14 +947,16 @@ public class Fenster extends Plugin_Gleisbelegung {
 
                     refresh.fire();
                 } else{
-                    for (int i = 0; i < cb.length; i++) {
-                        if (cb[i].isSelected()) {
-                            this.gleise.get(i).setSichtbar(true);
-                            showPlatform(i, true);
+                    int counter = 0;
+                    for (Gleis g : this.gleise) {
+                        if (cb[counter].isSelected()) {
+                            g.setSichtbar(true);
+                            showPlatform(g, true);
                         } else {
-                            this.gleise.get(i).setSichtbar(false);
-                            showPlatform(i, false);
+                            g.setSichtbar(false);
+                            showPlatform(g, false);
                         }
+                        counter++;
                     }
 
                     einstellungen.setDisable(false);
@@ -1014,7 +1022,7 @@ public class Fenster extends Plugin_Gleisbelegung {
     //Hier werden die geänderten Einstellungen auf die Gui angewendet
     private void updateSettings() throws Exception{
         for(Gleis g : gleise){
-            g.setLabelContainerToWith(settingsGridWidth);
+            if(g.isSichtbar()) g.setLabelContainerToWith(settingsGridWidth);
         }
 
         for (int i = 0; i < labelTime.size(); i++) {
@@ -1035,11 +1043,11 @@ public class Fenster extends Plugin_Gleisbelegung {
     }
 
     //Ist ein Bahnsteig sichtbar oder nicht. Hier wird das esetzt
-    private void showPlatform(int index, boolean visible) throws Exception{
+    private void showPlatform(Gleis g, boolean visible) throws Exception{
         if(visible){
-            gleise.get(index).setLabelContainerToWith(settingsGridWidth);
+            g.setLabelContainerToWith(settingsGridWidth);
         } else{
-            gleise.get(index).setLabelContainerToWith(0);
+            g.setLabelContainerToWith(0);
         }
     }
 
@@ -1051,9 +1059,24 @@ public class Fenster extends Plugin_Gleisbelegung {
         gp.getChildren().clear();
     }
 
-    public void erstelleGleise(){
+    private void erstelleGleise(){
         for (int i = 0; i < bahnsteige.length; i++) {
-            gleise.add(new Gleis(bahnsteige[i]));
+            gleise.add(new Gleis(bahnsteige[i], i));
         }
+    }
+
+    public void sortiereGleise(){
+        Platform.runLater(() -> {
+            gleise.sort(Comparator.comparing(Gleis::getOrderId));
+
+            gpPlatform.getChildren().clear();
+            gp.getChildren().clear();
+            for(int i = 0; i < gleise.size(); i++){
+                gpPlatform.addColumn(i,gleise.get(i).getGleisLabel().getLabel());
+                for (int j = 0; j < gleise.get(i).getSpalte().size(); j++) {
+                    gp.add(gleise.get(i).getSpalte().get(j).getLabel(),i,j);
+                }
+            }
+        });
     }
 }

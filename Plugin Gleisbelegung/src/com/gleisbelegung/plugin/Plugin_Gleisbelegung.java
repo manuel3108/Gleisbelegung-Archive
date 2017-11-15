@@ -14,12 +14,10 @@ import com.gluonhq.charm.down.Services;
 import com.gluonhq.charm.down.plugins.StatusBarService;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -29,13 +27,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Plugin_Gleisbelegung extends Application implements Runnable{
@@ -73,10 +68,10 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     private Verbindung v;                                   //Objekt der Verbindungs-Klasse                             (Übernimmt Kommunikation mit der Schnittstelle)
     private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
-    private Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
+    private static Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 11;                                //Aktualle Version des Plugins
+    private int version = 12;                                //Aktualle Version des Plugins
     private static AudioClip audio;                         //momentan ohne Verwendung
     private Socket socket;                                  //hält die Kommunikation mit dem dem SIM aufrecht
     private Thread mainLoop;                                //Dient zur Abbruchbedingung des Threads
@@ -171,7 +166,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 try {
                     if(socket == null) socket = new Socket(tfHost.getText(), 3691);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    //ex.printStackTrace(); //Erfolg wird später geprüft
                 }
                 startLoading();
             });
@@ -287,12 +282,15 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     //Startet die Verbindung zur Schnitstelle
     public void startLoading() {
+        boolean erfolgreich = true;
+
         refresh.setDisable(true);
         if(v == null){
             try{
                 v = new Verbindung(socket);
             } catch (Exception e){
-                e.printStackTrace();
+                erfolgreich = false;
+                //e.printStackTrace();
             }
         } else{
             ableToUpdate = false;
@@ -300,37 +298,65 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             System.out.println("INFORMATION: Das Plugin wird neu gestartet!");
         }
 
-        Runnable r = () -> {
-            try{
-                zuege = new ArrayList<>();
+        if(erfolgreich){
+            Runnable r = () -> {
+                try{
+                    zuege = new ArrayList<>();
 
-                f = new Fenster();
-                v.update();
-                f.update();
-                f.setGridScene();
+                    f = new Fenster();
+                    v.update();
+                    f.update();
+                    f.setGridScene();
 
-                mainLoop = null;
-                Runnable r1 = () -> {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    mainLoop = new Thread(this, "App-Schleife");
-                    mainLoop.setDaemon(true);
-                    mainLoop.start();
+                    mainLoop = null;
+                    Runnable r1 = () -> {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        mainLoop = new Thread(this, "App-Schleife");
+                        mainLoop.setDaemon(true);
+                        mainLoop.start();
 
-                    ableToUpdate = true;
-                };
-                new Thread(r1).start();
+                        ableToUpdate = true;
+                    };
+                    new Thread(r1).start();
 
-            } catch(Exception e){
-                e.printStackTrace();
-            }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
 
-            refresh.setDisable(false);
-        };
-        new Thread(r).start();
+                refresh.setDisable(false);
+            };
+            new Thread(r).start();
+        } else {
+            Stage error = new Stage();
+            Scene s;
+            Pane p;
+            Label lText;
+
+            lText = new Label("Die Verbindung mit dem SIM kam nicht zur stande.\n\nPrüfe ob die Plugin-Schnitstelle aktiviert ist!");
+            lText.setFont(Font.font(settingsFontSize));
+            lText.setStyle("-fx-text-fill: white;");
+            lText.setTranslateY(20);
+            lText.setTranslateX(20);
+            lText.setPrefWidth(500);
+            lText.setWrapText(true);
+
+            p = new Pane(lText);
+            p.setStyle("-fx-background: #303030");
+
+            s = new Scene(p);
+            p.setStyle("-fx-background: #303030");
+
+            error.setTitle("Ferhlermeldung");
+            error.setWidth(500);
+            error.setHeight(200);
+            error.setScene(s);
+            error.setAlwaysOnTop(true);
+            error.show();
+        }
     }
 
     //Liest die Vorhanden Einstellungen und überschreibt die Standart-Werte
@@ -350,6 +376,9 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             settingsPlaySound = Boolean.parseBoolean(br.readLine());
             settingsDebug = Boolean.parseBoolean(br.readLine());
             settingsInformationWith = Integer.parseInt(br.readLine());
+
+            //Aufgrund zu großer Log-Dateien Standartmäßig auf false setzen: Workaround
+            settingsDebug = false;
 
             if(!platform.equals("desktop")){
                 settingsVorschau = 30;
@@ -584,15 +613,27 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                 Scanner sc = new Scanner(con.getInputStream());
                 int id = Integer.parseInt(sc.nextLine());
 
-                for (int i = 1; i <= logArray.size()-1; i++) {
-                    final int temp = i;
-                    Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
+                counter = 1;
+                while (counter < logArray.size()) {
+                    try{
+                        final int temp = counter;
+                        Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
 
-                    url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(i), StandardCharsets.UTF_8.toString()));
-                    con = url.openConnection();
-                    con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+                        url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(counter), StandardCharsets.UTF_8.toString()));
+                        con = url.openConnection();
+                        con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 
-                    con.getInputStream();
+                        con.getInputStream();
+
+                        counter++;
+                    } catch (Exception e){
+                        e.printStackTrace();
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
                 }
             } else{
                 Platform.runLater(() -> l.setText("Lade hoch..."));
@@ -614,6 +655,14 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             };
             new Thread(r).start();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sortiereGleiseListener(){
+        try{
+            f.sortiereGleise();
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
