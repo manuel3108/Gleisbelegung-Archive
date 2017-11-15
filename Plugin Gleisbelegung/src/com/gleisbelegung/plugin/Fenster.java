@@ -21,13 +21,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
-import jdk.nashorn.internal.runtime.ECMAException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 
 public class Fenster extends Plugin_Gleisbelegung {
     private Label pluginName;                           //Textfeld welches den Namen des Plugin in der Linken oberen Ecke speichert
