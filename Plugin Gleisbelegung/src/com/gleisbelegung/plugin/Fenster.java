@@ -321,15 +321,17 @@ public class Fenster extends Plugin_Gleisbelegung {
         }
 
         //Bereite Gleise vor
-        for (int i = 0; i < grid.get(0).size(); i++) {
-            ArrayList<LabelContainer> t = new ArrayList<>();
-            for (ArrayList<LabelContainer> tempGrid : grid) {
-                t.add(tempGrid.get(i));
+        Platform.runLater(() -> {
+            for (int i = 0; i < grid.get(0).size(); i++) {
+                ArrayList<LabelContainer> t = new ArrayList<>();
+                for (ArrayList<LabelContainer> tempGrid : grid) {
+                    t.add(tempGrid.get(i));
+                }
+                gleise.get(i).setSpalte(t);
             }
-            gleise.get(i).setSpalte(t);
-        }
 
-        grid.clear();
+            grid.clear();
+        });
 
         Platform.runLater(() -> progressHint.setText("Öffne Ansicht..."));
     }
