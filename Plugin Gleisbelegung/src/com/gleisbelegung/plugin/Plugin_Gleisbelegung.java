@@ -304,7 +304,9 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                     zuege = new ArrayList<>();
 
                     f = new Fenster();
-                    v.update();
+                    if(!v.isAktualisiere()){
+                        v.update();
+                    }
                     f.update();
                     f.setGridScene();
 
@@ -682,7 +684,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
                         Runnable r = () -> {
                             try{
-                                if(v != null && f != null){
+                                if(v != null && f != null && !v.isAktualisiere()){
                                     v.update();
                                     f.update();
                                 }
