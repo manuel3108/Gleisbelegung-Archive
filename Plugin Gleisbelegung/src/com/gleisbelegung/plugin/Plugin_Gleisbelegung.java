@@ -71,7 +71,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     private static Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 12;                                //Aktualle Version des Plugins
+    private int version = 13;                                //Aktualle Version des Plugins
     private static AudioClip audio;                         //momentan ohne Verwendung
     private Socket socket;                                  //hält die Kommunikation mit dem dem SIM aufrecht
     private Thread mainLoop;                                //Dient zur Abbruchbedingung des Threads
@@ -247,7 +247,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
     }
 
-    public void setOutputStreams(){
+    private void setOutputStreams(){
         try{
             File f = File.createTempFile("temp", ".txt");
             String filePath = f.getAbsolutePath().replace(f.getName(), "");
@@ -281,7 +281,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     }
 
     //Startet die Verbindung zur Schnitstelle
-    public void startLoading() {
+    private void startLoading() {
         boolean erfolgreich = true;
 
         refresh.setDisable(true);
@@ -498,11 +498,11 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
             RandomAccessFile raf = new RandomAccessFile(f, "r");
             String temp = raf.readLine();
-            while(temp != null && !temp.contains("java") && !temp.contains("com.")){
+            while(temp != null && !temp.contains("java") && !temp.contains("com.") && !temp.contains("GITHUB")){
                 temp = raf.readLine();
             }
 
-            if(temp != null && (temp.contains("java") || temp.contains("com."))){
+            if(temp != null && (temp.contains("java") || temp.contains("com.") || temp.contains("GITHUB"))){
                 openLogWindow();
             }
         } catch (IOException e) {
@@ -510,7 +510,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         }
     }
 
-    public void openLogWindow(){
+    private void openLogWindow(){
         Stage stage = new Stage();
 
         //Label l = new Label("Während deiner aktuellen Sitzung sind Fehler aufgetreten. Durch einen Klick auf Weiter werden deine Log-Datei und deine Anregungen anonym hochgeladen.");
@@ -565,7 +565,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         stage.show();
     }
 
-    public void sendLogFile(Label l){
+    private void sendLogFile(Label l){
         try {
             Platform.runLater(() -> l.setText("Lese Log-Datei..."));
 
@@ -588,62 +588,54 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             String baseUrl = "http://manuel-serret.bplaced.net/Gleisbelegung/request.php";
             //String baseUrl = "http://localhost/Webseiten/Gleisbelegung/request.php";
 
-            if(log.length() > 2000){
-                int counter = 0;
-                char[] c = log.toCharArray();
-                ArrayList<String> logArray = new ArrayList<>();
-                logArray.add("");
 
-                for (int i = 1; i < log.length(); i++) {
-                    logArray.set(counter, logArray.get(counter) + c[i]);
+            int counter = 0;
+            char[] c = log.toCharArray();
+            ArrayList<String> logArray = new ArrayList<>();
+            logArray.add("");
 
-                    if(logArray.get(counter).length() >= 2000 - 10){ //-10 wegen versionsnummer
-                        logArray.set(counter, logArray.get(counter).replace(" ","%20"));
-                        logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
+            for (int i = 0; i < log.length(); i++) {
+                logArray.set(counter, logArray.get(counter) + c[i]);
 
-                        counter++;
-                        logArray.add(counter, "");
+                if(logArray.get(counter).length() >= 2000 - 10){ //-10 wegen versionsnummer
+                    logArray.set(counter, logArray.get(counter).replace(" ","%20"));
+                    logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
+
+                    counter++;
+                    logArray.add(counter, "");
+                }
+            }
+            logArray.set(counter, logArray.get(counter).replace(" ","%20"));        //für das letzte element
+            logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
+
+            URL url = new URL( baseUrl + "?action=new&message=v." + version + "&log=" + URLEncoder.encode(logArray.get(0),java.nio.charset.StandardCharsets.UTF_8.toString()));
+            URLConnection con = url.openConnection();
+            con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+
+            Scanner sc = new Scanner(con.getInputStream());
+            int id = Integer.parseInt(sc.nextLine());
+
+            counter = 0;
+            while (counter < logArray.size()) {
+                try{
+                    final int temp = counter;
+                    Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
+
+                    url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(counter), StandardCharsets.UTF_8.toString()));
+                    con = url.openConnection();
+                    con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+
+                    con.getInputStream();
+
+                    counter++;
+                } catch (Exception e){
+                    e.printStackTrace();
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
                     }
                 }
-                logArray.set(counter, logArray.get(counter).replace(" ","%20"));        //für das letzte element
-                logArray.set(counter, logArray.get(counter).replace("\n","%0A"));
-
-                URL url = new URL( baseUrl + "?action=new&message=v." + version + "&log=" + URLEncoder.encode(logArray.get(0),java.nio.charset.StandardCharsets.UTF_8.toString()));
-                URLConnection con = url.openConnection();
-                con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
-
-                Scanner sc = new Scanner(con.getInputStream());
-                int id = Integer.parseInt(sc.nextLine());
-
-                counter = 1;
-                while (counter < logArray.size()) {
-                    try{
-                        final int temp = counter;
-                        Platform.runLater(() -> l.setText("Lade " + temp + " von " + (logArray.size()-1) + " hoch..."));
-
-                        url = new URL(baseUrl + "?action=add&id="+id+"&log=" + URLEncoder.encode(logArray.get(counter), StandardCharsets.UTF_8.toString()));
-                        con = url.openConnection();
-                        con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
-
-                        con.getInputStream();
-
-                        counter++;
-                    } catch (Exception e){
-                        e.printStackTrace();
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                }
-            } else{
-                Platform.runLater(() -> l.setText("Lade hoch..."));
-
-                URL url = new URL(baseUrl + "?action=new&message=&log="+log);
-                Scanner sc = new Scanner(url.openStream());
-                int id = Integer.parseInt(sc.nextLine());
-                System.out.println(id);
             }
 
             Platform.runLater(() -> l.setText("Fertig. Vielen Dank für deine Hilfe!"));
@@ -703,7 +695,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                                 debugMessage("INFORMATION: Aktualisiere Tabelle...", false);
                                 f.refreshGrid();
                                 debugMessage("Beendet!", true);
-                                debugMessage("INFORMATION: Du benutzt das Plugin seit " + ((System.currentTimeMillis()-spielStart)/(1000*60)) + " Minute(n)!", true);
+                                System.out.println("INFORMATION: Du benutzt das Plugin seit " + ((System.currentTimeMillis()-spielStart)/(1000*60)) + " Minute(n)!");
                             } catch (Exception e){
                                 e.printStackTrace();
                             }
