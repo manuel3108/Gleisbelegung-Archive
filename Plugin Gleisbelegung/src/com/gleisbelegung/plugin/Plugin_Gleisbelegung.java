@@ -10,8 +10,6 @@ In dieser Klasse werden viele Variablen gespeichert, da jede Klasse diese Klasse
 Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
-import com.gluonhq.charm.down.Services;
-import com.gluonhq.charm.down.plugins.StatusBarService;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -62,7 +60,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     static int maxErrorCounter = 10;                        //Ist der obrige Wert größer als dieser, wird das Plugin automatisch neu gestartet.
     static double stageWidth = 1000;                        //Standartmäßige Fenster-Breite                             (Wir bei Veränderung der Breite aktualisiert)
     static double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
-    static  String platform = "desktop";                    //Speichert die aktuelle Platform (Android IOS PC)
     static StackPane firstSP;                               //Erste Benutzeroberfläche, die beim start angezeigt wird.
     static String bahnhofName;                              //Name des Bahnhofes
 
@@ -83,9 +80,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     public void start(Stage primaryStage) throws Exception{
         refresh = new Button();
         refresh.setOnAction(e -> Platform.runLater(() -> startLoading()));
-
-        platform = System.getProperty("javafx.platform", "desktop");
-
         fehlerMeldungen = new Pane();
 
         /*try{
@@ -126,8 +120,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         lHost.layout();
 
         TextField tfHost = new TextField();
-        if(platform.equals("desktop")) tfHost.setText("localhost");
-        else tfHost.setText("192.168.1.2");
+        tfHost.setText("localhost");
 
         tfHost.setStyle("-fx-text-fill: black;");
         tfHost.setFont(Font.font(settingsFontSize));
@@ -187,7 +180,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         primaryStage.show();
         primaryStage.setMinWidth(1000);
         primaryStage.setMinHeight(500);
-        if(platform.equals("desktop")) primaryStage.setMaximized(true);
+        primaryStage.setMaximized(true);
 
         try{
             primaryStage.getIcons().add(new Image(Plugin_Gleisbelegung.class.getResourceAsStream("icon.png")));
@@ -200,9 +193,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
             }
         }
 
-        if(!platform.equals("android")){
-            primaryStage.setOnCloseRequest(we -> checkLogOnClosing());
-        }
+        primaryStage.setOnCloseRequest(we -> checkLogOnClosing());
 
         Plugin_Gleisbelegung.primaryStage = primaryStage;
 
@@ -210,14 +201,8 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
         setOutputStreams();
 
-        if(!platform.equals("desktop")){
-            Services.get(StatusBarService.class).ifPresent(service -> {
-                service.setColor(new Color(0.222,0.222,0.222,1));
-            });
-        } else{
-            u = new Update();
-            u.checkForNewVersion(version);
-        }
+        u = new Update();
+        u.checkForNewVersion(version);
 
 
         for (int i = 0; i < 255; i++) {
@@ -381,19 +366,8 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
 
             //Aufgrund zu großer Log-Dateien Standartmäßig auf false setzen: Workaround
             settingsDebug = false;
-
-            if(!platform.equals("desktop")){
-                settingsVorschau = 30;
-            }
         } catch (Exception e) {
             System.out.println("Die Einstellungsdatei wurde nicht gefunden, oder enthielt zu wenige Angaben!");
-
-            if(!platform.equals("desktop")){
-                settingsUpdateInterwall = 15;
-                settingsGridWidth = 50;
-                settingsFontSize = 13;
-                settingsInformationWith = 200;
-            }
         }
     }
 

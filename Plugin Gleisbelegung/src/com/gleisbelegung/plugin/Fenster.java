@@ -69,7 +69,6 @@ public class Fenster extends Plugin_Gleisbelegung {
         simZeit.setText("Simzeit: " + ft.format(dNow));
         simZeit.setStyle("-fx-text-fill: white;");
         simZeit.setTranslateX(stageWidth - 360);
-        if(!platform.equals("desktop")) simZeit.setTranslateX(stageWidth - 160);
         simZeit.setFont(Font.font(settingsFontSize));
 
         einstellungen = new Button();
@@ -200,11 +199,9 @@ public class Fenster extends Plugin_Gleisbelegung {
                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
             }
         });
-        if(!platform.equals("desktop")) zugSuche.setDisable(true);
 
         pZugSuche = new Pane(lZugSuche, zugSuche);
         pZugSuche.setStyle("-fx-background-color: #303030");
-        if(!platform.equals("desktop")) pZugSuche.setDisable(true);
 
         Platform.runLater(() -> {
             Pane infoFehler = new Pane(spInformations, fehlerMeldungen, pZugSuche);
@@ -593,18 +590,10 @@ public class Fenster extends Plugin_Gleisbelegung {
         Date dNow = new Date(currentGameTime);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm:ss");
 
-        if(platform.equals("desktop"))
-            Platform.runLater(() -> simZeit.setText("Simzeit: " + ft.format(dNow) + "     Aktualisierung in: " + updatingIn + "s"));
-        else
-            Platform.runLater(() -> simZeit.setText("Aktualisierung in: " + updatingIn + "s"));
-
-
+        Platform.runLater(() -> simZeit.setText("Simzeit: " + ft.format(dNow) + "     Aktualisierung in: " + updatingIn + "s"));
         Date dauer = new Date(System.currentTimeMillis() - spielStart - 1000*60*60);
 
-        if(platform.equals("desktop"))
-            Platform.runLater(() -> pluginName.setText("Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
-        else
-            Platform.runLater(() -> pluginName.setText("Spieldauer: " + ft.format(dauer)));
+        Platform.runLater(() -> pluginName.setText("Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
     }
 
     //Checkt alle Züge ob sie eine aktualisierung benötigen und führt diese ggf. aus.
@@ -633,15 +622,12 @@ public class Fenster extends Plugin_Gleisbelegung {
         scrollBarWidth.setTranslateY(stageHeight-90);
         if(settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-settingsInformationWith);
         if(!settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-15);
-        if(!platform.equals("desktop")) scrollBarWidth.setVisible(false);
 
         scrollBarHeight.setPrefHeight(stageHeight-90);
         if(settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-settingsInformationWith+5);
         if(!settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-14);
-        if(!platform.equals("desktop")) scrollBarHeight.setVisible(false);
 
         spContent.setMaxHeight(stageHeight-120);
-        if(!platform.equals("desktop")) spContent.setMaxHeight(stageHeight-75);
         spContent.setTranslateX(settingsGridWidth);
         if(settingsShowInformations) spContent.setMaxWidth(stageWidth-settingsInformationWith-60);
         if(!settingsShowInformations) spContent.setMaxWidth(stageWidth-130);
@@ -649,12 +635,10 @@ public class Fenster extends Plugin_Gleisbelegung {
 
         spTime.setMaxHeight(stageHeight-120);
         spPlatform.setTranslateX(settingsGridWidth);
-        if(!platform.equals("desktop")) spTime.setMaxHeight(stageHeight-75);
         if(settingsShowInformations) spPlatform.setMaxWidth(stageWidth-settingsInformationWith-60);
         if(!settingsShowInformations) spPlatform.setMaxWidth(stageWidth-130);
 
         simZeit.setTranslateX(primaryStage.getWidth() - 360);
-        if(!platform.equals("desktop")) simZeit.setTranslateX(stageWidth - 160);
 
         einstellungen.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 - 100);
         refresh.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 + 75);
@@ -862,7 +846,6 @@ public class Fenster extends Plugin_Gleisbelegung {
         cbdm.setTranslateX(300);
         cbdm.setTranslateY(190);
         cbdm.setFont(Font.font(18));
-        if(!platform.equals("desktop")) cbdm.setDisable(true);
         if(settingsDebug) cbdm.setSelected(true);
         if(! settingsDebug) cbdm.setSelected(false);
 
