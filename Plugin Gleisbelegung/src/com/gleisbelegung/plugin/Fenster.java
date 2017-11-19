@@ -870,12 +870,12 @@ public class Fenster extends Plugin_Gleisbelegung {
         CheckBox[] cb = new CheckBox[bahnsteige.length];
         int tempX = 10;
         int tempY = 0;
-        for (int i = 0; i < bahnsteige.length; i++) {
-            cb[i] = new CheckBox(bahnsteige[i]);
+        for (int i = 0; i < Plugin_Gleisbelegung.gleise.size(); i++) {
+            cb[i] = new CheckBox(Plugin_Gleisbelegung.gleise.get(i).getGleisName());
             cb[i].setTranslateX(tempX);
             cb[i].setTranslateY(tempY);
             cb[i].setFont(Font.font(18));
-            cb[i].setSelected(this.gleise.get(i).isSichtbar());
+            cb[i].setSelected(Plugin_Gleisbelegung.gleise.get(i).isSichtbar());
 
             if ((i + 1) % 3 == 0) {
                 stageHeight += 30;
