@@ -50,7 +50,6 @@ public class Fenster extends Plugin_Gleisbelegung {
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
 
     public ArrayList<LabelContainer> labelTime;         //Speichert alle LabelContainer die eine Zeit anzeigen
-    private ArrayList<Gleis> gleise;
 
     //Erzeugt alle Listen und erzeugt die LabelContainer mit Informationen, welche vorher von der @VErbindungs-Klasse bereitgestellt werden
     public Fenster() throws Exception {
@@ -857,11 +856,9 @@ public class Fenster extends Plugin_Gleisbelegung {
         cbtmb.setTranslateX(300);
         cbtmb.setTranslateY(220);
         cbtmb.setFont(Font.font(18));
-        /*if(!platform.equals("desktop")) cbtmb.setDisable(true);                                   //wurde deaktiviert, weil funktioniert nicht!
         if(settingsPlaySound) cbtmb.setSelected(true);
-        if(! settingsPlaySound) cbtmb.setSelected(false);*/
-        cbtmb.setSelected(false);
-        cbtmb.setDisable(true);
+        if(! settingsPlaySound) cbtmb.setSelected(false);
+
 
         Pane gleise = new Pane();
         gleise.setTranslateX(0);

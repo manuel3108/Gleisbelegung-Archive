@@ -62,6 +62,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     static double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
     static StackPane firstSP;                               //Erste Benutzeroberfläche, die beim start angezeigt wird.
     static String bahnhofName;                              //Name des Bahnhofes
+    static ArrayList<Gleis> gleise;
 
     private Verbindung v;                                   //Objekt der Verbindungs-Klasse                             (Übernimmt Kommunikation mit der Schnittstelle)
     private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
@@ -82,16 +83,11 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
         refresh.setOnAction(e -> Platform.runLater(() -> startLoading()));
         fehlerMeldungen = new Pane();
 
-        /*try{
+        try{
             audio = new AudioClip(getClass().getResource("Train_Horn.wav").toURI().toString());
         } catch(Exception e){
             audio = new AudioClip("Train_Horn.wav");
-        }*/
-        /*try {
-            audioMedia = new Media(getClass().getResource("Train_Horn.wav").toURI().toString());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }*/
+        }
 
 
         Rectangle2D size = Screen.getPrimary().getVisualBounds();
@@ -420,25 +416,23 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     }
 
     //Der Sound, der der Gespielt wird, wenn eine Mehrachbelegung entsteht
-    public static void playColisonSound(){
-        /*if(settingsPlaySound){
-            try{
-                audio.setVolume(0.04);
-                audio.play();
-            }catch(Exception e){
-                e.printStackTrace();
+    public static void playColisonSound(int gleisId){
+        if(settingsPlaySound && !audio.isPlaying()){
+            System.out.println("Halolo");
+            for(Gleis g : gleise){
+                if(g.getId() == gleisId){
+                    if(g.isSichtbar()){
+                        try{
+                            audio.setVolume(0.04);
+                            audio.play();
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                }
             }
-        }*/
-
-        /*try {
-            Clip clip = null;
-            clip = AudioSystem.getClip();
-            clip.open(AudioSystem.getAudioInputStream(new File("Train_Horn.wav")));
-            clip.start();
-            clip.
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+        }
     }
 
     //Schreibt Fehlermeldungen auf das Panel fehlerMeldungen

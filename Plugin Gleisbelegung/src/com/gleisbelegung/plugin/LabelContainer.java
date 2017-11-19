@@ -146,9 +146,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
                     l.setTooltip(new Tooltip(temp));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: red;");
 
-                    /*if (bahnsteigeSichtbar[bahnsteig]) {
-                        playColisonSound();
-                    }*/
+                    playColisonSound(bahnsteig);
                 }
             });
         }
