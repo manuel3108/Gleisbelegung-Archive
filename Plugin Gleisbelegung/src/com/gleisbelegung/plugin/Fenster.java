@@ -746,7 +746,7 @@ public class Fenster extends Plugin_Gleisbelegung {
     private void updateSomeTrains(long time) throws Exception{
         for(Zug z : zuege){
             try{
-                if(z.getFahrplan() != null){
+                if(z.getFahrplan() != null && z.getFahrplan(0) != null){
                     for (int i = 0; i < z.getFahrplan().length; i++) {
                         if(z.getFahrplan(i) != null && z.getFahrplan(i).getFlaggedTrain() != null){
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
