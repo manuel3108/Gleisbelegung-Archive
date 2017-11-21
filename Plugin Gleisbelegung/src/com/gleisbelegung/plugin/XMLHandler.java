@@ -86,12 +86,15 @@ public class XMLHandler {
 
     private String getTagName(String s){
         try{
-            char[] c = s.replace("<", "").replace(">", "").toCharArray();
-            String out = "";
-            for (int i = 0; i < s.indexOf(" "); i++) {
-                out += c[i];
+            if(s != null && !s.equals("")){
+                char[] c = s.replace("<", "").replace(">", "").toCharArray();
+                String out = "";
+                for (int i = 0; i < s.indexOf(" "); i++) {
+                    out += c[i];
+                }
+                return out.replace(" ", "");
             }
-            return out.replace(" ", "");
+            return "";
         } catch (Exception e){
             e.printStackTrace();
             return "";
