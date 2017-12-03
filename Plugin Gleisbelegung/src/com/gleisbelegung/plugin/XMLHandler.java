@@ -52,7 +52,7 @@ public class XMLHandler {
             ArrayList<String> input = new ArrayList<>();
             do {
                 input.add(in.readLine());
-            } while(!input.get(input.size()-1).contains(tag));
+            } while(input.get(input.size()-1) != null &&!input.get(input.size()-1).contains(tag));
             input.remove(input.size()-1);
 
             ArrayList<ArrayList<ArrayList<String[]>>> out = new ArrayList<>();
