@@ -89,7 +89,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         try{
             int size = trains.size();
             for (int i = 0; i < trains.size(); i++) {
-                if(i < trains.size() && trains.get(i) != null && trains.get(i).getZugId() == z.getZugId()){
+                if(trains.size() > 0 && i < trains.size() && trains.get(i) != null && trains.get(i).getZugId() == z.getZugId()){
                     trains.remove(i);
                 }
             }
@@ -146,9 +146,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
                     l.setTooltip(new Tooltip(temp));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: red;");
 
-                    /*if (bahnsteigeSichtbar[bahnsteig]) {
-                        playColisonSound();
-                    }*/
+                    playColisonSound(bahnsteig);
                 }
             });
         }

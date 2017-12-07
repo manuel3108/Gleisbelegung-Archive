@@ -50,7 +50,6 @@ public class Fenster extends Plugin_Gleisbelegung {
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
 
     public ArrayList<LabelContainer> labelTime;         //Speichert alle LabelContainer die eine Zeit anzeigen
-    private ArrayList<Gleis> gleise;
 
     //Erzeugt alle Listen und erzeugt die LabelContainer mit Informationen, welche vorher von der @VErbindungs-Klasse bereitgestellt werden
     public Fenster() throws Exception {
@@ -69,7 +68,6 @@ public class Fenster extends Plugin_Gleisbelegung {
         simZeit.setText("Simzeit: " + ft.format(dNow));
         simZeit.setStyle("-fx-text-fill: white;");
         simZeit.setTranslateX(stageWidth - 360);
-        if(!platform.equals("desktop")) simZeit.setTranslateX(stageWidth - 160);
         simZeit.setFont(Font.font(settingsFontSize));
 
         einstellungen = new Button();
@@ -200,11 +198,9 @@ public class Fenster extends Plugin_Gleisbelegung {
                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
             }
         });
-        if(!platform.equals("desktop")) zugSuche.setDisable(true);
 
         pZugSuche = new Pane(lZugSuche, zugSuche);
         pZugSuche.setStyle("-fx-background-color: #303030");
-        if(!platform.equals("desktop")) pZugSuche.setDisable(true);
 
         Platform.runLater(() -> {
             Pane infoFehler = new Pane(spInformations, fehlerMeldungen, pZugSuche);
@@ -301,7 +297,6 @@ public class Fenster extends Plugin_Gleisbelegung {
                         Label l = grid.get(tempI).get(tempJ).getLabel();
                         gp.add(l, tempJ+1, tempI+1);
                     } catch (Exception e){
-                        System.out.println("GITHUB #24: GridSize:" + grid.size() + " GridSize I: " + grid.get(tempI).size());
                         e.printStackTrace();
                     }
                 });
@@ -593,18 +588,10 @@ public class Fenster extends Plugin_Gleisbelegung {
         Date dNow = new Date(currentGameTime);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm:ss");
 
-        if(platform.equals("desktop"))
-            Platform.runLater(() -> simZeit.setText("Simzeit: " + ft.format(dNow) + "     Aktualisierung in: " + updatingIn + "s"));
-        else
-            Platform.runLater(() -> simZeit.setText("Aktualisierung in: " + updatingIn + "s"));
-
-
+        Platform.runLater(() -> simZeit.setText("Simzeit: " + ft.format(dNow) + "     Aktualisierung in: " + updatingIn + "s"));
         Date dauer = new Date(System.currentTimeMillis() - spielStart - 1000*60*60);
 
-        if(platform.equals("desktop"))
-            Platform.runLater(() -> pluginName.setText("Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
-        else
-            Platform.runLater(() -> pluginName.setText("Spieldauer: " + ft.format(dauer)));
+        Platform.runLater(() -> pluginName.setText("Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
     }
 
     //Checkt alle Züge ob sie eine aktualisierung benötigen und führt diese ggf. aus.
@@ -633,15 +620,12 @@ public class Fenster extends Plugin_Gleisbelegung {
         scrollBarWidth.setTranslateY(stageHeight-90);
         if(settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-settingsInformationWith);
         if(!settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-15);
-        if(!platform.equals("desktop")) scrollBarWidth.setVisible(false);
 
         scrollBarHeight.setPrefHeight(stageHeight-90);
         if(settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-settingsInformationWith+5);
         if(!settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-14);
-        if(!platform.equals("desktop")) scrollBarHeight.setVisible(false);
 
         spContent.setMaxHeight(stageHeight-120);
-        if(!platform.equals("desktop")) spContent.setMaxHeight(stageHeight-75);
         spContent.setTranslateX(settingsGridWidth);
         if(settingsShowInformations) spContent.setMaxWidth(stageWidth-settingsInformationWith-60);
         if(!settingsShowInformations) spContent.setMaxWidth(stageWidth-130);
@@ -649,12 +633,10 @@ public class Fenster extends Plugin_Gleisbelegung {
 
         spTime.setMaxHeight(stageHeight-120);
         spPlatform.setTranslateX(settingsGridWidth);
-        if(!platform.equals("desktop")) spTime.setMaxHeight(stageHeight-75);
         if(settingsShowInformations) spPlatform.setMaxWidth(stageWidth-settingsInformationWith-60);
         if(!settingsShowInformations) spPlatform.setMaxWidth(stageWidth-130);
 
         simZeit.setTranslateX(primaryStage.getWidth() - 360);
-        if(!platform.equals("desktop")) simZeit.setTranslateX(stageWidth - 160);
 
         einstellungen.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 - 100);
         refresh.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 + 75);
@@ -763,12 +745,12 @@ public class Fenster extends Plugin_Gleisbelegung {
     private void updateSomeTrains(long time) throws Exception{
         for(Zug z : zuege){
             try{
-                if(z.getFahrplan() != null){
+                if(z.getFahrplan() != null && z.getFahrplan(0) != null){
                     for (int i = 0; i < z.getFahrplan().length; i++) {
                         if(z.getFahrplan(i) != null && z.getFahrplan(i).getFlaggedTrain() != null){
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
-                            if(z.getFahrplan()!= null && z.getFahrplan(i) != null && eFlag != null && eFlag.getFahrplan() != null){
+                            if(z.getFahrplan()!= null && z.getFahrplan(i) != null && eFlag != null && eFlag.getFahrplan() != null && eFlag.getFahrplan(0) != null){
                                 long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung();
                                 long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung();
 
@@ -862,7 +844,6 @@ public class Fenster extends Plugin_Gleisbelegung {
         cbdm.setTranslateX(300);
         cbdm.setTranslateY(190);
         cbdm.setFont(Font.font(18));
-        if(!platform.equals("desktop")) cbdm.setDisable(true);
         if(settingsDebug) cbdm.setSelected(true);
         if(! settingsDebug) cbdm.setSelected(false);
 
@@ -874,11 +855,9 @@ public class Fenster extends Plugin_Gleisbelegung {
         cbtmb.setTranslateX(300);
         cbtmb.setTranslateY(220);
         cbtmb.setFont(Font.font(18));
-        /*if(!platform.equals("desktop")) cbtmb.setDisable(true);                                   //wurde deaktiviert, weil funktioniert nicht!
         if(settingsPlaySound) cbtmb.setSelected(true);
-        if(! settingsPlaySound) cbtmb.setSelected(false);*/
-        cbtmb.setSelected(false);
-        cbtmb.setDisable(true);
+        if(! settingsPlaySound) cbtmb.setSelected(false);
+
 
         Pane gleise = new Pane();
         gleise.setTranslateX(0);
@@ -887,12 +866,12 @@ public class Fenster extends Plugin_Gleisbelegung {
         CheckBox[] cb = new CheckBox[bahnsteige.length];
         int tempX = 10;
         int tempY = 0;
-        for (int i = 0; i < bahnsteige.length; i++) {
-            cb[i] = new CheckBox(bahnsteige[i]);
+        for (int i = 0; i < Plugin_Gleisbelegung.gleise.size(); i++) {
+            cb[i] = new CheckBox(Plugin_Gleisbelegung.gleise.get(i).getGleisName());
             cb[i].setTranslateX(tempX);
             cb[i].setTranslateY(tempY);
             cb[i].setFont(Font.font(18));
-            cb[i].setSelected(this.gleise.get(i).isSichtbar());
+            cb[i].setSelected(Plugin_Gleisbelegung.gleise.get(i).isSichtbar());
 
             if ((i + 1) % 3 == 0) {
                 stageHeight += 30;

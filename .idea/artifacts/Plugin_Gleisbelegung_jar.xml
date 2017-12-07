@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Plugin Gleisbelegung:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Plugin_Gleisbelegung_jar</output-path>
+    <root id="archive" name="Plugin Gleisbelegung.jar">
+      <element id="module-output" name="Plugin Gleisbelegung" />
+    </root>
+  </artifact>
+</component>

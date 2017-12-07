@@ -19,11 +19,13 @@ public class Gleis extends Plugin_Gleisbelegung {
     private boolean sichtbar;
     private boolean hervorgehoben;
     private int orderId;
+    private int id;
 
     public Gleis(String gleisName, int orderId){
         this.gleisName = gleisName;
         this.sichtbar = true;
         this.orderId = orderId;
+        id = orderId;
 
         hervorgehoben = false;
     }
@@ -139,5 +141,9 @@ public class Gleis extends Plugin_Gleisbelegung {
         stage.setScene(scene);
         stage.show();
         stage.setAlwaysOnTop(true);
+    }
+
+    public int getId() {
+        return id;
     }
 }

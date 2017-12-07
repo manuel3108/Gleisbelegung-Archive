@@ -52,7 +52,7 @@ public class XMLHandler {
             ArrayList<String> input = new ArrayList<>();
             do {
                 input.add(in.readLine());
-            } while(!input.get(input.size()-1).contains(tag));
+            } while(input.get(input.size()-1) != null &&!input.get(input.size()-1).contains(tag));
             input.remove(input.size()-1);
 
             ArrayList<ArrayList<ArrayList<String[]>>> out = new ArrayList<>();
@@ -86,12 +86,15 @@ public class XMLHandler {
 
     private String getTagName(String s){
         try{
-            char[] c = s.replace("<", "").replace(">", "").toCharArray();
-            String out = "";
-            for (int i = 0; i < s.indexOf(" "); i++) {
-                out += c[i];
+            if(s != null && !s.equals("")){
+                char[] c = s.replace("<", "").replace(">", "").toCharArray();
+                String out = "";
+                for (int i = 0; i < s.indexOf(" "); i++) {
+                    out += c[i];
+                }
+                return out.replace(" ", "");
             }
-            return out.replace(" ", "");
+            return "";
         } catch (Exception e){
             e.printStackTrace();
             return "";
@@ -131,21 +134,21 @@ public class XMLHandler {
         }
     }
 
-    private String getOpeningTag(String s) throws Exception{
+    private String getOpeningTag(String s){
         try{
-            String out = "";
-            char[] c = s.toCharArray();
-            for (int i = s.indexOf(" ")+1; i < s.indexOf(">"); i++) {
-                out += c[i];
+            if(s != null && !s.equals("")){
+                String out = "";
+                char[] c = s.toCharArray();
+                for (int i = s.indexOf(" ")+1; i < s.indexOf(">"); i++) {
+                    out += c[i];
+                }
+                return out;
+            } else{
+                return "";
             }
-            return out;
         } catch (Exception e){
-            String out = "";
-            char[] c = s.toCharArray();
-            for (int i = s.indexOf(" ")+1; i < s.indexOf(">"); i++) {
-                out += c[i];
-            }
-            return out;
+            e.printStackTrace();
+            return "";
         }
     }
 }
