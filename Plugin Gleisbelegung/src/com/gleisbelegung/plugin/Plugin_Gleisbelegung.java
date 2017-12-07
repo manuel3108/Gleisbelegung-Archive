@@ -418,7 +418,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     //Der Sound, der der Gespielt wird, wenn eine Mehrachbelegung entsteht
     public static void playColisonSound(int gleisId){
         if(settingsPlaySound && !audio.isPlaying()){
-            System.out.println("Halolo");
             for(Gleis g : gleise){
                 if(g.getId() == gleisId){
                     if(g.isSichtbar()){
