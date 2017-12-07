@@ -134,21 +134,21 @@ public class XMLHandler {
         }
     }
 
-    private String getOpeningTag(String s) throws Exception{
+    private String getOpeningTag(String s){
         try{
-            String out = "";
-            char[] c = s.toCharArray();
-            for (int i = s.indexOf(" ")+1; i < s.indexOf(">"); i++) {
-                out += c[i];
+            if(s != null && !s.equals("")){
+                String out = "";
+                char[] c = s.toCharArray();
+                for (int i = s.indexOf(" ")+1; i < s.indexOf(">"); i++) {
+                    out += c[i];
+                }
+                return out;
+            } else{
+                return "";
             }
-            return out;
         } catch (Exception e){
-            String out = "";
-            char[] c = s.toCharArray();
-            for (int i = s.indexOf(" ")+1; i < s.indexOf(">"); i++) {
-                out += c[i];
-            }
-            return out;
+            e.printStackTrace();
+            return "";
         }
     }
 }
