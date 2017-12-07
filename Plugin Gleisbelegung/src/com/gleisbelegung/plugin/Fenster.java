@@ -297,7 +297,6 @@ public class Fenster extends Plugin_Gleisbelegung {
                         Label l = grid.get(tempI).get(tempJ).getLabel();
                         gp.add(l, tempJ+1, tempI+1);
                     } catch (Exception e){
-                        System.out.println("GITHUB #24: GridSize:" + grid.size() + " GridSize I: " + grid.get(tempI).size());
                         e.printStackTrace();
                     }
                 });
