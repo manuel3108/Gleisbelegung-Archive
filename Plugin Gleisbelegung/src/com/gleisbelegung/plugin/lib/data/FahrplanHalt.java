@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung.plugin.lib.data;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -9,14 +9,16 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Speichert alle Daten für einen FahrplanHalt
  */
 
+import com.gleisbelegung.plugin.LabelContainer;
+
 import java.util.ArrayList;
 
 public class FahrplanHalt {
     private Zug z;                                  //Der Zug zu dem der Halt gehört
     private long ankuft;                            //Die GEPLANTE Ankunft des Zuges
     private long abfahrt;                           //Die GEPLANTE Abfahrt des Zuges
-    private String gleis;                           //Das GEPLANTE Gleis des Zuges
-    private String plangleis;                       //Das aktuelle Gleis
+    private String gleis;                           //Das GEPLANTE Bahnsteig des Zuges
+    private String plangleis;                       //Das aktuelle Bahnsteig
     private String flags;                           //Die Flags des Haltes
     private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
     private boolean drawable;                       //Ist der Zug zeichenbar
@@ -55,7 +57,7 @@ public class FahrplanHalt {
         this.abfahrt = abfahrt;
     }
 
-    //get-set Gleis
+    //get-set Bahnsteig
     public String getGleis() {
         return gleis;
     }

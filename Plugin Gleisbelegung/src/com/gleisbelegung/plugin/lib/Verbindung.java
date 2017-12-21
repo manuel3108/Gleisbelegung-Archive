@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung.plugin.lib;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -9,6 +9,9 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Erstellt und hält die Verbindung mit der Schnitstelle aufrecht.
  */
 
+import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
+import com.gleisbelegung.plugin.lib.data.Zug;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -16,80 +19,91 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class Verbindung extends Plugin_Gleisbelegung{
+public class Verbindung{
     public Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
     private XMLHandler xml;     //Verarbeitet die Empfangenen Daten in einer Eigenen Klasse
     private boolean aktualisiere;
 
+    private Stellwerk stellwerk;
+
     //Führt einige notwendige Kommunikationsschritte mit der Verbindung durch und Verlangt u.a. Uhrzeit und Bahnsteige
-    public Verbindung(Socket socket) throws Exception{
+    public Verbindung(Socket socket, Stellwerk stellwerk){
+        this.stellwerk = stellwerk;
+
         try {
             this.socket = socket;
             xml = new XMLHandler(socket.getInputStream());
-            zuege = new ArrayList<Zug>();
         } catch (IOException e) {
-            errorWindow(-1, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
+            stellwerk.errorWindow(-1, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-1);
         }
 
         ArrayList<String[]> temp = xml.readLine();
         if(temp != null && Integer.parseInt(temp.get(0)[1]) != 300){
-            errorWindow(-2, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
+            stellwerk.errorWindow(-2, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-2);
         }
 
         if(setSocketCode("<register name=\"Gleisbelegung\" autor=\"Manuel Serret\" version=\"0.1\" protokoll=\"1\" text=\"Darstellung der Gleisbelegung\" />") != 1){
-            errorWindow(-3, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
+            stellwerk.errorWindow(-3, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-3);
         }
 
         temp = xml.readLine();
         if(temp != null && Integer.parseInt(temp.get(0)[1]) != 220){
-            errorWindow(-4, "Anmeldung erfolgreich!\n\nSollte diese Meldung kommen, habe ich etwas falsch Programmiert");
+            stellwerk.errorWindow(-4, "Anmeldung erfolgreich!\n\nSollte diese Meldung kommen, habe ich etwas falsch Programmiert");
             System.exit(-4);
         }
 
         if(setSocketCode("<anlageninfo />") != 1){
-            errorWindow(-5, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            stellwerk.errorWindow(-5, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-5);
         }
 
         temp = xml.readLine();
         if(temp == null){
-            errorWindow(-6, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            stellwerk.errorWindow(-6, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-6);
         }
-        bahnhofName = temp.get(1)[1];
+
+        stellwerk.simbuild = Integer.parseInt(temp.get(0)[1]);
+        stellwerk.stellwerksname = temp.get(1)[1];
+        stellwerk.anlagenid = Integer.parseInt(temp.get(2)[1]);
         System.out.println("Die Verbindung mit dem Stellwerk " + temp.get(1)[1] + " und der Anlagen-Id " + temp.get(2)[1] + " wurde erfolgreich hergestellt. Aktuelle Simulator-Build: " + temp.get(0)[1]);
-        addMessageToErrorPane("Verbindung erfolgreich!");
 
         long timeBeforeSending = System.currentTimeMillis();
         if(setSocketCode("<simzeit sender='" + timeBeforeSending + "' />") != 1){
-            errorWindow(-7, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            stellwerk.errorWindow(-7, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-7);
         }
 
         temp = xml.readLine();
         if(temp == null){
-            errorWindow(-8, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            stellwerk.errorWindow(-8, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-8);
         }
-        currentGameTime = ((System.currentTimeMillis() - timeBeforeSending)/1000)/2 + Long.parseLong(temp.get(1)[1]) - 1000*60*60;
+        stellwerk.spielzeit = ((System.currentTimeMillis() - timeBeforeSending)/1000)/2 + Long.parseLong(temp.get(1)[1]) - 1000*60*60;
 
         if(setSocketCode("<bahnsteigliste />") != 1){
-            errorWindow(-9, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            stellwerk.errorWindow(-9, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-9);
         }
 
         ArrayList<ArrayList<ArrayList<String[]>>> temp1 = xml.readLines();
-        bahnsteige = new String[temp1.size()];
+        String[] bahnsteige = new String[temp1.size()];
         for(int i = 0; i < temp1.size(); i++){
             bahnsteige[i] = temp1.get(i).get(0).get(0)[1];
+        }
+        stellwerk.erstelleBahnhoefe(bahnsteige);
+
+        if(setSocketCode("<wege />") != 1){
+            stellwerk.errorWindow(-10, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.exit(-10);
         }
     }
 
     //Sendet Daten-Anfragen an die Plugin-Schnitstelle
-    private int setSocketCode(String s) throws Exception{
+    private int setSocketCode(String s){
         try {
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             out.write(s+"\n");
@@ -101,8 +115,23 @@ public class Verbindung extends Plugin_Gleisbelegung{
         }
     }
 
+    public void aktualisiereSimZeit(){
+        long timeBeforeSending = System.currentTimeMillis();
+        if(setSocketCode("<simzeit sender='" + timeBeforeSending + "' />") != 1){
+            stellwerk.errorWindow(-7, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.exit(-7);
+        }
+        ArrayList<String[]> temp = xml.readLine();
+        if(temp == null){
+            stellwerk.errorWindow(-8, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.exit(-8);
+        }
+        stellwerk.spielzeit = ((System.currentTimeMillis() - timeBeforeSending)/1000)/2 + Long.parseLong(temp.get(1)[1]) - 1000*60*60;
+    }
+
     //Aktualisiert die Daten aller Züge
     public void update(){
+        stellwerk.letzteAktualisierung = System.currentTimeMillis();
         aktualisiere = true;
 
         try{
@@ -117,7 +146,7 @@ public class Verbindung extends Plugin_Gleisbelegung{
         for(int i = 0; i < zugliste.size(); i++){
             try{
                 boolean exists = false;
-                for(Zug z : zuege){
+                for(Zug z : stellwerk.zuege){
                     try{
                         if(!zugliste.get(i).get(0).get(0)[1].equals("") && Integer.parseInt(zugliste.get(i).get(0).get(0)[1]) == z.getZugId()){
                             exists = true;
@@ -130,14 +159,12 @@ public class Verbindung extends Plugin_Gleisbelegung{
                 }
 
                 if(!exists && !zugliste.get(i).get(0).get(0)[1].equals("") && !zugliste.get(i).get(0).get(1)[1].equals("")){
-                    //System.out.println("INFORMATION: " + zugliste.get(i).get(0).get(1)[1] + " wurde hinzugefügt!");
-                    zuege.add(new Zug(Integer.parseInt(zugliste.get(i).get(0).get(0)[1]), zugliste.get(i).get(0).get(1)[1]));
+                    System.out.println("INFORMATION: " + zugliste.get(i).get(0).get(1)[1] + " wurde hinzugefügt!");
+                    stellwerk.zuege.add(new Zug(Integer.parseInt(zugliste.get(i).get(0).get(0)[1]), zugliste.get(i).get(0).get(1)[1]));
                 }
             } catch (Exception e){
-                errorCounter++;
                 System.out.println("FEHLER: Zuglistenaktualisierungsfehler!");
                 e.printStackTrace();
-                addMessageToErrorPane("FEHLER: Zuglistenaktualisierungsfehler!");
             }
         }
 
@@ -145,8 +172,8 @@ public class Verbindung extends Plugin_Gleisbelegung{
 
 
 
-        for(int j = 0; j < zuege.size(); j++){
-            Zug z = zuege.get(j);
+        for(int j = 0; j < stellwerk.zuege.size(); j++){
+            Zug z = stellwerk.zuege.get(j);
 
             try{
                 boolean updateNeeded = false;
@@ -234,11 +261,7 @@ public class Verbindung extends Plugin_Gleisbelegung{
 
                             fahrplan[i] = new FahrplanHalt(zugfahrplan.get(i).get(0), z);
                         } else{
-                            errorCounter++;
                             System.out.println("ARRAY out of Bounds: Zug: " + z.getZugName());
-                            if(errorCounter >= maxErrorCounter){
-                                break;
-                            }
                         }
                     } catch(Exception e){
                         e.printStackTrace();
@@ -277,19 +300,17 @@ public class Verbindung extends Plugin_Gleisbelegung{
                     z.setNeedUpdate(true);
                 }
             } catch(Exception e){
-                errorCounter++;
                 System.out.println("ZUG: " + z.getZugName() + ": Verbindungsfehler!");
                 e.printStackTrace();
-                addMessageToErrorPane("ZUG: " + z.getZugName() + ": Verbindungsfehler!");
             }
         }
 
         for(Zug z : removing){
-            //System.out.println("INFORMATION: " + z.getZugName() + " wurde entfernt.");
-            zuege.remove(z);
+            System.out.println("INFORMATION: " + z.getZugName() + " wurde entfernt.");
+            stellwerk.zuege.remove(z);
         }
 
-        for (Zug z : zuege) {
+        for (Zug z : stellwerk.zuege) {
             try{
                 if(z != null && z.getFahrplan() != null){
                     for(FahrplanHalt fh : z.getFahrplan()){
@@ -299,10 +320,8 @@ public class Verbindung extends Plugin_Gleisbelegung{
                                 if(flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null){
                                     flagged.getFahrplan(0).setDrawable(false);
                                     fh.setFlaggedTrain(flagged);
-                                    debugMessage("ZUG: " + z.getZugName() + " (" + z.getZugId() + ") Flag: " + flagged.getZugName() + " (" + flagged.getZugId() + ")", true);
                                 } else{
                                     fh.setFlaggedTrain(null);
-                                    debugMessage("ZUG: " + z.getZugName() + " (" + z.getZugId() + ") Flag ohne Zug", true);
                                 }
                             }
                         } catch(Exception e){
@@ -311,10 +330,8 @@ public class Verbindung extends Plugin_Gleisbelegung{
                     }
                 }
             }catch(Exception e){
-                errorCounter++;
                 System.out.println("ZUG: " + z.getZugName() + ": Flag-Problem!");
                 e.printStackTrace();
-                addMessageToErrorPane("ZUG: " + z.getZugName() + ": Flag-Problem!");
             }
         }
 
@@ -322,7 +339,7 @@ public class Verbindung extends Plugin_Gleisbelegung{
     }
 
     //Checkt ob ein Zug einen Nachfolger hat.
-    private Zug getFlaggedTrain(String content) throws Exception{
+    private Zug getFlaggedTrain(String content) {
         if(content.contains("(") && content.contains(")")){
             char[] in = content.toCharArray();
             String out = "";
@@ -342,7 +359,7 @@ public class Verbindung extends Plugin_Gleisbelegung{
                 }
             }
 
-            for (Zug z : zuege) {
+            for (Zug z : stellwerk.zuege) {
                 if (z.getZugId() == Integer.parseInt(out)) {
                     return z;
                 }

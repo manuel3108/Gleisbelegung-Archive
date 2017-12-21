@@ -1,5 +1,7 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung.plugin.lib.data;
 
+import com.gleisbelegung.plugin.LabelContainer;
+import com.gleisbelegung.plugin.Plugin;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,7 +14,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class Gleis extends Plugin_Gleisbelegung {
+public class Bahnsteig extends Plugin {
     private ArrayList<LabelContainer> spalte;
     private LabelContainer gleisLabel;
     private String gleisName;
@@ -21,12 +23,13 @@ public class Gleis extends Plugin_Gleisbelegung {
     private int orderId;
     private int id;
 
-    public Gleis(String gleisName, int orderId){
+    public Bahnsteig(String gleisName, int orderId){
         this.gleisName = gleisName;
         this.sichtbar = true;
         this.orderId = orderId;
         id = orderId;
 
+        spalte = new ArrayList<>();
         hervorgehoben = false;
     }
 
@@ -55,14 +58,6 @@ public class Gleis extends Plugin_Gleisbelegung {
         return gleisLabel;
     }
     public void setGleisLabel(LabelContainer gleisLabel) {
-        gleisLabel.getLabel().setOnMouseClicked(e -> {
-            if(e.getButton() == MouseButton.PRIMARY){
-                hebeHervor();
-            } else if(e.getButton() == MouseButton.SECONDARY){
-                aendereReihenfolge();
-            }
-        });
-
         this.gleisLabel = gleisLabel;
     }
 
@@ -80,7 +75,7 @@ public class Gleis extends Plugin_Gleisbelegung {
         gleisLabel.getLabel().setMinWidth(width);
     }
 
-    private void hebeHervor(){
+    public void hebeHervor(){
         if(hervorgehoben) {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #303030");
             for(LabelContainer lc : spalte){
@@ -106,41 +101,8 @@ public class Gleis extends Plugin_Gleisbelegung {
     public int getOrderId(){
         return orderId;
     }
-
-    private void aendereReihenfolge(){
-        Stage stage = new Stage();
-
-        Label l = new Label("Reihenfolge festlegen:");
-        l.setStyle("-fx-text-fill: white");
-        l.setFont(Font.font(settingsFontSize));
-        l.setTranslateY(25);
-        l.setTranslateX(25);
-
-        TextField tf = new TextField(String.valueOf(orderId+1));
-        tf.setFont(Font.font(settingsFontSize-3));
-        tf.setTranslateX(25);
-        tf.setTranslateY(60);
-
-        Button b = new Button("Speichern");
-        b.setFont(Font.font(settingsFontSize));
-        b.setTranslateX(25);
-        b.setTranslateY(120);
-        b.setOnAction(e -> {
-            orderId = Integer.parseInt(tf.getText())-1;
-            stage.close();
-            Plugin_Gleisbelegung.sortiereGleiseListener();
-        });
-
-        Pane p = new Pane(l,tf,b);
-        p.setStyle("-fx-background-color: #303030");
-        p.setMinSize(500,200);
-        p.setMaxSize(500, 200);
-
-        Scene scene = new Scene(p, 300,200);
-
-        stage.setScene(scene);
-        stage.show();
-        stage.setAlwaysOnTop(true);
+    public void setOrderId(int orderId){
+        this.orderId = orderId;
     }
 
     public int getId() {

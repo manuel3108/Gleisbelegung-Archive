@@ -9,6 +9,8 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Repräsentiert immer eine Tabellen-Zelle in einer Tabelle
  */
 
+import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
+import com.gleisbelegung.plugin.lib.data.Zug;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -19,7 +21,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class LabelContainer extends Plugin_Gleisbelegung{
+import static com.gleisbelegung.plugin.Fenster.informations;
+
+public class LabelContainer extends Plugin {
     private Label l;                                //Textfeld um Text schreiben zu können
     private int labelIndex;                         //speichert den in der @Fenster-Klsse vergebenen labelIndex
     private ArrayList<Zug> trains;                  //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
@@ -28,8 +32,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
     private ArrayList<LabelContainer> labelTime;    //Übergabe von labelTime aus der @Fenster-Klasse
     private boolean hervorhebungDurchGleis;
 
-    //Speichert alle übergebenen Daten
-    public LabelContainer(int labelIndex, int bahnsteig, ArrayList<LabelContainer> labelTime) throws Exception{
+    public LabelContainer(int labelIndex, int bahnsteig, ArrayList<LabelContainer> labelTime){
         this.labelTime = labelTime;
         this.bahnsteig = bahnsteig;
         this.labelIndex = labelIndex;
@@ -43,11 +46,14 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         l.setAlignment(Pos.CENTER);
 
         if(bahnsteig > -1){
-            updateLabel();
+            try {
+                updateLabel();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    //get-set labelIndex
     public int getLabelIndex() {
         return labelIndex;
     }
@@ -55,12 +61,10 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         this.labelIndex = labelIndex;
     }
 
-    //get Label l
     public Label getLabel(){
         return l;
     }
 
-    //get-set long time
     public long getTime() {
         return time;
     }
@@ -68,7 +72,6 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         this.time = time;
     }
 
-    //add-remove Zug von trains-Liste
     public void addTrain(Zug z){
         try{
             trains.add(z);
@@ -77,7 +80,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
             l.setOnMouseEntered(e -> { try{ showTrainInformations(); }catch(Exception ex) { ex.printStackTrace(); } });
 
             try {
-                Thread.sleep(5);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -109,8 +112,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         }
     }
 
-    //verschiedene Methoden um die Container zu aktualisieren
-    public void updateLabel() throws Exception{
+    private void updateLabel(){
         if(trains.size() == 0){
             Platform.runLater(() -> {
                 l.setText("");
@@ -146,12 +148,12 @@ public class LabelContainer extends Plugin_Gleisbelegung{
                     l.setTooltip(new Tooltip(temp));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: red;");
 
-                    playColisonSound(bahnsteig);
+                    //playColisonSound(bahnsteig);
                 }
             });
         }
     }
-    public void updateLabel(String text) throws Exception{
+    public void updateLabel(String text){
         Platform.runLater(() -> {
             try{
                 l.setText(text);
@@ -164,12 +166,11 @@ public class LabelContainer extends Plugin_Gleisbelegung{
             }
         });
     }
-    public void updateLabel(String text, long time) throws Exception{
+    public void updateLabel(String text, long time){
         this.time = time;
         Platform.runLater(() -> l.setText(text));
     }
 
-    //Hintergrundfarbe des Containers anhand der Zugnummer erzeugen
     private String prepareTrainStyle(String zugName){
         try {
             int index = zugName.indexOf('(')-1;
@@ -209,7 +210,6 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         }
     }
 
-    //Bereite die Umrandungen für die Container vor (5 und 60 Minütige Linie)
     private String prepareBorder(){
         try{
             String fullHour = "-fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 1 1 0; ";
@@ -235,7 +235,8 @@ public class LabelContainer extends Plugin_Gleisbelegung{
             return "";
         }
     }
-    private void prepareBorderForLabelTime() throws Exception{
+
+    private void prepareBorderForLabelTime() {
         String in = l.getText();
 
         String fullHour = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 5 1 0; ";
@@ -254,12 +255,10 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         }
     }
 
-    //get trains
     public ArrayList<Zug> getTrains(){
         return trains;
     }
 
-    //get-set Bahnsteige
     public int getBahnsteig() {
         return bahnsteig;
     }
@@ -267,17 +266,12 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         this.bahnsteig = bahnsteig;
     }
 
-    //Zeige die Zuginformationen auf dem informations Panel aus @Main
-    public void showTrainInformations() throws Exception{
+    private void showTrainInformations(){
         int heightCounter = 0;
 
         informations.getChildren().clear();
 
         for(Zug z : trains){
-            debugMessage("INFORMATION: Maus befindet sich ueber " + z.getZugName() +  " und zeigt die Informationen: " + settingsShowInformations, true);
-
-
-
             Label trainName = new Label(z.getZugName() + z.getVerspaetungToString());
             trainName.setStyle("-fx-text-fill: white");
             trainName.setFont(Font.font(settingsFontSize-2));
@@ -312,16 +306,16 @@ public class LabelContainer extends Plugin_Gleisbelegung{
                 Date abfahrt = new Date(lAbfahrt);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                Label l = new Label("Gleis: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
+                Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
                 l.setFont(Font.font(settingsFontSize-5));
                 l.setTranslateY(heightCounter + 55);
                 l.setPrefWidth(settingsInformationWith-25);
 
                 if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: green");
-                } else if(z.getFahrplan(i).getGleis().equals(bahnsteige[bahnsteig])){
+                }/* else if(z.getFahrplan(i).getGleis().equals(bahnsteige[bahnsteig])){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: #505050");
-                } else{
+                }*/ else{
                     l.setStyle("-fx-text-fill: white");
                 }
 
@@ -336,8 +330,7 @@ public class LabelContainer extends Plugin_Gleisbelegung{
         informations.setPrefHeight(heightCounter);
     }
 
-    //Hebe den Container hervor, wenn ein Zug aus dem Container in der Suche identifiziert wird
-    public void highlight() throws Exception{
+    public void highlight() {
         Runnable r = () -> {
             try {
                 Platform.runLater(() -> l.setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green"));
