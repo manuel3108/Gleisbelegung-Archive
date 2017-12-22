@@ -45,6 +45,7 @@ public class Plugin extends Application implements Runnable{
 
     private Stellwerk stellwerk;
     private boolean update = true;
+    private Button refresh;
 
     @Override
     public void start(Stage primaryStage) {
@@ -157,13 +158,31 @@ public class Plugin extends Application implements Runnable{
 
     private void startLoading(){
         Runnable r = () -> {
+            refresh = new Button();
+            refresh.setDisable(true);
+            refresh.setOnAction(e -> neustart());
+
             stellwerk = new Stellwerk(host, 3691);
-            f = new Fenster(stellwerk, primaryStage);
+            f = new Fenster(stellwerk, primaryStage, refresh);
             update = true;
 
             Thread t = new Thread(this);
             t.setDaemon(true);
             t.start();
+        };
+        new Thread(r).start();
+    }
+
+    public void neustart(){
+        Runnable r = () -> {
+            try {
+                update = false;
+                refresh.setDisable(true);
+                Thread.sleep(2000);
+                startLoading();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         };
         new Thread(r).start();
     }

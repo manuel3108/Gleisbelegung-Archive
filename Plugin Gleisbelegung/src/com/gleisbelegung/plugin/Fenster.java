@@ -65,16 +65,17 @@ public class Fenster{
     private Pane pZugSuche;                                  //Panel mit der Zugsuche
     private double stageWidth = 1000;                        //Standartmäßige Fenster-Breite                             (Wir bei Veränderung der Breite aktualisiert)
     private double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
-    private Button refresh;
     private Stage primaryStage;
+    private Button refresh;
 
     private ArrayList<LabelContainer> labelTime;
 
     private Stellwerk stellwerk;
 
-    Fenster(Stellwerk stellwerk, Stage primaryStage) {
+    Fenster(Stellwerk stellwerk, Stage primaryStage, Button refresh) {
         this.stellwerk = stellwerk;
         this.primaryStage = primaryStage;
+        this.refresh = refresh;
 
         labelTime = new ArrayList<>();
 
@@ -98,7 +99,6 @@ public class Fenster{
         einstellungen.setTranslateX(stageWidth / 2 - 150);
         einstellungen.setOnAction(e -> { try{ settings(); }catch(Exception ex) { ex.printStackTrace(); } });
 
-        refresh = new Button();
         refresh.setText("Neustart");
         refresh.setFont(Font.font(settingsFontSize - 2));
         refresh.setTranslateX(stageWidth / 2);
@@ -252,11 +252,11 @@ public class Fenster{
         updateUi();
 
         for (int i = 0; i < settingsVorschau; i++) {
-            labelTime.add(i, new LabelContainer(i, -1, labelTime));
+            labelTime.add(i, new LabelContainer(i, null, labelTime));
 
             dNow = new Date(stellwerk.getSpielzeit() + i*1000*60);
             ft = new SimpleDateFormat("HH:mm");
-            labelTime.get(i).updateLabel(ft.format(dNow));
+            labelTime.get(i).updateLabel(ft.format(dNow), false);
 
             int temp = i;
             Platform.runLater(() -> gpTime.add(labelTime.get(temp).getLabel(), 0, temp));
@@ -264,8 +264,8 @@ public class Fenster{
 
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
-                LabelContainer lc = new LabelContainer(i,-2, labelTime);
-                lc.updateLabel(bahnhof.getBahnsteig(i).getGleisName());
+                LabelContainer lc = new LabelContainer(i,null, labelTime);
+                lc.updateLabel(bahnhof.getBahnsteig(i).getGleisName(), true);
                 lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
 
                 int temp = bahnhof.getBahnsteig(i).getId();
@@ -290,7 +290,7 @@ public class Fenster{
 
             for(Bahnhof b : stellwerk.getBahnhoefe()){
                 for (int j = 0; j < b.getBahnsteige().size(); j++) { //y
-                    grid.get(i).add(j, new LabelContainer(i,j, labelTime));
+                    grid.get(i).add(j, new LabelContainer(i,b.getBahnsteig(j), labelTime));
                     grid.get(i).get(j).updateLabel("", stellwerk.getSpielzeit() + i*1000*60);
                     b.getBahnsteig(j).getSpalte().add(grid.get(i).get(j));
 
@@ -314,6 +314,8 @@ public class Fenster{
             }
             labelIndexCounter = i;
         }
+
+        this.refresh.setDisable(false);
     }
 
     private void searchTrain(String text){
@@ -420,7 +422,7 @@ public class Fenster{
                         LabelContainer lc = fh.getDrawnTo(0);
                         if(lc != null){
                             try{
-                                scrollPaneTo((double) lc.getBahnsteig() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) settingsVorschau, fh);
+                                scrollPaneTo((double) lc.getBahnsteig().getOrderId() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) settingsVorschau, fh);
                             } catch(Exception e){
                                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
                             }
@@ -429,7 +431,7 @@ public class Fenster{
                                 try {
                                     Thread.sleep(2000);
                                     zugSuche.selectAll();
-                                } catch (InterruptedException e) {
+                                } catch (Exception e) {
                                     //e.printStackTrace();
                                 }
                             };
@@ -664,8 +666,8 @@ public class Fenster{
         Date dNow = new Date(stellwerk.getSpielzeit() + settingsVorschau*1000*60 - 2000);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-        LabelContainer lc = new LabelContainer(labelIndexCounter-1,-1, labelTime);
-        lc.updateLabel(ft.format(dNow));
+        LabelContainer lc = new LabelContainer(labelIndexCounter-1,null, labelTime);
+        lc.updateLabel(ft.format(dNow), false);
         Platform.runLater(() -> {
             gpTime.add(lc.getLabel(), 0, labelIndexCounter+1);
             labelTime.add(labelTime.size(), lc);
@@ -676,7 +678,7 @@ public class Fenster{
             try{
                 for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
                     for(int i = 0; i < bahnhof.getBahnsteige().size(); i++){
-                        labelContainer.add(i,new LabelContainer(labelIndexCounter+1,i, labelTime));
+                        labelContainer.add(i,new LabelContainer(labelIndexCounter+1,bahnhof.getBahnsteig(i), labelTime));
 
                         gp.add(labelContainer.get(i).getLabel(), bahnhof.getBahnsteig(i).getOrderId()+1, labelIndexCounter+2);
                         labelContainer.get(i).updateLabel("", stellwerk.getSpielzeit() + settingsVorschau*1000*60 - 2000);

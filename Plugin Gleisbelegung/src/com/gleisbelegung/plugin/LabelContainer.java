@@ -9,6 +9,7 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Repräsentiert immer eine Tabellen-Zelle in einer Tabelle
  */
 
+import com.gleisbelegung.plugin.lib.data.Bahnsteig;
 import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
 import com.gleisbelegung.plugin.lib.data.Zug;
 import javafx.application.Platform;
@@ -28,11 +29,11 @@ public class LabelContainer extends Plugin {
     private int labelIndex;                         //speichert den in der @Fenster-Klsse vergebenen labelIndex
     private ArrayList<Zug> trains;                  //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
     private long time = -1;                         //Die Zeit die in der jeweiligen Zeile die richtige ist.
-    private int bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
+    private Bahnsteig bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
     private ArrayList<LabelContainer> labelTime;    //Übergabe von labelTime aus der @Fenster-Klasse
     private boolean hervorhebungDurchGleis;
 
-    public LabelContainer(int labelIndex, int bahnsteig, ArrayList<LabelContainer> labelTime){
+    public LabelContainer(int labelIndex, Bahnsteig bahnsteig, ArrayList<LabelContainer> labelTime){
         this.labelTime = labelTime;
         this.bahnsteig = bahnsteig;
         this.labelIndex = labelIndex;
@@ -45,7 +46,7 @@ public class LabelContainer extends Plugin {
         l.setMaxWidth(settingsGridWidth);
         l.setAlignment(Pos.CENTER);
 
-        if(bahnsteig > -1){
+        if(bahnsteig != null){
             try {
                 updateLabel();
             } catch (Exception e) {
@@ -153,12 +154,12 @@ public class LabelContainer extends Plugin {
             });
         }
     }
-    public void updateLabel(String text){
+    public void updateLabel(String text, boolean isBahnsteig){
         Platform.runLater(() -> {
             try{
                 l.setText(text);
 
-                if(bahnsteig == -1){
+                if(bahnsteig == null && !isBahnsteig){
                     prepareBorderForLabelTime();
                 }
             } catch (Exception e){
@@ -259,10 +260,10 @@ public class LabelContainer extends Plugin {
         return trains;
     }
 
-    public int getBahnsteig() {
+    public Bahnsteig getBahnsteig() {
         return bahnsteig;
     }
-    public void setBahnsteig(int bahnsteig) {
+    public void setBahnsteig(Bahnsteig bahnsteig) {
         this.bahnsteig = bahnsteig;
     }
 
@@ -313,9 +314,9 @@ public class LabelContainer extends Plugin {
 
                 if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: green");
-                }/* else if(z.getFahrplan(i).getGleis().equals(bahnsteige[bahnsteig])){
+                } else if(z.getFahrplan(i).getGleis().equals(bahnsteig.getGleisName())){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: #505050");
-                }*/ else{
+                } else{
                     l.setStyle("-fx-text-fill: white");
                 }
 
