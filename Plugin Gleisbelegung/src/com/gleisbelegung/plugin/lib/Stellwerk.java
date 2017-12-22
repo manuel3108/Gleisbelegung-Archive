@@ -20,7 +20,7 @@ public class Stellwerk {
     long spielzeit;
     long letzteAktualisierung;
 
-    ArrayList<Bahnhof> bahnhoefe;
+    private ArrayList<Bahnhof> bahnhoefe;
     ArrayList<Zug> zuege;
 
     private static Verbindung v;
@@ -109,7 +109,19 @@ public class Stellwerk {
     public long getLetzteAktualisierung() {
         return letzteAktualisierung;
     }
-    public boolean hatZeit() {
+    public boolean hasZeit(){
         return v.isAktualisiere();
+    }
+
+    @Override
+    public String toString() {
+        return "Stellwerk{" +
+                "stellwerksname='" + stellwerksname + '\'' +
+                ", anlagenid=" + anlagenid +
+                ", simbuild=" + simbuild +
+                ", startzeit=" + startzeit +
+                ", spielzeit=" + spielzeit +
+                ", letzteAktualisierung=" + letzteAktualisierung +
+                '}';
     }
 }

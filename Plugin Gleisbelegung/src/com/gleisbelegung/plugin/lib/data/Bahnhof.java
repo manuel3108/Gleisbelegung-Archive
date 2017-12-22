@@ -25,4 +25,13 @@ public class Bahnhof {
     public int getAnzahlBahnsteige(){
         return bahnsteige.size();
     }
+
+    @Override
+    public String toString() {
+        return "Bahnhof{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", bahnsteige=" + bahnsteige +
+                '}';
+    }
 }

@@ -9,7 +9,7 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Speichert alle Daten für einen Zug
  */
 
-import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
+import java.util.Arrays;
 
 public class Zug {
     private int zugId;                  //einmalige Zugidentifikationsnummer
@@ -159,5 +159,22 @@ public class Zug {
         }
 
         return out;
+    }
+
+    @Override
+    public String toString() {
+        return "Zug{" +
+                "zugId=" + zugId +
+                ", zugName='" + zugName + '\'' +
+                ", verspaetung=" + verspaetung +
+                ", gleis='" + gleis + '\'' +
+                ", plangleis='" + plangleis + '\'' +
+                ", amGleis=" + amGleis +
+                ", von='" + von + '\'' +
+                ", nach='" + nach + '\'' +
+                ", sichtbar=" + sichtbar +
+                ", needUpdate=" + needUpdate +
+                ", newTrain=" + newTrain +
+                '}';
     }
 }

@@ -194,7 +194,7 @@ public class Plugin extends Application implements Runnable{
         while(update) {
             try {
                 int time = (int) ((System.currentTimeMillis() - timeFromLastUpdate) / 1000);
-                stellwerk.aktualisiereSimZeit();
+                if(stellwerk.hasZeit()) stellwerk.aktualisiereSimZeit();
 
                 if (time >= settingsUpdateInterwall) {
                     timeFromLastUpdate = System.currentTimeMillis();

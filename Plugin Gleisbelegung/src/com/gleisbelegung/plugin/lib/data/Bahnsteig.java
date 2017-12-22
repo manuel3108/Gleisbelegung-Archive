@@ -108,4 +108,17 @@ public class Bahnsteig extends Plugin {
     public int getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Bahnsteig{" +
+                "spalte=" + spalte +
+                ", gleisLabel=" + gleisLabel +
+                ", gleisName='" + gleisName + '\'' +
+                ", sichtbar=" + sichtbar +
+                ", hervorgehoben=" + hervorgehoben +
+                ", orderId=" + orderId +
+                ", id=" + id +
+                '}';
+    }
 }

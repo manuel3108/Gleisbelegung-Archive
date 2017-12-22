@@ -20,14 +20,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class Verbindung{
-    public Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
+    private Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
     private XMLHandler xml;     //Verarbeitet die Empfangenen Daten in einer Eigenen Klasse
     private boolean aktualisiere;
 
     private Stellwerk stellwerk;
 
     //Führt einige notwendige Kommunikationsschritte mit der Verbindung durch und Verlangt u.a. Uhrzeit und Bahnsteige
-    public Verbindung(Socket socket, Stellwerk stellwerk){
+    Verbindung(Socket socket, Stellwerk stellwerk){
         this.stellwerk = stellwerk;
 
         try {
@@ -370,5 +370,15 @@ public class Verbindung{
 
     public boolean isAktualisiere() {
         return aktualisiere;
+    }
+
+    @Override
+    public String toString() {
+        return "Verbindung{" +
+                "socket=" + socket +
+                ", xml=" + xml +
+                ", aktualisiere=" + aktualisiere +
+                ", stellwerk=" + stellwerk +
+                '}';
     }
 }

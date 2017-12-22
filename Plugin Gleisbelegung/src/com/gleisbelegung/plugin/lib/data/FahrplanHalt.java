@@ -143,4 +143,19 @@ public class FahrplanHalt {
     public void setCrossing(boolean crossing) {
         this.crossing = crossing;
     }
+
+    @Override
+    public String toString() {
+        return "FahrplanHalt{" +
+                "ankuft=" + ankuft +
+                ", abfahrt=" + abfahrt +
+                ", gleis='" + gleis + '\'' +
+                ", plangleis='" + plangleis + '\'' +
+                ", flags='" + flags + '\'' +
+                ", drawnTo=" + drawnTo +
+                ", drawable=" + drawable +
+                ", crossing=" + crossing +
+                ", flaggedTrain=" + flaggedTrain +
+                '}';
+    }
 }
