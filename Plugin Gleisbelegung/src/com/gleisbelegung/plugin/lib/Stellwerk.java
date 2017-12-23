@@ -25,7 +25,7 @@ public class Stellwerk {
 
     private static Verbindung v;
 
-    public Stellwerk(String host, int port){
+    public Stellwerk(String host, int port, String pluginName, String pluginBeschreibung, String autor, int version){
         Stellwerk.host = host;
         Stellwerk.port = port;
 
@@ -34,7 +34,7 @@ public class Stellwerk {
             bahnhoefe = new ArrayList<>();
             zuege = new ArrayList<>();
 
-            v = new Verbindung(new Socket(host, port), this);
+            v = new Verbindung(new Socket(host, port), this, pluginName, pluginBeschreibung, autor, version);
             v.update();
         } catch (IOException e) {
             e.printStackTrace();

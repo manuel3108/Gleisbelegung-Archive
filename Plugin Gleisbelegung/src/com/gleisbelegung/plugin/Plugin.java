@@ -162,7 +162,7 @@ public class Plugin extends Application implements Runnable{
             refresh.setDisable(true);
             refresh.setOnAction(e -> neustart());
 
-            stellwerk = new Stellwerk(host, 3691);
+            stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
             f = new Fenster(stellwerk, primaryStage, refresh);
             update = true;
 

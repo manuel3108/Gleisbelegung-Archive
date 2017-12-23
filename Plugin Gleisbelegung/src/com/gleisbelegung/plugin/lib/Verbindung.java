@@ -27,7 +27,7 @@ public class Verbindung{
     private Stellwerk stellwerk;
 
     //Führt einige notwendige Kommunikationsschritte mit der Verbindung durch und Verlangt u.a. Uhrzeit und Bahnsteige
-    Verbindung(Socket socket, Stellwerk stellwerk){
+    Verbindung(Socket socket, Stellwerk stellwerk, String pluginName, String pluginBeschreibung, String autor, int version){
         this.stellwerk = stellwerk;
 
         try {
@@ -44,7 +44,7 @@ public class Verbindung{
             System.exit(-2);
         }
 
-        if(setSocketCode("<register name=\"Gleisbelegung\" autor=\"Manuel Serret\" version=\"0.1\" protokoll=\"1\" text=\"Darstellung der Gleisbelegung\" />") != 1){
+        if(setSocketCode("<register name="+pluginName+" autor="+autor+" version="+version+" protokoll=\"1\" text="+pluginBeschreibung+" />") != 1){
             stellwerk.errorWindow(-3, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-3);
         }
