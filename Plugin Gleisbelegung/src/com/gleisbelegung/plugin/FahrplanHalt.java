@@ -11,6 +11,8 @@ Speichert alle Daten für einen FahrplanHalt
 
 import java.util.ArrayList;
 
+import de.heidelbach_net.util.XML;
+
 public class FahrplanHalt {
     private Zug z;                                  //Der Zug zu dem der Halt gehört
     private long ankuft;                            //Die GEPLANTE Ankunft des Zuges
@@ -24,13 +26,13 @@ public class FahrplanHalt {
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
 
     //Speichert gegebene Seite
-    public FahrplanHalt(ArrayList<String[]> fahrplan, Zug z){
+    public FahrplanHalt(XML fahrplan, Zug z){
         this.z = z;
-        this.abfahrt = Long.parseLong(fahrplan.get(0)[1]);
-        this.gleis = fahrplan.get(1)[1];
-        this.flags = fahrplan.get(2)[1];
-        this.plangleis = fahrplan.get(3)[1];
-        this.ankuft = Long.parseLong(fahrplan.get(4)[1]);
+        this.abfahrt = Long.parseLong(fahrplan.get("ab"));
+        this.gleis = fahrplan.get("gleis");
+        this.flags = fahrplan.get("flags");
+        this.plangleis = fahrplan.get("plan");
+        this.ankuft = Long.parseLong(fahrplan.get("an"));
 
         this.drawnTo = new ArrayList<>();
         this.drawable = true;
