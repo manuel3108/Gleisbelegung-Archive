@@ -265,7 +265,7 @@ public class Fenster{
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
                 LabelContainer lc = new LabelContainer(i,null, labelTime);
-                lc.updateLabel(bahnhof.getBahnsteig(i).getGleisName(), true);
+                lc.updateLabel(bahnhof.getBahnsteig(i).getName(), true);
                 lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
 
                 int temp = bahnhof.getBahnsteig(i).getId();
@@ -350,7 +350,7 @@ public class Fenster{
 
                 informations.getChildren().addAll(trainName, vonBis);
 
-                for(int i = 0; i < z.getFahrplan().length; i++){
+                for(int i = 0; i < z.getFahrplan().size(); i++){
                     if(z.getFahrplan(i).getFlaggedTrain() != null){
                         Zug flagged = z.getFahrplan(i).getFlaggedTrain();
 
@@ -364,12 +364,12 @@ public class Fenster{
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                        Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
+                        Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
                         l.setFont(Font.font(settingsFontSize-5));
                         l.setTranslateY(heightCounter + 55);
                         l.setPrefWidth(settingsInformationWith - 25);
 
-                        if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()) {
+                        if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
                             l.setStyle("-fx-text-fill: white; -fx-background-color: green");
                         } else{
                             l.setStyle("-fx-text-fill: white");
@@ -387,12 +387,12 @@ public class Fenster{
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                        Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
+                        Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
                         l.setFont(Font.font(settingsFontSize-5));
                         l.setTranslateY(heightCounter + 55);
                         l.setPrefWidth(215);
 
-                        if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()) {
+                        if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
                             l.setStyle("-fx-text-fill: white; -fx-background-color: green");
                         } else{
                             l.setStyle("-fx-text-fill: white");
@@ -498,11 +498,11 @@ public class Fenster{
         z.removeFromGrid();
         try{
             if(z.getFahrplan() != null){
-                for (int i = 0; i < z.getFahrplan().length; i++) {
+                for (int i = 0; i < z.getFahrplan().size(); i++) {
                     for(Bahnhof b : stellwerk.getBahnhoefe()){
                         for (int j = 0; j < b.getBahnsteige().size(); j++) {
                             Bahnsteig g = b.getBahnsteig(j);
-                            if(g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getGleis().equals(g.getGleisName())){
+                            if(g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getBahnsteig().getName().equals(g.getName())){
                                 if(z.getFahrplan(i).getFlaggedTrain() != null){
                                     Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
@@ -719,7 +719,7 @@ public class Fenster{
         for(Zug z : stellwerk.getZuege()){
             try{
                 if(z.getFahrplan() != null && z.getFahrplan(0) != null){
-                    for (int i = 0; i < z.getFahrplan().length; i++) {
+                    for (int i = 0; i < z.getFahrplan().size(); i++) {
                         if(z.getFahrplan(i) != null && z.getFahrplan(i).getFlaggedTrain() != null){
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
@@ -840,7 +840,7 @@ public class Fenster{
         int counter = 0;
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
-                cb[counter] = new CheckBox(bahnhof.getBahnsteig(i).getGleisName());
+                cb[counter] = new CheckBox(bahnhof.getBahnsteig(i).getName());
                 cb[counter].setTranslateX(tempX);
                 cb[counter].setTranslateY(tempY);
                 cb[counter].setFont(Font.font(18));
@@ -998,14 +998,6 @@ public class Fenster{
 
         firstLabel.setMaxWidth(settingsGridWidth);
         firstLabel.setMinWidth(settingsGridWidth);
-    }
-
-    public void clearOldData(){
-        stellwerk.getZuege().clear();
-
-        gpTime.getChildren().clear();
-        gpPlatform.getChildren().clear();
-        gp.getChildren().clear();
     }
 
     private void sortiereGleise(){

@@ -293,7 +293,7 @@ public class LabelContainer extends Plugin {
 
             informations.getChildren().addAll(trainName, vonBis);
 
-            for(int i = 0; i < z.getFahrplan().length; i++){
+            for(int i = 0; i < z.getFahrplan().size(); i++){
                 long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
                 long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
                 if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
@@ -307,14 +307,14 @@ public class LabelContainer extends Plugin {
                 Date abfahrt = new Date(lAbfahrt);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getGleis() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
+                Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
                 l.setFont(Font.font(settingsFontSize-5));
                 l.setTranslateY(heightCounter + 55);
                 l.setPrefWidth(settingsInformationWith-25);
 
-                if(z.getGleis().equals(z.getFahrplan(i).getGleis()) && z.getAmGleis()){
+                if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: green");
-                } else if(z.getFahrplan(i).getGleis().equals(bahnsteig.getGleisName())){
+                } else if(z.getFahrplan(i).getBahnsteig().getName().equals(bahnsteig.getName())){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: #505050");
                 } else{
                     l.setStyle("-fx-text-fill: white");

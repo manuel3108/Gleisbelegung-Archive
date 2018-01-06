@@ -17,8 +17,8 @@ public class FahrplanHalt {
     private Zug z;                                  //Der Zug zu dem der Halt gehört
     private long ankuft;                            //Die GEPLANTE Ankunft des Zuges
     private long abfahrt;                           //Die GEPLANTE Abfahrt des Zuges
-    private String gleis;                           //Das GEPLANTE Bahnsteig des Zuges
-    private String plangleis;                       //Das aktuelle Bahnsteig
+    private Bahnsteig gleis;                           //Das GEPLANTE Bahnsteig des Zuges
+    private Bahnsteig plangleis;                       //Das aktuelle Bahnsteig
     private String flags;                           //Die Flags des Haltes
     private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
     private boolean drawable;                       //Ist der Zug zeichenbar
@@ -26,13 +26,13 @@ public class FahrplanHalt {
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
 
     //Speichert gegebene Seite
-    public FahrplanHalt(ArrayList<String[]> fahrplan, Zug z){
+    public FahrplanHalt(long abfahrt, Bahnsteig gleis, String flags, Bahnsteig plangleis, long ankuft, Zug z){
         this.z = z;
-        this.abfahrt = Long.parseLong(fahrplan.get(0)[1]);
-        this.gleis = fahrplan.get(1)[1];
-        this.flags = fahrplan.get(2)[1];
-        this.plangleis = fahrplan.get(3)[1];
-        this.ankuft = Long.parseLong(fahrplan.get(4)[1]);
+        this.abfahrt = abfahrt;
+        this.gleis = gleis;
+        this.flags = flags;
+        this.plangleis = plangleis;
+        this.ankuft = ankuft;
 
         this.drawnTo = new ArrayList<>();
         this.drawable = true;
@@ -58,18 +58,18 @@ public class FahrplanHalt {
     }
 
     //get-set Bahnsteig
-    public String getGleis() {
+    public Bahnsteig getBahnsteig() {
         return gleis;
     }
-    public void setGleis(String gleis) {
+    public void setBahnsteig(Bahnsteig gleis) {
         this.gleis = gleis;
     }
 
     //get-set Plangleis
-    public String getPlangleis() {
+    public Bahnsteig getPlanBahnsteig() {
         return plangleis;
     }
-    public void setPlangleis(String plangleis) {
+    public void setPlanBahnsteig(Bahnsteig plangleis) {
         this.plangleis = plangleis;
     }
 

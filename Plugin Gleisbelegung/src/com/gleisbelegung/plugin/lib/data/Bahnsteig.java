@@ -17,14 +17,14 @@ import java.util.ArrayList;
 public class Bahnsteig extends Plugin {
     private ArrayList<LabelContainer> spalte;
     private LabelContainer gleisLabel;
-    private String gleisName;
+    private String name;
     private boolean sichtbar;
     private boolean hervorgehoben;
     private int orderId;
     private int id;
 
-    public Bahnsteig(String gleisName, int orderId){
-        this.gleisName = gleisName;
+    public Bahnsteig(String name, int orderId){
+        this.name = name;
         this.sichtbar = true;
         this.orderId = orderId;
         id = orderId;
@@ -40,11 +40,11 @@ public class Bahnsteig extends Plugin {
         this.spalte = spalte;
     }
 
-    public String getGleisName() {
-        return gleisName;
+    public String getName() {
+        return name;
     }
-    public void setGleisName(String gleisName) {
-        this.gleisName = gleisName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isSichtbar() {
@@ -114,7 +114,7 @@ public class Bahnsteig extends Plugin {
         return "Bahnsteig{" +
                 "spalte=" + spalte +
                 ", gleisLabel=" + gleisLabel +
-                ", gleisName='" + gleisName + '\'' +
+                ", gleisName='" + name + '\'' +
                 ", sichtbar=" + sichtbar +
                 ", hervorgehoben=" + hervorgehoben +
                 ", orderId=" + orderId +

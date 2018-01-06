@@ -41,7 +41,7 @@ public class Plugin extends Application implements Runnable{
     private Fenster f;
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 13;                                //Aktualle Version des Plugins
+    private int version = 14;                                //Aktualle Version des Plugins
 
     private Stellwerk stellwerk;
     private boolean update = true;
