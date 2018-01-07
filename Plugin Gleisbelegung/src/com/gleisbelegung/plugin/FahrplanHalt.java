@@ -29,7 +29,7 @@ public class FahrplanHalt {
     public FahrplanHalt(XML fahrplan, Zug z){
         this.z = z;
         this.abfahrt = Long.parseLong(fahrplan.get("ab"));
-        this.gleis = fahrplan.get("gleis");
+        this.gleis = fahrplan.get("name");
         this.flags = fahrplan.get("flags");
         this.plangleis = fahrplan.get("plan");
         this.ankuft = Long.parseLong(fahrplan.get("an"));
