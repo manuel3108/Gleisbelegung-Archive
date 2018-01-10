@@ -668,11 +668,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                         };
                         new Thread(r, "Aktualisiere Tabelle").start();
                     }
-
-                    if((System.currentTimeMillis() - lastRefresh) % (1000*60*45) < 1000){
-                        lastRefresh = System.currentTimeMillis()-1000;
-                        break;
-                    }
                 }
 
                 currentGameTime += 1000;
