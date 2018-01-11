@@ -538,13 +538,15 @@ public class Fenster extends Plugin_Gleisbelegung {
                                     }
 
                                     for (int k = 0; k < settingsVorschau; k++) {
-                                        LabelContainer lc = gleise.get(j).getSpalte().get(k);
-                                        if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
-                                            z.getFahrplan(i).addDrawnTo(lc);
+                                        if(gleise.get(j).getSpalte().get(k) != null){
+                                            LabelContainer lc = gleise.get(j).getSpalte().get(k);
+                                            if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
+                                                z.getFahrplan(i).addDrawnTo(lc);
 
-                                            if(z.getFahrplan(i).isCrossing()){
-                                                Platform.runLater(() -> lc.getLabel().setText(lc.getLabel().getText() + " D"));
-                                                System.out.println(z.getZugName() + " Durchfahrt");
+                                                if(z.getFahrplan(i).isCrossing()){
+                                                    Platform.runLater(() -> lc.getLabel().setText(lc.getLabel().getText() + " D"));
+                                                    System.out.println(z.getZugName() + " Durchfahrt");
+                                                }
                                             }
                                         }
                                     }
@@ -560,12 +562,14 @@ public class Fenster extends Plugin_Gleisbelegung {
                                     }
 
                                     for (int k = 0; k < settingsVorschau; k++) {
-                                        LabelContainer lc = gleise.get(j).getSpalte().get(k);
-                                        if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
-                                            z.getFahrplan(i).addDrawnTo(lc);
+                                        if(gleise.get(j).getSpalte().get(k) != null){
+                                            LabelContainer lc = gleise.get(j).getSpalte().get(k);
+                                            if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
+                                                z.getFahrplan(i).addDrawnTo(lc);
 
-                                            if(z.getFahrplan(i).isCrossing()){
-                                                Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, settingsFontSize-5)));
+                                                if(z.getFahrplan(i).isCrossing()){
+                                                    Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, settingsFontSize-5)));
+                                                }
                                             }
                                         }
                                     }

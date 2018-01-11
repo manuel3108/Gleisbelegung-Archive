@@ -21,7 +21,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -69,7 +68,7 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
     private static Fenster f;                                      //Objekt der Fenster-Klasse                                 (Kümmert sich um die Aktualisierung des UI)
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 13;                                //Aktualle Version des Plugins
+    private int version = 14;                                //Aktualle Version des Plugins
     private static AudioClip audio;                         //momentan ohne Verwendung
     private Socket socket;                                  //hält die Kommunikation mit dem dem SIM aufrecht
     private Thread mainLoop;                                //Dient zur Abbruchbedingung des Threads
@@ -668,11 +667,6 @@ public class Plugin_Gleisbelegung extends Application implements Runnable{
                             }
                         };
                         new Thread(r, "Aktualisiere Tabelle").start();
-                    }
-
-                    if((System.currentTimeMillis() - lastRefresh) % (1000*60*45) < 1000){
-                        lastRefresh = System.currentTimeMillis()-1000;
-                        break;
                     }
                 }
 
