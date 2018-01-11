@@ -516,7 +516,7 @@ public class Fenster{
                                         }
 
                                         for (int k = 0; k < settingsVorschau; k++) {
-                                            if(b.getBahnsteig(j).getSpalte().get(k) != null){
+                                            if(b.getBahnsteig(j) != null && b.getBahnsteig(j).getSpalte() != null && b.getBahnsteig(j).getSpalte().get(k) != null){
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
                                                 if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                                     z.getFahrplan(i).addDrawnTo(lc);
@@ -540,7 +540,7 @@ public class Fenster{
                                         }
 
                                         for (int k = 0; k < settingsVorschau; k++) {
-                                            if(b.getBahnsteig(j).getSpalte().get(k) != null){
+                                            if(b.getBahnsteig(j) != null && b.getBahnsteig(j).getSpalte() != null && b.getBahnsteig(j).getSpalte().get(k) != null){
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
                                                 if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                                     z.getFahrplan(i).addDrawnTo(lc);
