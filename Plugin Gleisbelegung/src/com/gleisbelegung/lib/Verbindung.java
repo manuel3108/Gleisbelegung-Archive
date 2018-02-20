@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin.lib;
+package com.gleisbelegung.lib;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -9,10 +9,10 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Erstellt und hält die Verbindung mit der Schnitstelle aufrecht.
  */
 
-import com.gleisbelegung.plugin.lib.data.Bahnhof;
-import com.gleisbelegung.plugin.lib.data.Bahnsteig;
-import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
-import com.gleisbelegung.plugin.lib.data.Zug;
+import com.gleisbelegung.lib.data.Bahnhof;
+import com.gleisbelegung.lib.data.Bahnsteig;
+import com.gleisbelegung.lib.data.FahrplanHalt;
+import com.gleisbelegung.lib.data.Zug;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -161,7 +161,7 @@ public class Verbindung{
                 }
 
                 if(!exists && !zugliste.get(i).get(0).get(0)[1].equals("") && !zugliste.get(i).get(0).get(1)[1].equals("")){
-                    System.out.println("INFORMATION: " + zugliste.get(i).get(0).get(1)[1] + " wurde hinzugefügt!");
+                    //System.out.println("INFORMATION: " + zugliste.get(i).get(0).get(1)[1] + " wurde hinzugefügt!");
                     stellwerk.zuege.add(new Zug(Integer.parseInt(zugliste.get(i).get(0).get(0)[1]), zugliste.get(i).get(0).get(1)[1]));
                 }
             } catch (Exception e){
@@ -307,7 +307,7 @@ public class Verbindung{
         }
 
         for(Zug z : removing){
-            System.out.println("INFORMATION: " + z.getZugName() + " wurde entfernt.");
+            //System.out.println("INFORMATION: " + z.getZugName() + " wurde entfernt.");
             stellwerk.zuege.remove(z);
         }
 

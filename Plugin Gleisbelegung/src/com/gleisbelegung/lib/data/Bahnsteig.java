@@ -1,16 +1,8 @@
-package com.gleisbelegung.plugin.lib.data;
+package com.gleisbelegung.lib.data;
 
-import com.gleisbelegung.plugin.LabelContainer;
-import com.gleisbelegung.plugin.Plugin;
+import com.gleisbelegung.Plugin;
+import com.gleisbelegung.LabelContainer;
 import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Pane;
-import javafx.scene.text.Font;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 

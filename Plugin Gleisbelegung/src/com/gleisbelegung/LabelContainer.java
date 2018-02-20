@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -9,9 +9,9 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Repräsentiert immer eine Tabellen-Zelle in einer Tabelle
  */
 
-import com.gleisbelegung.plugin.lib.data.Bahnsteig;
-import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
-import com.gleisbelegung.plugin.lib.data.Zug;
+import com.gleisbelegung.lib.data.Bahnsteig;
+import com.gleisbelegung.lib.data.FahrplanHalt;
+import com.gleisbelegung.lib.data.Zug;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -22,28 +22,25 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.gleisbelegung.plugin.Fenster.informations;
-
 public class LabelContainer extends Plugin {
     private Label l;                                //Textfeld um Text schreiben zu können
     private int labelIndex;                         //speichert den in der @Fenster-Klsse vergebenen labelIndex
     private ArrayList<Zug> trains;                  //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
     private long time = -1;                         //Die Zeit die in der jeweiligen Zeile die richtige ist.
     private Bahnsteig bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
-    private ArrayList<LabelContainer> labelTime;    //Übergabe von labelTime aus der @Fenster-Klasse
+
     private boolean hervorhebungDurchGleis;
 
-    public LabelContainer(int labelIndex, Bahnsteig bahnsteig, ArrayList<LabelContainer> labelTime){
-        this.labelTime = labelTime;
+    public LabelContainer(int labelIndex, Bahnsteig bahnsteig){
         this.bahnsteig = bahnsteig;
         this.labelIndex = labelIndex;
         trains = new ArrayList<>();
         hervorhebungDurchGleis = false;
 
         l = new Label();
-        l.setFont(Font.font(settingsFontSize-5));
-        l.setMinWidth(settingsGridWidth);
-        l.setMaxWidth(settingsGridWidth);
+        l.setFont(Font.font(Einstellungen.schriftgroesse-5));
+        l.setMinWidth(Einstellungen.spaltenbreite);
+        l.setMaxWidth(Einstellungen.spaltenbreite);
         l.setAlignment(Pos.CENTER);
 
         if(bahnsteig != null){
@@ -268,15 +265,16 @@ public class LabelContainer extends Plugin {
     }
 
     private void showTrainInformations(){
-        int heightCounter = 0;
+        int heightCounter = 35;
 
-        informations.getChildren().clear();
+        Fenster.informations.getChildren().clear();
 
         for(Zug z : trains){
             Label trainName = new Label(z.getZugName() + z.getVerspaetungToString());
             trainName.setStyle("-fx-text-fill: white");
-            trainName.setFont(Font.font(settingsFontSize-2));
+            trainName.setFont(Font.font(Einstellungen.schriftgroesse-2));
             trainName.setTranslateY(heightCounter);
+            trainName.setTranslateX(5);
             if(z.getFahrplan() != null){
                 for(FahrplanHalt fh : z.getFahrplan()){
                     if(fh.getFlaggedTrain() != null){
@@ -288,10 +286,11 @@ public class LabelContainer extends Plugin {
 
             Label vonBis = new Label(z.getVon() + " - " + z.getNach());
             vonBis.setStyle("-fx-text-fill: white");
-            vonBis.setFont(Font.font(settingsFontSize-5));
+            vonBis.setFont(Font.font(Einstellungen.schriftgroesse-5));
             vonBis.setTranslateY(heightCounter + 25);
+            vonBis.setTranslateX(5);
 
-            informations.getChildren().addAll(trainName, vonBis);
+            Fenster.informations.getChildren().addAll(trainName, vonBis);
 
             for(int i = 0; i < z.getFahrplan().size(); i++){
                 long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
@@ -308,9 +307,10 @@ public class LabelContainer extends Plugin {
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                 Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt) + durchfahrt);
-                l.setFont(Font.font(settingsFontSize-5));
+                l.setFont(Font.font(Einstellungen.schriftgroesse-5));
                 l.setTranslateY(heightCounter + 55);
-                l.setPrefWidth(settingsInformationWith-25);
+                l.setPrefWidth(Einstellungen.informationenBreite);
+                l.setTranslateX(5);
 
                 if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()){
                     l.setStyle("-fx-text-fill: white; -fx-background-color: green");
@@ -320,7 +320,7 @@ public class LabelContainer extends Plugin {
                     l.setStyle("-fx-text-fill: white");
                 }
 
-                informations.getChildren().add(l);
+                Fenster.informations.getChildren().add(l);
 
                 heightCounter += 20;
             }
@@ -328,7 +328,7 @@ public class LabelContainer extends Plugin {
             heightCounter += 75;
         }
 
-        informations.setPrefHeight(heightCounter);
+        Fenster.informations.setPrefHeight(heightCounter);
     }
 
     public void highlight() {

@@ -1,8 +1,8 @@
-package com.gleisbelegung.plugin.lib;
+package com.gleisbelegung.lib;
 
-import com.gleisbelegung.plugin.lib.data.Bahnhof;
-import com.gleisbelegung.plugin.lib.data.Bahnsteig;
-import com.gleisbelegung.plugin.lib.data.Zug;
+import com.gleisbelegung.lib.data.Bahnhof;
+import com.gleisbelegung.lib.data.Bahnsteig;
+import com.gleisbelegung.lib.data.Zug;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -54,8 +54,14 @@ public class Stellwerk {
                 bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnsteige[i], i));
             } else {
                 currentRegex = regex[i];
-                bahnhoefe.add(0, new Bahnhof(bahnhoefe.size(), currentRegex));
+                bahnhoefe.add(new Bahnhof(bahnhoefe.size(), currentRegex));
                 bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnsteige[i], i));
+            }
+        }
+
+        for(Bahnhof b : bahnhoefe){
+            for(Bahnsteig ba : b.getBahnsteige()){
+                System.out.println(b.getName() + " " + ba.getName());
             }
         }
     }
@@ -109,7 +115,7 @@ public class Stellwerk {
     public long getLetzteAktualisierung() {
         return letzteAktualisierung;
     }
-    public boolean hasZeit(){
+    public boolean isAktualisiere(){
         return v.isAktualisiere();
     }
 

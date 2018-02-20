@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin.lib;
+package com.gleisbelegung.lib;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de

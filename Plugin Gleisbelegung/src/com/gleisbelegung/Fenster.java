@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -9,12 +9,11 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Erzeugen und Updaten der Gui (u.a. die Tabelle und die Informationen)
  */
 
-import com.gleisbelegung.plugin.lib.Stellwerk;
-import com.gleisbelegung.plugin.lib.data.Bahnhof;
-import com.gleisbelegung.plugin.lib.data.Bahnsteig;
-import com.gleisbelegung.plugin.lib.data.FahrplanHalt;
-import com.gleisbelegung.plugin.lib.data.Zug;
-import com.sun.istack.internal.NotNull;
+import com.gleisbelegung.lib.data.Bahnhof;
+import com.gleisbelegung.lib.Stellwerk;
+import com.gleisbelegung.lib.data.Bahnsteig;
+import com.gleisbelegung.lib.data.FahrplanHalt;
+import com.gleisbelegung.lib.data.Zug;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -25,7 +24,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
@@ -37,8 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-
-import static com.gleisbelegung.plugin.Plugin.*;
 
 public class Fenster{
     private Label pluginName;                           //Textfeld welches den Namen des Plugin in der Linken oberen Ecke speichert
@@ -59,7 +55,6 @@ public class Fenster{
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
 
-    private Pane fehlerMeldungen;                            //Panel für Fehlermeldungen auf der rechten Seite.          (Wird bald entfernt)
     static Pane informations;                               //Panel für alle Zuginformation                             (Zugnummer, Verspätung etc.)
     private PrintWriter logFile;                             //
     private Pane pZugSuche;                                  //Panel mit der Zugsuche
@@ -67,6 +62,7 @@ public class Fenster{
     private double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
     private Stage primaryStage;
     private Button refresh;
+    private Pane infoFehler;
 
     private ArrayList<LabelContainer> labelTime;
 
@@ -77,6 +73,9 @@ public class Fenster{
         this.primaryStage = primaryStage;
         this.refresh = refresh;
 
+        stageHeight = primaryStage.getHeight();
+        stageWidth = primaryStage.getWidth();
+
         labelTime = new ArrayList<>();
 
         Date dNow = new Date(stellwerk.getSpielzeit());
@@ -85,32 +84,28 @@ public class Fenster{
         pluginName = new Label();
         pluginName.setText("Plugin: Gleisbelegung");
         pluginName.setStyle("-fx-text-fill: #fff;");
-        pluginName.setFont(Font.font(settingsFontSize));
+        pluginName.setFont(Font.font(Einstellungen.schriftgroesse));
 
         simZeit = new Label();
         simZeit.setText("Simzeit: " + ft.format(dNow));
         simZeit.setStyle("-fx-text-fill: white;");
-        simZeit.setTranslateX(stageWidth - 360);
-        simZeit.setFont(Font.font(settingsFontSize));
+        simZeit.setFont(Font.font(Einstellungen.schriftgroesse));
 
         einstellungen = new Button();
         einstellungen.setText("Einstellungen");
-        einstellungen.setFont(Font.font(settingsFontSize - 2));
-        einstellungen.setTranslateX(stageWidth / 2 - 150);
+        einstellungen.setFont(Font.font(Einstellungen.schriftgroesse - 2));
         einstellungen.setOnAction(e -> { try{ settings(); }catch(Exception ex) { ex.printStackTrace(); } });
 
         refresh.setText("Neustart");
-        refresh.setFont(Font.font(settingsFontSize - 2));
-        refresh.setTranslateX(stageWidth / 2);
+        refresh.setFont(Font.font(Einstellungen.schriftgroesse - 2));
 
         Pane topP = new Pane();
         Platform.runLater(() -> topP.getChildren().addAll(pluginName, simZeit, einstellungen, refresh));
 
         firstLabel = new Label("Bahnhofsname");
-        firstLabel.setTranslateY(0);
-        firstLabel.setFont(Font.font(settingsFontSize-5));
-        firstLabel.setMinWidth(settingsGridWidth);
-        firstLabel.setMaxWidth(settingsGridWidth);
+        firstLabel.setFont(Font.font(Einstellungen.schriftgroesse-5));
+        firstLabel.setMinWidth(Einstellungen.spaltenbreite);
+        firstLabel.setMaxWidth(Einstellungen.spaltenbreite);
         firstLabel.setAlignment(Pos.CENTER);
         Platform.runLater(() -> {
             firstLabel.setText(stellwerk.getStellwerksname());
@@ -119,41 +114,30 @@ public class Fenster{
 
         scrollBarWidth = new ScrollBar();
         scrollBarWidth.setOrientation(Orientation.HORIZONTAL);
-        scrollBarWidth.setTranslateX(0);
-        scrollBarWidth.setTranslateY(stageHeight-50);
         scrollBarWidth.setMin(0);
         scrollBarWidth.setMax(1);
         scrollBarWidth.setUnitIncrement(0.03);
         scrollBarWidth.setVisibleAmount(0.3);
         scrollBarWidth.valueProperty().addListener((ov, old_val, new_val) -> spContent.setHvalue(scrollBarWidth.getValue()));
-        if(settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-215);
-        if(!settingsShowInformations) scrollBarWidth.setPrefWidth(stageHeight-15);
 
         scrollBarHeight = new ScrollBar();
         scrollBarHeight.setOrientation(Orientation.VERTICAL);
-        scrollBarHeight.setTranslateY(0);
         scrollBarHeight.setPrefHeight(stageHeight);
         scrollBarHeight.setMin(0);
         scrollBarHeight.setMax(1);
         scrollBarHeight.setUnitIncrement(0.02);
         scrollBarHeight.setVisibleAmount(0.3);
         scrollBarHeight.valueProperty().addListener((ov, old_val, new_val) -> spContent.setVvalue(scrollBarHeight.getValue()));
-        if(settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-214);
-        if(!settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-14);
 
         gp = new GridPane();
         gp.setHgap(0);
         gp.setVgap(0);
         gp.setPadding(new Insets(0,20,0,0));
         spContent = new ScrollPane();
-        spContent.setTranslateX(settingsGridWidth);
-        spContent.setTranslateY(25);
         spContent.setContent(gp);
         spContent.setStyle("-fx-background: #303030; -fx-padding: 0;");
         spContent.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spContent.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        spContent.setMaxHeight(stageHeight-80);
-        spContent.setMaxWidth(stageWidth-100);
         spContent.vvalueProperty().addListener((ov, old_val, new_val) -> {
             spTime.setVvalue(spContent.getVvalue());
             scrollBarHeight.adjustValue(spContent.getVvalue());
@@ -168,11 +152,9 @@ public class Fenster{
         gpTime.setVgap(0);
         spTime = new ScrollPane();
         spTime.setContent(gpTime);
-        spTime.setTranslateY(25);
         spTime.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spTime.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spTime.setStyle("-fx-background: #303030; -fx-padding: 0;");
-        spTime.setMaxHeight(stageHeight-80);
 
         gpPlatform = new GridPane();
         gpPlatform.setHgap(0);
@@ -180,40 +162,25 @@ public class Fenster{
         gpPlatform.setPadding(new Insets(0,20,0,0));
         spPlatform = new ScrollPane();
         spPlatform.setContent(gpPlatform);
-        spPlatform.setTranslateX(settingsGridWidth);
         spPlatform.setStyle("-fx-background: #303030; -fx-padding: 0;");
-        spPlatform.setMaxWidth(stageWidth-100);
         spPlatform.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spPlatform.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         Pane content = new Pane(spPlatform, spContent, spTime, scrollBarWidth, scrollBarHeight, firstLabel);
 
         informations = new Pane();
-        informations.setStyle("-fx-background-color: #303030");
-        informations.setPrefWidth(250);
-        informations.setMinHeight(250);
-        informations.setMaxHeight(1000);
+        informations.setStyle("-fx-background-color: #404040");
         spInformations = new ScrollPane(informations);
-        spInformations.setStyle("-fx-background-color: #303030; -fx-padding: 0;");
-        spInformations.setPrefHeight(stageHeight/2-20);
-        spInformations.setPrefWidth(250);
+        spInformations.setStyle("-fx-background-color: #404040; -fx-padding: 0;");
         spInformations.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spInformations.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        fehlerMeldungen = new StackPane();
-        fehlerMeldungen.setStyle("-fx-background-color: #404040;");
-        fehlerMeldungen.setTranslateY(stageHeight/2-19);
-        fehlerMeldungen.setPrefHeight(stageHeight/2-19);
-        fehlerMeldungen.setPrefWidth(250);
-
         Label lZugSuche = new Label("Zugsuche:");
-        lZugSuche.setFont(Font.font(settingsFontSize-2));
+        lZugSuche.setFont(Font.font(Einstellungen.schriftgroesse-2));
         lZugSuche.setStyle("-fx-text-fill: white;");
 
         zugSuche = new TextField();
-        zugSuche.setFont(Font.font(settingsFontSize-5));
-        zugSuche.setPrefWidth(110);
-        zugSuche.setTranslateX(110);
+        zugSuche.setFont(Font.font(Einstellungen.schriftgroesse-5));
         zugSuche.setStyle("-fx-text-fill: black;");
         zugSuche.textProperty().addListener((observable, oldVal, newVal) -> {
             try{
@@ -224,35 +191,38 @@ public class Fenster{
         });
 
         pZugSuche = new Pane(lZugSuche, zugSuche);
-        pZugSuche.setStyle("-fx-background-color: #303030");
+        pZugSuche.setStyle("-fx-background-color: #404040");
+
+
+        infoFehler = new Pane(spInformations, pZugSuche);
+        infoFehler.setStyle("-fx-background-color: #404040");
+
+        BorderPane bp = new BorderPane();
+        bp.setStyle("-fx-background-color: #303030;");
+        bp.setTop(topP);
+        bp.setCenter(content);
+        bp.setRight(infoFehler);
+
+        s = new Scene(bp, stageWidth, stageHeight);
 
         Platform.runLater(() -> {
-            Pane infoFehler = new Pane(spInformations, fehlerMeldungen, pZugSuche);
-
-            BorderPane bp = new BorderPane();
-            bp.setStyle("-fx-background-color: #303030;");
-            bp.setTop(topP);
-            bp.setCenter(content);
-            bp.setRight(infoFehler);
-
-            s = new Scene(bp, stageWidth, stageHeight);
-
             primaryStage.setScene(s);
         });
 
         primaryStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> { try{ updateUi(); }catch(Exception e) { e.printStackTrace(); } });
         primaryStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> { try{ updateUi(); }catch(Exception e) { e.printStackTrace(); } });
 
-        boolean ssh = settingsShowInformations;
-        settingsShowInformations = true;
+        /*boolean ssh = Einstellungen.informationenAnzeigen;
+        Einstellungen.informationenAnzeigen = true;
         updateUi();
-        settingsShowInformations = false;
+        Einstellungen.informationenAnzeigen = false;
         updateUi();
-        settingsShowInformations = ssh;
+        Einstellungen.informationenAnzeigen = ssh;
+        updateUi();*/
         updateUi();
 
-        for (int i = 0; i < settingsVorschau; i++) {
-            labelTime.add(i, new LabelContainer(i, null, labelTime));
+        for (int i = 0; i < Einstellungen.vorschau; i++) {
+            labelTime.add(i, new LabelContainer(i, null));
 
             dNow = new Date(stellwerk.getSpielzeit() + i*1000*60);
             ft = new SimpleDateFormat("HH:mm");
@@ -264,7 +234,7 @@ public class Fenster{
 
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
-                LabelContainer lc = new LabelContainer(i,null, labelTime);
+                LabelContainer lc = new LabelContainer(i,null);
                 lc.updateLabel(bahnhof.getBahnsteig(i).getName(), true);
                 lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
 
@@ -283,39 +253,52 @@ public class Fenster{
             }
         }
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        ArrayList<ArrayList<LabelContainer>> grid = new ArrayList<>();
-        for (int i = 0; i < settingsVorschau; i++) { //x
-            grid.add(i, new ArrayList<>());
 
-            for(Bahnhof b : stellwerk.getBahnhoefe()){
-                for (int j = 0; j < b.getBahnsteige().size(); j++) { //y
-                    grid.get(i).add(j, new LabelContainer(i,b.getBahnsteig(j), labelTime));
-                    grid.get(i).get(j).updateLabel("", stellwerk.getSpielzeit() + i*1000*60);
-                    b.getBahnsteig(j).getSpalte().add(grid.get(i).get(j));
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            for(Bahnsteig ba : b.getBahnsteige()){
+                for(int i = 0; i < Einstellungen.vorschau; i++){
+                    LabelContainer lc = new LabelContainer(i, ba);
+                    lc.updateLabel("", stellwerk.getSpielzeit() + i*1000*60);
+                    ba.getSpalte().add(lc);
 
-                    int tempI = i;
-                    int tempJ = b.getBahnsteig(j).getId();
+                    final int tempI = i;
                     Platform.runLater(() -> {
-                        try{
-                            Label l = grid.get(tempI).get(tempJ).getLabel();
-                            gp.add(l, tempJ+1, tempI+1);
-                        } catch (Exception e){
-                            e.printStackTrace();
-                        }
+                        gp.add(lc.getLabel(), ba.getId(), tempI);
                     });
                 }
             }
+        }
 
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            labelIndexCounter = i;
+
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            //System.out.println(b.getName() + " " + b.getBahnsteige().size());
+            /*for(LabelContainer lc : b.getBahnsteige().get(b.getBahnsteige().size()-1).getSpalte()){
+                lc.getLabel().setStyle(lc.getLabel().getStyle() + "; -fx-border-width: 0 5 1 0");
+            }*/
         }
 
         this.refresh.setDisable(false);
+
+        Runnable r = () -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Platform.runLater(() -> {
+                if(primaryStage.isMaximized()){
+                    primaryStage.setMaximized(false);
+                    primaryStage.setMaximized(true);
+                }
+            });
+        };
+        new Thread(r).start();
     }
 
     private void searchTrain(String text){
@@ -332,7 +315,7 @@ public class Fenster{
             for(Zug z : trains){
                 Label trainName = new Label(z.getZugName() + z.getVerspaetungToString());
                 trainName.setStyle("-fx-text-fill: white");
-                trainName.setFont(Font.font(settingsFontSize-2));
+                trainName.setFont(Font.font(Einstellungen.schriftgroesse-2));
                 trainName.setTranslateY(heightCounter);
                 if(z.getFahrplan() != null){
                     for(FahrplanHalt fh : z.getFahrplan()){
@@ -345,7 +328,7 @@ public class Fenster{
 
                 Label vonBis = new Label(z.getVon() + " - " + z.getNach());
                 vonBis.setStyle("-fx-text-fill: white");
-                vonBis.setFont(Font.font(settingsFontSize-5));
+                vonBis.setFont(Font.font(Einstellungen.schriftgroesse-5));
                 vonBis.setTranslateY(heightCounter + 25);
 
                 informations.getChildren().addAll(trainName, vonBis);
@@ -365,9 +348,9 @@ public class Fenster{
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                         Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
-                        l.setFont(Font.font(settingsFontSize-5));
+                        l.setFont(Font.font(Einstellungen.schriftgroesse-5));
                         l.setTranslateY(heightCounter + 55);
-                        l.setPrefWidth(settingsInformationWith - 25);
+                        l.setPrefWidth(Einstellungen.spaltenbreite - 25);
 
                         if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
                             l.setStyle("-fx-text-fill: white; -fx-background-color: green");
@@ -388,7 +371,7 @@ public class Fenster{
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                         Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
-                        l.setFont(Font.font(settingsFontSize-5));
+                        l.setFont(Font.font(Einstellungen.schriftgroesse-5));
                         l.setTranslateY(heightCounter + 55);
                         l.setPrefWidth(215);
 
@@ -422,7 +405,7 @@ public class Fenster{
                         LabelContainer lc = fh.getDrawnTo(0);
                         if(lc != null){
                             try{
-                                scrollPaneTo((double) lc.getBahnsteig().getOrderId() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) settingsVorschau, fh);
+                                scrollPaneTo((double) lc.getBahnsteig().getOrderId() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) Einstellungen.vorschau, fh);
                             } catch(Exception e){
                                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
                             }
@@ -486,14 +469,6 @@ public class Fenster{
         t.start();*/
     }
 
-    public void setGridScene(){
-        /*Platform.runLater(() -> {
-            long start = System.currentTimeMillis();
-            primaryStage.setScene(s);
-            System.out.println(" Finished  " + ((System.currentTimeMillis() - start)));
-        });*/
-    }
-
     private void drawTrain(Zug z){
         z.removeFromGrid();
         try{
@@ -515,7 +490,7 @@ public class Fenster{
                                             abfahrt = ankunft + 4*1000*60;
                                         }
 
-                                        for (int k = 0; k < settingsVorschau; k++) {
+                                        for (int k = 0; k < Einstellungen.vorschau; k++) {
                                             if(b.getBahnsteig(j) != null && b.getBahnsteig(j).getSpalte() != null && b.getBahnsteig(j).getSpalte().get(k) != null){
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
                                                 if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
@@ -539,14 +514,14 @@ public class Fenster{
                                             abfahrt = ankunft + 4*1000*60;
                                         }
 
-                                        for (int k = 0; k < settingsVorschau; k++) {
+                                        for (int k = 0; k < Einstellungen.vorschau; k++) {
                                             if(b.getBahnsteig(j) != null && b.getBahnsteig(j).getSpalte() != null && b.getBahnsteig(j).getSpalte().get(k) != null){
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
                                                 if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                                     z.getFahrplan(i).addDrawnTo(lc);
 
                                                     if(z.getFahrplan(i).isCrossing()){
-                                                        Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, settingsFontSize-5)));
+                                                        Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, Einstellungen.schriftgroesse-5)));
                                                     }
                                                 }
                                             }
@@ -592,58 +567,65 @@ public class Fenster{
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
 
-        scrollBarWidth.setTranslateY(stageHeight-90);
-        if(settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-settingsInformationWith);
-        if(!settingsShowInformations) scrollBarWidth.setPrefWidth(stageWidth-15);
+        scrollBarWidth.setPrefWidth(stageWidth - 15);
+        scrollBarWidth.setTranslateY(stageHeight - 90);
 
-        scrollBarHeight.setPrefHeight(stageHeight-90);
-        if(settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-settingsInformationWith+5);
-        if(!settingsShowInformations) scrollBarHeight.setTranslateX(stageWidth-14);
+        scrollBarHeight.setPrefHeight(stageHeight - 91);
+        scrollBarHeight.setTranslateX(stageWidth - 30);
 
-        spContent.setMaxHeight(stageHeight-120);
-        spContent.setTranslateX(settingsGridWidth);
-        if(settingsShowInformations) spContent.setMaxWidth(stageWidth-settingsInformationWith-60);
-        if(!settingsShowInformations) spContent.setMaxWidth(stageWidth-130);
+        spTime.setTranslateY(25);
+        spTime.setMinHeight(stageHeight - 95);
+        spTime.setMaxHeight(stageHeight - 95);
 
+        spContent.setTranslateY(25);
+        spContent.setTranslateX(Einstellungen.spaltenbreite);
+        spContent.setMinHeight(stageHeight - 95);
+        spContent.setMaxHeight(stageHeight - 95);
 
-        spTime.setMaxHeight(stageHeight-120);
-        spPlatform.setTranslateX(settingsGridWidth);
-        if(settingsShowInformations) spPlatform.setMaxWidth(stageWidth-settingsInformationWith-60);
-        if(!settingsShowInformations) spPlatform.setMaxWidth(stageWidth-130);
+        spPlatform.setTranslateX(Einstellungen.spaltenbreite);
+        spPlatform.setMinWidth(stageWidth - 95);
+        spPlatform.setMaxWidth(stageWidth - 95);
 
-        simZeit.setTranslateX(primaryStage.getWidth() - 360);
+        einstellungen.setTranslateX(stageWidth/2 - 150);
 
-        einstellungen.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 - 100);
-        refresh.setTranslateX(stageWidth / 2 - einstellungen.getWidth() / 2 + 75);
+        refresh.setTranslateX(stageWidth/2);
 
-        informations.setMinHeight(stageHeight/2-50);
-        spInformations.setPrefHeight(stageHeight/2-50);
-        spInformations.setTranslateY(30);
-        fehlerMeldungen.setPrefHeight(stageHeight/2-20);
-        fehlerMeldungen.setTranslateY(stageHeight/2-20);
+        simZeit.setTranslateX(stageWidth - simZeit.getWidth() - 30);
 
-        if(!settingsShowInformations){
-            informations.setMaxWidth(0);
-            informations.setTranslateX(0);
-            spInformations.setMaxWidth(0);
-            spInformations.setTranslateX(settingsInformationWith);
-            fehlerMeldungen.setMaxWidth(0);
-            fehlerMeldungen.setTranslateX(settingsInformationWith);
-            pZugSuche.setMaxWidth(0);
-            pZugSuche.setTranslateX(settingsInformationWith);
+        pluginName.setTranslateX(10);
+
+        zugSuche.setTranslateX(80);
+
+        if(Einstellungen.informationenAnzeigen){
+            scrollBarWidth.setPrefWidth(stageWidth - Einstellungen.informationenBreite - 15);
+            scrollBarWidth.setTranslateY(stageHeight - 90);
+
+            scrollBarHeight.setPrefHeight(stageHeight - 91);
+            scrollBarHeight.setTranslateX(stageWidth - Einstellungen.informationenBreite - 30);
+
+            spContent.setMinWidth(stageWidth - Einstellungen.informationenBreite - 115);
+            spContent.setMaxWidth(stageWidth - Einstellungen.informationenBreite - 115);
+
+            spPlatform.setMinWidth(stageWidth - Einstellungen.informationenBreite - 115);
+            spPlatform.setMaxWidth(stageWidth - Einstellungen.informationenBreite - 115);
+
+            infoFehler.setMinWidth(Einstellungen.informationenBreite);
+            infoFehler.setMaxWidth(Einstellungen.informationenBreite);
         } else{
-            informations.setMinWidth(settingsInformationWith-15);
-            informations.setPrefWidth(settingsInformationWith-15);
-            spInformations.setMinWidth(settingsInformationWith-20);
-            spInformations.setPrefWidth(settingsInformationWith-20);
-            spInformations.setTranslateX(0);
-            fehlerMeldungen.setMinWidth(settingsInformationWith-20);
-            fehlerMeldungen.setPrefWidth(settingsInformationWith-20);
-            fehlerMeldungen.setTranslateX(0);
-            pZugSuche.setMinWidth(settingsInformationWith-20);
-            pZugSuche.setPrefWidth(settingsInformationWith-20);
-            pZugSuche.setMaxWidth(settingsInformationWith-20);
-            pZugSuche.setTranslateX(0);
+            scrollBarWidth.setPrefWidth(stageWidth - 15);
+            scrollBarWidth.setTranslateY(stageHeight - 90);
+
+            scrollBarHeight.setPrefHeight(stageHeight - 91);
+            scrollBarHeight.setTranslateX(stageWidth - 30);
+
+            spContent.setMinWidth(stageWidth - 95);
+            spContent.setMaxWidth(stageWidth - 95);
+
+            spPlatform.setMinWidth(stageWidth - 95);
+            spPlatform.setMaxWidth(stageWidth - 95);
+
+            infoFehler.setMinWidth(0);
+            infoFehler.setMaxWidth(0);
         }
     }
 
@@ -663,10 +645,10 @@ public class Fenster{
         });
 
 
-        Date dNow = new Date(stellwerk.getSpielzeit() + settingsVorschau*1000*60 - 2000);
+        Date dNow = new Date(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-        LabelContainer lc = new LabelContainer(labelIndexCounter-1,null, labelTime);
+        LabelContainer lc = new LabelContainer(labelIndexCounter-1,null);
         lc.updateLabel(ft.format(dNow), false);
         Platform.runLater(() -> {
             gpTime.add(lc.getLabel(), 0, labelIndexCounter+1);
@@ -678,13 +660,13 @@ public class Fenster{
             try{
                 for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
                     for(int i = 0; i < bahnhof.getBahnsteige().size(); i++){
-                        labelContainer.add(i,new LabelContainer(labelIndexCounter+1,bahnhof.getBahnsteig(i), labelTime));
+                        labelContainer.add(i,new LabelContainer(labelIndexCounter+1,bahnhof.getBahnsteig(i)));
 
                         gp.add(labelContainer.get(i).getLabel(), bahnhof.getBahnsteig(i).getOrderId()+1, labelIndexCounter+2);
-                        labelContainer.get(i).updateLabel("", stellwerk.getSpielzeit() + settingsVorschau*1000*60 - 2000);
+                        labelContainer.get(i).updateLabel("", stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
 
                         if(bahnhof.getBahnsteig(i).isSichtbar()){
-                            labelContainer.get(i).getLabel().setPrefWidth(settingsGridWidth);
+                            labelContainer.get(i).getLabel().setPrefWidth(Einstellungen.spaltenbreite);
                         } else{
                             labelContainer.get(i).getLabel().setMaxWidth(0);
                             labelContainer.get(i).getLabel().setPrefWidth(0);
@@ -709,7 +691,7 @@ public class Fenster{
             }
         });
 
-        updateSomeTrains(stellwerk.getSpielzeit() + settingsVorschau*1000*60 - 2000);
+        updateSomeTrains(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
 
         //Workaround for Bug
         sortiereGleise();
@@ -759,7 +741,7 @@ public class Fenster{
         ai.setFont(Font.font(18));
         ai.setTranslateY(10);
         ai.setTranslateX(10);
-        TextField tfai = new TextField(String.valueOf(settingsUpdateInterwall));
+        TextField tfai = new TextField(String.valueOf(Einstellungen.update));
         tfai.setTranslateX(300);
         tfai.setTranslateY(10);
 
@@ -767,7 +749,7 @@ public class Fenster{
         v.setFont(Font.font(18));
         v.setTranslateY(40);
         v.setTranslateX(10);
-        TextField tfv = new TextField(String.valueOf(settingsVorschau));
+        TextField tfv = new TextField(String.valueOf(Einstellungen.vorschau));
         tfv.setTranslateX(300);
         tfv.setTranslateY(40);
         //tfv.setDisable(true);
@@ -776,7 +758,7 @@ public class Fenster{
         sb.setFont(Font.font(18));
         sb.setTranslateY(70);
         sb.setTranslateX(10);
-        TextField tfsb = new TextField(String.valueOf(settingsGridWidth));
+        TextField tfsb = new TextField(String.valueOf(Einstellungen.spaltenbreite));
         tfsb.setTranslateX(300);
         tfsb.setTranslateY(70);
 
@@ -784,7 +766,7 @@ public class Fenster{
         fs.setFont(Font.font(18));
         fs.setTranslateY(100);
         fs.setTranslateX(10);
-        TextField tffs = new TextField(String.valueOf(settingsFontSize));
+        TextField tffs = new TextField(String.valueOf(Einstellungen.schriftgroesse));
         tffs.setTranslateX(300);
         tffs.setTranslateY(100);
 
@@ -792,7 +774,7 @@ public class Fenster{
         zib.setFont(Font.font(18));
         zib.setTranslateY(130);
         zib.setTranslateX(10);
-        TextField tfzib = new TextField(String.valueOf(settingsInformationWith));
+        TextField tfzib = new TextField(String.valueOf(Einstellungen.spaltenbreite));
         tfzib.setTranslateX(300);
         tfzib.setTranslateY(130);
 
@@ -804,19 +786,8 @@ public class Fenster{
         cbezi.setTranslateX(300);
         cbezi.setTranslateY(160);
         cbezi.setFont(Font.font(18));
-        if(settingsShowInformations) cbezi.setSelected(true);
-        if(! settingsShowInformations) cbezi.setSelected(false);
-
-        Label dm = new Label("Schreibe Debug-Informationen:");
-        dm.setFont(Font.font(18));
-        dm.setTranslateY(190);
-        dm.setTranslateX(10);
-        CheckBox cbdm = new CheckBox();
-        cbdm.setTranslateX(300);
-        cbdm.setTranslateY(190);
-        cbdm.setFont(Font.font(18));
-        if(settingsDebug) cbdm.setSelected(true);
-        if(! settingsDebug) cbdm.setSelected(false);
+        if(Einstellungen.informationenAnzeigen) cbezi.setSelected(true);
+        if(! Einstellungen.informationenAnzeigen) cbezi.setSelected(false);
 
         Label tmb = new Label("Ton bei Mehrfachbelegung:");
         tmb.setFont(Font.font(18));
@@ -826,8 +797,8 @@ public class Fenster{
         cbtmb.setTranslateX(300);
         cbtmb.setTranslateY(220);
         cbtmb.setFont(Font.font(18));
-        if(settingsPlaySound) cbtmb.setSelected(true);
-        if(! settingsPlaySound) cbtmb.setSelected(false);
+        if(Einstellungen.soundAbspielen) cbtmb.setSelected(true);
+        if(! Einstellungen.soundAbspielen) cbtmb.setSelected(false);
 
 
         Pane gleise = new Pane();
@@ -887,16 +858,15 @@ public class Fenster{
         speichern.setTranslateY(stageHeight - 50);
         speichern.setOnAction(e -> {
             try{
-                settingsUpdateInterwall = Integer.parseInt(tfai.getText());
-                settingsGridWidth = Integer.parseInt(tfsb.getText());
-                settingsFontSize = Integer.parseInt(tffs.getText());
-                settingsInformationWith = Integer.parseInt(tfzib.getText());
-                settingsShowInformations = cbezi.isSelected();
-                settingsPlaySound = cbtmb.isSelected();
-                settingsDebug = cbdm.isSelected();
+                Einstellungen.update = Integer.parseInt(tfai.getText());
+                Einstellungen.spaltenbreite = Integer.parseInt(tfsb.getText());
+                Einstellungen.schriftgroesse = Integer.parseInt(tffs.getText());
+                Einstellungen.spaltenbreite = Integer.parseInt(tfzib.getText());
+                Einstellungen.informationenAnzeigen = cbezi.isSelected();
+                Einstellungen.soundAbspielen = cbtmb.isSelected();
 
-                if(settingsVorschau != Integer.parseInt(tfv.getText())){
-                    settingsVorschau = Integer.parseInt(tfv.getText());
+                if(Einstellungen.vorschau != Integer.parseInt(tfv.getText())){
+                    Einstellungen.vorschau = Integer.parseInt(tfv.getText());
 
                     einstellungen.setDisable(false);
                     stage.close();
@@ -909,7 +879,7 @@ public class Fenster{
                         for (Bahnsteig b : bahnhof.getBahnsteige()) {
                             if (cb[counterOne].isSelected()) {
                                 b.setSichtbar(true);
-                                b.setLabelContainerToWith(settingsGridWidth);
+                                b.setLabelContainerToWith(Einstellungen.spaltenbreite);
                             } else {
                                 b.setSichtbar(false);
                                 b.setLabelContainerToWith(0);
@@ -933,7 +903,7 @@ public class Fenster{
         Pane p = new Pane();
         p.setPrefWidth(stageWidth);
         p.setPrefHeight(stageHeight);
-        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern, tmb, cbtmb, dm, cbdm);
+        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern, tmb, cbtmb);
         p.setStyle("-fx-background: #303030; -fx-padding: 0;");
 
         ScrollPane sp = new ScrollPane(p);
@@ -961,14 +931,13 @@ public class Fenster{
 
             PrintWriter pw = new PrintWriter(new FileWriter(filePath + "Plugin_Gleisbelegung_Settings.txt"));
 
-            pw.println(settingsUpdateInterwall);
-            pw.println(settingsVorschau);
-            pw.println(settingsGridWidth);
-            pw.println(settingsFontSize);
-            pw.println(settingsShowInformations);
-            pw.println(settingsPlaySound);
-            pw.println(settingsDebug);
-            pw.println(settingsInformationWith);
+            pw.println(Einstellungen.update);
+            pw.println(Einstellungen.vorschau);
+            pw.println(Einstellungen.spaltenbreite);
+            pw.println(Einstellungen.schriftgroesse);
+            pw.println(Einstellungen.informationenAnzeigen);
+            pw.println(Einstellungen.soundAbspielen);
+            pw.println(Einstellungen.spaltenbreite);
 
             pw.close();
         } catch (Exception e) {
@@ -980,24 +949,24 @@ public class Fenster{
     private void updateSettings(){
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             for(Bahnsteig b : bahnhof.getBahnsteige()){
-                if(b.isSichtbar()) b.setLabelContainerToWith(settingsGridWidth);
+                if(b.isSichtbar()) b.setLabelContainerToWith(Einstellungen.spaltenbreite);
             }
         }
 
         for (LabelContainer lc : labelTime) {
-            lc.getLabel().setFont(Font.font(settingsFontSize - 5));
-            lc.getLabel().setMaxWidth(settingsGridWidth);
-            lc.getLabel().setMinWidth(settingsGridWidth);
+            lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
+            lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
+            lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
         }
 
-        pluginName.setFont(Font.font(settingsFontSize));
-        simZeit.setFont(Font.font(settingsFontSize));
-        einstellungen.setFont(Font.font(settingsFontSize));
-        refresh.setFont(Font.font(settingsFontSize));
-        firstLabel.setFont(Font.font(settingsFontSize-5));
+        pluginName.setFont(Font.font(Einstellungen.schriftgroesse));
+        simZeit.setFont(Font.font(Einstellungen.schriftgroesse));
+        einstellungen.setFont(Font.font(Einstellungen.schriftgroesse));
+        refresh.setFont(Font.font(Einstellungen.schriftgroesse));
+        firstLabel.setFont(Font.font(Einstellungen.schriftgroesse-5));
 
-        firstLabel.setMaxWidth(settingsGridWidth);
-        firstLabel.setMinWidth(settingsGridWidth);
+        firstLabel.setMaxWidth(Einstellungen.spaltenbreite);
+        firstLabel.setMinWidth(Einstellungen.spaltenbreite);
     }
 
     private void sortiereGleise(){
@@ -1026,17 +995,17 @@ public class Fenster{
 
         Label l = new Label("Reihenfolge festlegen:");
         l.setStyle("-fx-text-fill: white");
-        l.setFont(Font.font(settingsFontSize));
+        l.setFont(Font.font(Einstellungen.schriftgroesse));
         l.setTranslateY(25);
         l.setTranslateX(25);
 
         TextField tf = new TextField(String.valueOf(bahnsteig.getOrderId()+1));
-        tf.setFont(Font.font(settingsFontSize-3));
+        tf.setFont(Font.font(Einstellungen.schriftgroesse-3));
         tf.setTranslateX(25);
         tf.setTranslateY(60);
 
         Button b = new Button("Speichern");
-        b.setFont(Font.font(settingsFontSize));
+        b.setFont(Font.font(Einstellungen.schriftgroesse));
         b.setTranslateX(25);
         b.setTranslateY(120);
         b.setOnAction(e -> {

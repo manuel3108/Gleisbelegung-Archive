@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -10,7 +10,7 @@ In dieser Klasse werden viele Variablen gespeichert, da jede Klasse diese Klasse
 Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
-import com.gleisbelegung.plugin.lib.Stellwerk;
+import com.gleisbelegung.lib.Stellwerk;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -27,15 +27,6 @@ import javafx.stage.Stage;
 public class Plugin extends Application implements Runnable{
     private Stage primaryStage;
     private StackPane firstSP;                               //Erste Benutzeroberfläche, die beim start angezeigt wird.
-
-    static int settingsUpdateInterwall = 15;                //Wie oft das Fenster (die Tabelle) aktualisiert wird.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    static int settingsVorschau = 60;                       //Wie viele Zeilen die Tabelle hat.                         (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    static int settingsGridWidth = 100;                     //Wie breit die einzelnen Spalten sind.                     (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    protected static int settingsFontSize = 18;                       //Wie groß die Schriftgröße ist.                            (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    static boolean settingsPlaySound = true;                //Soll bei einer Mehrfahcbelegung ein Ton abgespielt werden.(Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    static boolean settingsShowInformations = true;         //Zeige die Informationenpanel.                             (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    static boolean settingsDebug = false;                   //Sollen zusätzliche Informationen geschrieben werden.      (Wird bei vorhandenen Einstellungen durch den dortigen Wert überschrieben)
-    static int settingsInformationWith = 300;               //Breite des Informations-Panels auf der rechten Seite
 
     private Update u;                                       //Objekt der Update-Klasse                                  (Lässte ein Fenster erscheinen, sobald eine neuere Version verfügbar ist)
     private Fenster f;
@@ -61,14 +52,14 @@ public class Plugin extends Application implements Runnable{
 
         Label lHint = new Label("IP-Adress nur ändern, wenn SIM auf einem anderen Rechner läuft. \nWenn dies der Fall ist, muss auf dem SIM-Rechner die Windows-Firewall\n (wahrscheinlich auch jede andere), deaktiviert werden.");
         lHint.setStyle("-fx-text-fill: white;");
-        lHint.setFont(Font.font(settingsFontSize));
+        lHint.setFont(Font.font(Einstellungen.schriftgroesse));
         lHint.setTranslateY(0);
         lHint.applyCss();
         lHint.layout();
 
         Label lHost = new Label("Bitte die IP des Rechners eingeben: ");
         lHost.setStyle("-fx-text-fill: white;");
-        lHost.setFont(Font.font(settingsFontSize));
+        lHost.setFont(Font.font(Einstellungen.schriftgroesse));
         lHost.setTranslateY(80);
         lHost.setTranslateX(-120);
         lHost.applyCss();
@@ -78,7 +69,7 @@ public class Plugin extends Application implements Runnable{
         tfHost.setText("localhost");
 
         tfHost.setStyle("-fx-text-fill: black;");
-        tfHost.setFont(Font.font(settingsFontSize));
+        tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
         tfHost.setTranslateX(120);
         tfHost.setTranslateY(80);
         tfHost.setMinWidth(150);
@@ -89,7 +80,7 @@ public class Plugin extends Application implements Runnable{
 
         Button btLoad = new Button("Verbinden");
         btLoad.setStyle("-fx-text-fill: black;");
-        btLoad.setFont(Font.font(settingsFontSize));
+        btLoad.setFont(Font.font(Einstellungen.schriftgroesse));
         btLoad.setTranslateX((lHost.getWidth() + tfHost.getWidth())/2);
         btLoad.setTranslateY(130);
         btLoad.setMinWidth(150);
@@ -194,9 +185,9 @@ public class Plugin extends Application implements Runnable{
         while(update) {
             try {
                 int time = (int) ((System.currentTimeMillis() - timeFromLastUpdate) / 1000);
-                if(stellwerk.hasZeit()) stellwerk.aktualisiereSimZeit();
+                if(!stellwerk.isAktualisiere()) stellwerk.aktualisiereSimZeit();
 
-                if (time >= settingsUpdateInterwall) {
+                if (time >= Einstellungen.update) {
                     timeFromLastUpdate = System.currentTimeMillis();
 
                     Runnable r = () -> {
@@ -215,7 +206,7 @@ public class Plugin extends Application implements Runnable{
                     new Thread(r, "Aktualisierungs-Thread").start();
                 }
 
-                f.updateSimTime(settingsUpdateInterwall - time);
+                f.updateSimTime(Einstellungen.update - time);
 
                 if (stellwerk.getSpielzeit() % (1000 * 60) >= 0 && stellwerk.getSpielzeit() % (1000 * 60) <= 1000) {
                     Runnable r = () -> {
