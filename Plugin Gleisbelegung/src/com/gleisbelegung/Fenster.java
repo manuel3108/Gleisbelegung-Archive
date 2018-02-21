@@ -274,6 +274,7 @@ public class Fenster{
                 }
             }
         }
+        labelIndexCounter = Einstellungen.vorschau;
 
 
         for(Bahnhof b : stellwerk.getBahnhoefe()){
@@ -574,13 +575,13 @@ public class Fenster{
         scrollBarHeight.setTranslateX(stageWidth - 30);
 
         spTime.setTranslateY(25);
-        spTime.setMinHeight(stageHeight - 95);
-        spTime.setMaxHeight(stageHeight - 95);
+        spTime.setMinHeight(stageHeight - 120);
+        spTime.setMaxHeight(stageHeight - 120);
 
         spContent.setTranslateY(25);
         spContent.setTranslateX(Einstellungen.spaltenbreite);
-        spContent.setMinHeight(stageHeight - 95);
-        spContent.setMaxHeight(stageHeight - 95);
+        spContent.setMinHeight(stageHeight - 120);
+        spContent.setMaxHeight(stageHeight - 120);
 
         spPlatform.setTranslateX(Einstellungen.spaltenbreite);
         spPlatform.setMinWidth(stageWidth - 95);
@@ -631,7 +632,8 @@ public class Fenster{
 
     public void refreshGrid(){
         for (int i = 0; i < stellwerk.getAnzahlBahnsteige(); i++) {
-            Platform.runLater(() -> gp.getChildren().remove(0));
+            final int tempI = i;
+            Platform.runLater(() -> gp.getChildren().remove(Einstellungen.vorschau*tempI-tempI));
         }
         Platform.runLater(() -> {
             gpTime.getChildren().remove(0);
@@ -655,46 +657,44 @@ public class Fenster{
             labelTime.add(labelTime.size(), lc);
         });
 
+
+        ArrayList<Bahnsteig> sortierteGleise = new ArrayList<>();
+        for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+            sortierteGleise.addAll(bahnhof.getBahnsteige());
+        }
+        sortierteGleise.sort(Comparator.comparing(Bahnsteig::getOrderId));
+
         ArrayList<LabelContainer> labelContainer = new ArrayList<>();
-        Platform.runLater(() -> {
-            try{
-                for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                    for(int i = 0; i < bahnhof.getBahnsteige().size(); i++){
-                        labelContainer.add(i,new LabelContainer(labelIndexCounter+1,bahnhof.getBahnsteig(i)));
+        int counter = 0;
+        for(Bahnsteig b : sortierteGleise){
+            LabelContainer laco = new LabelContainer(labelIndexCounter, b);
 
-                        gp.add(labelContainer.get(i).getLabel(), bahnhof.getBahnsteig(i).getOrderId()+1, labelIndexCounter+2);
-                        labelContainer.get(i).updateLabel("", stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
+            labelContainer.add(laco);
 
-                        if(bahnhof.getBahnsteig(i).isSichtbar()){
-                            labelContainer.get(i).getLabel().setPrefWidth(Einstellungen.spaltenbreite);
-                        } else{
-                            labelContainer.get(i).getLabel().setMaxWidth(0);
-                            labelContainer.get(i).getLabel().setPrefWidth(0);
-                            labelContainer.get(i).getLabel().setMinWidth(0);
-                        }
+            laco.updateLabel("", stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
+            b.getSpalte().add(laco);
 
-                        if(bahnhof.getBahnsteig(i).getHebeHervor()) labelContainer.get(i).setHervorhebungDurchGleis(true);
-                    }
-                }
-            } catch(Exception e){
-                e.printStackTrace();
+            final int tempI = labelIndexCounter+2;
+            final int tempCounter = counter;
+            Platform.runLater(() -> {
+                gp.add(laco.getLabel(), tempCounter, tempI);
+            });
+
+            if(b.isSichtbar()){
+                laco.getLabel().setPrefWidth(Einstellungen.spaltenbreite);
+            } else{
+                laco.getLabel().setMaxWidth(0);
+                laco.getLabel().setPrefWidth(0);
+                laco.getLabel().setMinWidth(0);
             }
-            labelIndexCounter++;
-        });
 
+            if(b.getHebeHervor()) laco.setHervorhebungDurchGleis(true);
 
-        Platform.runLater(() -> {
-            for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                for(int i = 0; i < bahnhof.getBahnsteige().size(); i++){
-                    if(bahnhof.getBahnsteig(i) != null) bahnhof.getBahnsteig(i).getSpalte().add(labelContainer.get(i));
-                }
-            }
-        });
+            counter++;
+        }
+        labelIndexCounter++;
 
         updateSomeTrains(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
-
-        //Workaround for Bug
-        sortiereGleise();
     }
 
     private void updateSomeTrains(long time){
@@ -971,21 +971,32 @@ public class Fenster{
 
     private void sortiereGleise(){
         Platform.runLater(() -> {
-            ArrayList<Bahnsteig> gleise = new ArrayList<>();
+            ArrayList<Bahnsteig> sortierteGleise = new ArrayList<>();
             for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                gleise.addAll(bahnhof.getBahnsteige());
+                sortierteGleise.addAll(bahnhof.getBahnsteige());
             }
 
-            gleise.sort(Comparator.comparing(Bahnsteig::getOrderId));
+            sortierteGleise.sort(Comparator.comparing(Bahnsteig::getOrderId));
 
             gpPlatform.getChildren().clear();
             gp.getChildren().clear();
 
-            for(int i = 0; i < gleise.size(); i++){
-                gpPlatform.addColumn(i,gleise.get(i).getGleisLabel().getLabel());
-                for (int j = 0; j < gleise.get(i).getSpalte().size(); j++) {
-                    gp.add(gleise.get(i).getSpalte().get(j).getLabel(),i,j);
+
+            int x = 0;
+            int y = 0;
+            for(Bahnsteig b : sortierteGleise){
+                gpPlatform.addColumn(x,b.getGleisLabel().getLabel());
+                for(LabelContainer lc : b.getSpalte()){
+                    try {
+                        gp.add(lc.getLabel(), x, y);
+                    }catch (Exception e){
+                        System.out.println(b.getName() + " " + x + " " + lc.getLabelIndex() + " " + y);
+                        e.printStackTrace();
+                    }
+                    y++;
                 }
+                x++;
+                y = 0;
             }
         });
     }

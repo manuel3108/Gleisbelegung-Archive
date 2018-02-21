@@ -59,11 +59,11 @@ public class Stellwerk {
             }
         }
 
-        for(Bahnhof b : bahnhoefe){
+        /*for(Bahnhof b : bahnhoefe){
             for(Bahnsteig ba : b.getBahnsteige()){
                 System.out.println(b.getName() + " " + ba.getName());
             }
-        }
+        }*/
     }
 
     public boolean aktualisiereDaten(){
