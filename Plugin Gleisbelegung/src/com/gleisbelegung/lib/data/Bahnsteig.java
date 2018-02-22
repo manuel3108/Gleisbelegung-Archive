@@ -1,7 +1,7 @@
 package com.gleisbelegung.lib.data;
 
-import com.gleisbelegung.Plugin;
 import com.gleisbelegung.LabelContainer;
+import com.gleisbelegung.Plugin;
 import javafx.application.Platform;
 
 import java.util.ArrayList;

@@ -124,10 +124,11 @@ public class LabelContainer extends Plugin {
                 }
             });
         } else if (trains.size() == 1 && trains.get(0) != null) {
+            Zug train = trains.get(0);
             Platform.runLater(() -> {
-                    l.setText(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString());
-                    l.setTooltip(new Tooltip(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString()));
-                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(trains.get(0).getZugName()) + ";");
+                l.setText(train.getZugName() + train.getVerspaetungToString());
+                l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
+                l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(train.getZugName()) + ";");
             });
         } else{
             Platform.runLater(() -> {

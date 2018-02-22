@@ -15,10 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import java.io.File;
-import java.net.Proxy;
+
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.Scanner;
 
 public class Update {
