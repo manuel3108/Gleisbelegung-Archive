@@ -123,12 +123,22 @@ public class LabelContainer extends Plugin {
                     l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
                 }
             });
+<<<<<<< HEAD
         } else if (trains.size() == 1 && trains.get(0) != null) {
             Zug train = trains.get(0);
             Platform.runLater(() -> {
                 l.setText(train.getZugName() + train.getVerspaetungToString());
                 l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
                 l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(train.getZugName()) + ";");
+=======
+        } else if(trains.size() == 1){
+            Platform.runLater(() -> {
+                if(trains.size() == 1){
+                    l.setText(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString());
+                    l.setTooltip(new Tooltip(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString()));
+                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(trains.get(0).getZugName()) + ";");
+                }
+>>>>>>> parent of 995b0c0... Issue #54 completed: null check für trains.get(0) label l kann eigentlich nicht null werden
             });
         } else{
             Platform.runLater(() -> {
