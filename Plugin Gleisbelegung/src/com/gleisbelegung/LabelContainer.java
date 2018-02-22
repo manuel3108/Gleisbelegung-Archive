@@ -123,13 +123,11 @@ public class LabelContainer extends Plugin {
                     l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
                 }
             });
-        } else if(trains.size() == 1){
+        } else if (trains.size() == 1 && trains.get(0) != null) {
             Platform.runLater(() -> {
-                if(trains.size() == 1){
                     l.setText(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString());
                     l.setTooltip(new Tooltip(trains.get(0).getZugName() + trains.get(0).getVerspaetungToString()));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(trains.get(0).getZugName()) + ";");
-                }
             });
         } else{
             Platform.runLater(() -> {
