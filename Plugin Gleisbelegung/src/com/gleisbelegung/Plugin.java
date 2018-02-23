@@ -35,6 +35,7 @@ public class Plugin extends Application implements Runnable{
     private int version = 15;                                //Aktualle Version des Plugins
 
     private Stellwerk stellwerk;
+    public static Einstellungen einstellungen;
     private boolean update = true;
     private Button refresh;
 
@@ -145,6 +146,7 @@ public class Plugin extends Application implements Runnable{
             }
         }*/
 
+        einstellungen = new Einstellungen();
     }
 
     private void startLoading(){

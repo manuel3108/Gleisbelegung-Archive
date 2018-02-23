@@ -870,7 +870,7 @@ public class Fenster{
 
                     einstellungen.setDisable(false);
                     stage.close();
-                    writeSettings();
+                    Plugin.einstellungen.schreibeEinstellungen();
 
                     refresh.fire();
                 } else{
@@ -890,7 +890,7 @@ public class Fenster{
 
                     einstellungen.setDisable(false);
                     stage.close();
-                    writeSettings();
+                    Plugin.einstellungen.schreibeEinstellungen();
 
                     updateSettings();
                     updateUi();
@@ -921,29 +921,6 @@ public class Fenster{
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest(e -> einstellungen.setDisable(false));
-    }
-
-    private void writeSettings(){
-        try {
-            File f = File.createTempFile("temp", ".txt");
-            String filePath = f.getAbsolutePath().replace(f.getName(), "");
-            f.delete();
-
-            PrintWriter pw = new PrintWriter(new FileWriter(filePath + "Plugin_Gleisbelegung_Settings.txt"));
-
-            pw.println(Einstellungen.update);
-            pw.println(Einstellungen.vorschau);
-            pw.println(Einstellungen.spaltenbreite);
-            pw.println(Einstellungen.schriftgroesse);
-            pw.println(Einstellungen.informationenAnzeigen);
-            pw.println(Einstellungen.soundAbspielen);
-            pw.println(Einstellungen.spaltenbreite);
-
-            pw.close();
-        } catch (Exception e) {
-            e.printStackTrace(logFile);
-            e.printStackTrace();
-        }
     }
 
     private void updateSettings(){
