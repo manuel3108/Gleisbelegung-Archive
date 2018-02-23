@@ -934,6 +934,19 @@ public class Fenster{
             lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
         }
 
+        for (Bahnhof b : stellwerk.getBahnhoefe()) {
+            for(Bahnsteig ba : b.getBahnsteige()){
+                ba.getGleisLabel().getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
+                ba.getGleisLabel().getLabel().setMaxWidth(Einstellungen.spaltenbreite);
+                ba.getGleisLabel().getLabel().setMinWidth(Einstellungen.spaltenbreite);
+                for(LabelContainer lc : ba.getSpalte()){
+                    lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
+                    lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
+                    lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
+                }
+            }
+        }
+
         pluginName.setFont(Font.font(Einstellungen.schriftgroesse));
         simZeit.setFont(Font.font(Einstellungen.schriftgroesse));
         einstellungen.setFont(Font.font(Einstellungen.schriftgroesse));
