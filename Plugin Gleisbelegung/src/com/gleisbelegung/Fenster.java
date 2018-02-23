@@ -9,8 +9,8 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Erzeugen und Updaten der Gui (u.a. die Tabelle und die Informationen)
  */
 
-import com.gleisbelegung.lib.data.Bahnhof;
 import com.gleisbelegung.lib.Stellwerk;
+import com.gleisbelegung.lib.data.Bahnhof;
 import com.gleisbelegung.lib.data.Bahnsteig;
 import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
@@ -492,7 +492,7 @@ public class Fenster{
                                         }
 
                                         for (int k = 0; k < Einstellungen.vorschau; k++) {
-                                            if(b.getBahnsteig(j) != null && b.getBahnsteig(j).getSpalte() != null && b.getBahnsteig(j).getSpalte().get(k) != null){
+                                            if (g.getSpalte() != null && k<g.getSpalte().size()&&b.getBahnsteig(j).getSpalte().get(k) != null) {
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
                                                 if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                                     z.getFahrplan(i).addDrawnTo(lc);
@@ -516,7 +516,7 @@ public class Fenster{
                                         }
 
                                         for (int k = 0; k < Einstellungen.vorschau; k++) {
-                                            if(b.getBahnsteig(j) != null && b.getBahnsteig(j).getSpalte() != null && b.getBahnsteig(j).getSpalte().get(k) != null){
+                                            if (g.getSpalte() != null && k<g.getSpalte().size()&&b.getBahnsteig(j).getSpalte().get(k) != null) {
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
                                                 if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
                                                     z.getFahrplan(i).addDrawnTo(lc);
