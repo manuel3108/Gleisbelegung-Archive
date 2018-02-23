@@ -39,7 +39,7 @@ public class Einstellungen {
         try {
             if(einstellungen.exists() || einstellungen.createNewFile()){
                 BufferedWriter bw = new BufferedWriter(new FileWriter(einstellungen));
-                bw.write("<?xml version=\"1\" encoding=\"UTF-8\"?>\n");
+                bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 bw.write("<einstellungen version=\"1\">\n");
                 bw.write("\t<update>" + update + "</update>\n");
                 bw.write("\t<vorschau>" + vorschau + "</vorschau>\n");
