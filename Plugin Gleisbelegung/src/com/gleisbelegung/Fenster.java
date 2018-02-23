@@ -631,16 +631,13 @@ public class Fenster{
     }
 
     public void refreshGrid(){
-        for (int i = 0; i < stellwerk.getAnzahlBahnsteige(); i++) {
-            final int tempI = i;
-            Platform.runLater(() -> gp.getChildren().remove(Einstellungen.vorschau*tempI-tempI));
-        }
         Platform.runLater(() -> {
             gpTime.getChildren().remove(0);
             labelTime.remove(0);
 
             for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
                 for(Bahnsteig bahnsteig : bahnhof.getBahnsteige()){
+                    gp.getChildren().remove(bahnsteig.getSpalte().get(0).getLabel());
                     bahnsteig.getSpalte().remove(0);
                 }
             }
@@ -752,7 +749,7 @@ public class Fenster{
         TextField tfv = new TextField(String.valueOf(Einstellungen.vorschau));
         tfv.setTranslateX(300);
         tfv.setTranslateY(40);
-        //tfv.setDisable(true);
+        tfv.setDisable(true);
 
         Label sb = new Label("Spaltenbreite (in px):");
         sb.setFont(Font.font(18));
@@ -774,7 +771,7 @@ public class Fenster{
         zib.setFont(Font.font(18));
         zib.setTranslateY(130);
         zib.setTranslateX(10);
-        TextField tfzib = new TextField(String.valueOf(Einstellungen.spaltenbreite));
+        TextField tfzib = new TextField(String.valueOf(Einstellungen.informationenBreite));
         tfzib.setTranslateX(300);
         tfzib.setTranslateY(130);
 
@@ -861,7 +858,8 @@ public class Fenster{
                 Einstellungen.update = Integer.parseInt(tfai.getText());
                 Einstellungen.spaltenbreite = Integer.parseInt(tfsb.getText());
                 Einstellungen.schriftgroesse = Integer.parseInt(tffs.getText());
-                Einstellungen.spaltenbreite = Integer.parseInt(tfzib.getText());
+                Einstellungen.spaltenbreite = Integer.parseInt(tfsb.getText());
+                Einstellungen.informationenBreite = Integer.parseInt(tfzib.getText());
                 Einstellungen.informationenAnzeigen = cbezi.isSelected();
                 Einstellungen.soundAbspielen = cbtmb.isSelected();
 
