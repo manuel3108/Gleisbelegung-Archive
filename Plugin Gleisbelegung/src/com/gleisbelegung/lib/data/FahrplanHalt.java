@@ -10,7 +10,6 @@ Speichert alle Daten für einen FahrplanHalt
  */
 
 import com.gleisbelegung.LabelContainer;
-
 import java.util.ArrayList;
 
 public class FahrplanHalt {
