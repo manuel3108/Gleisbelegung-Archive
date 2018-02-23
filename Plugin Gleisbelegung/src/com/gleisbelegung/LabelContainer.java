@@ -250,6 +250,12 @@ public class LabelContainer extends Plugin {
         } else{
             l.setStyle(normal);
         }
+
+        if (labelIndex % 2 == 0) {
+            l.setStyle(l.getStyle() + "-fx-background-color: #303030; ");
+        } else {
+            l.setStyle(l.getStyle() + "-fx-background-color: #292929; ");
+        }
     }
 
     public ArrayList<Zug> getTrains(){

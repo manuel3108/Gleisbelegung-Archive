@@ -647,7 +647,7 @@ public class Fenster{
         Date dNow = new Date(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-        LabelContainer lc = new LabelContainer(labelIndexCounter-1,null);
+        LabelContainer lc = new LabelContainer(labelIndexCounter,null);
         lc.updateLabel(ft.format(dNow), false);
         Platform.runLater(() -> {
             gpTime.add(lc.getLabel(), 0, labelIndexCounter+1);
