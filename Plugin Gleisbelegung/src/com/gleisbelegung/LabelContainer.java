@@ -28,6 +28,7 @@ public class LabelContainer extends Plugin {
     private ArrayList<Zug> trains;                  //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
     private long time = -1;                         //Die Zeit die in der jeweiligen Zeile die richtige ist.
     private Bahnsteig bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
+    private boolean letzterBahnsteig;
 
     private boolean hervorhebungDurchGleis;
 
@@ -122,6 +123,10 @@ public class LabelContainer extends Plugin {
                 } else {
                     l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
                 }
+
+                if(letzterBahnsteig){
+                    l.setStyle(l.getStyle() + "; -fx-border-width: 0 5 1 0");
+                }
             });
         } else if(trains.size() == 1){
             Zug train = trains.get(0);
@@ -129,6 +134,10 @@ public class LabelContainer extends Plugin {
                     l.setText(train.getZugName() + train.getVerspaetungToString());
                     l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(train.getZugName()) + ";");
+
+                if(letzterBahnsteig){
+                    l.setStyle(l.getStyle() + "; -fx-border-width: 0 5 1 0");
+                }
             });
         } else{
             Platform.runLater(() -> {
@@ -146,6 +155,10 @@ public class LabelContainer extends Plugin {
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: red;");
 
                     //playColisonSound(bahnsteig);
+
+                    if(letzterBahnsteig){
+                        l.setStyle(l.getStyle() + "; -fx-border-width: 0 5 1 0");
+                    }
                 }
             });
         }
@@ -368,5 +381,12 @@ public class LabelContainer extends Plugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isLetzterBahnsteig() {
+        return letzterBahnsteig;
+    }
+    public void setLetzterBahnsteig(boolean letzterBahnsteig) {
+        this.letzterBahnsteig = letzterBahnsteig;
     }
 }

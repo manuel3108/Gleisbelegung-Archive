@@ -276,12 +276,14 @@ public class Fenster{
         }
         labelIndexCounter = Einstellungen.vorschau;
 
-
         for(Bahnhof b : stellwerk.getBahnhoefe()){
-            //System.out.println(b.getName() + " " + b.getBahnsteige().size());
-            /*for(LabelContainer lc : b.getBahnsteige().get(b.getBahnsteige().size()-1).getSpalte()){
-                lc.getLabel().setStyle(lc.getLabel().getStyle() + "; -fx-border-width: 0 5 1 0");
-            }*/
+            for(LabelContainer lc : b.getBahnsteige().get(b.getBahnsteige().size()-1).getSpalte()){
+                lc.setLetzterBahnsteig(true);
+
+                b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().setLetzterBahnsteig(true);
+                Label l = b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().getLabel();
+                l.setStyle(l.getStyle() + "; -fx-border-width: 0 5 5 0");
+            }
         }
 
         this.refresh.setDisable(false);
