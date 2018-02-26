@@ -62,9 +62,11 @@ public class Bahnsteig extends Plugin {
             });
         }
 
-        gleisLabel.getLabel().setMaxWidth(width);
-        gleisLabel.getLabel().setPrefWidth(width);
-        gleisLabel.getLabel().setMinWidth(width);
+        Platform.runLater(() -> {
+            gleisLabel.getLabel().setMaxWidth(width);
+            gleisLabel.getLabel().setPrefWidth(width);
+            gleisLabel.getLabel().setMinWidth(width);
+        });
     }
 
     public void hebeHervor(){
