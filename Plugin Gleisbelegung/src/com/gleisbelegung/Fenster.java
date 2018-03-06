@@ -584,6 +584,7 @@ public class Fenster{
     }
 
     private void updateUi(){
+        Einstellungen.maximiert = primaryStage.isMaximized();
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
 
@@ -918,7 +919,6 @@ public class Fenster{
 
                     einstellungen.setDisable(false);
                     stage.close();
-                    Plugin.einstellungen.schreibeEinstellungen();
 
                     updateSettings();
                     updateUi();

@@ -18,6 +18,7 @@ public class Einstellungen {
     public static boolean informationenAnzeigen = true;
     public static int informationenBreite = 300;
     public static String appOrdner;
+    public static boolean maximiert = true;
     private File einstellungen;
 
     public Einstellungen(){
@@ -48,6 +49,7 @@ public class Einstellungen {
                 bw.write("\t<soundAbspielen>" + soundAbspielen + "</soundAbspielen>\n");
                 bw.write("\t<informationenAnzeigen>" + informationenAnzeigen + "</informationenAnzeigen>\n");
                 bw.write("\t<informationenBreite>" + informationenBreite + "</informationenBreite>\n");
+                bw.write("\t<maximiert>" + maximiert + "</maximiert>\n");
                 bw.write("</einstellungen>\n");
 
                 bw.flush();
@@ -73,11 +75,15 @@ public class Einstellungen {
                 soundAbspielen = Boolean.parseBoolean(e.getElementsByTagName("soundAbspielen").item(0).getTextContent());
                 informationenAnzeigen = Boolean.parseBoolean(e.getElementsByTagName("informationenAnzeigen").item(0).getTextContent());
                 informationenBreite = Integer.parseInt(e.getElementsByTagName("informationenBreite").item(0).getTextContent());
+                maximiert = Boolean.parseBoolean(e.getElementsByTagName("maximiert").item(0).getTextContent());
             } else{
                 System.out.println("Einstellungsdatei niicht mehr auf dem neusten Stand. Einstellungen können erst nach einm Klick auf Speichern erneut gelesen werden.");
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
+        } catch (NullPointerException e){
+            //Tritt auf, wenn neue Attribute gelesen werden, diese aber noch nicht in der Einstellungsdatei existieren
+            //e.printStackTrace();
         }
     }
 }

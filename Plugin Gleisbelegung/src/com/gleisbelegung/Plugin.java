@@ -125,7 +125,10 @@ public class Plugin extends Application implements Runnable{
             }
         }
 
-        primaryStage.setOnCloseRequest(we -> checkLogOnClosing());
+        primaryStage.setOnCloseRequest(we -> {
+            checkLogOnClosing();
+            Plugin.einstellungen.schreibeEinstellungen();
+        });
         this.primaryStage = primaryStage;
 
         u = new Update();
@@ -157,6 +160,8 @@ public class Plugin extends Application implements Runnable{
         }*/
 
         einstellungen = new Einstellungen();
+        this.primaryStage.setMaximized(Einstellungen.maximiert);
+
         setOutputStreams();
     }
 
