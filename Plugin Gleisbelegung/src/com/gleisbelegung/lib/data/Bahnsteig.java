@@ -14,8 +14,10 @@ public class Bahnsteig extends Plugin {
     private boolean hervorgehoben;
     private int orderId;
     private int id;
+    private Bahnhof bahnhof;
 
-    public Bahnsteig(String name, int orderId){
+    public Bahnsteig(Bahnhof b, String name, int orderId){
+        this.bahnhof = b;
         this.name = name;
         this.sichtbar = true;
         this.orderId = orderId;
@@ -114,5 +116,9 @@ public class Bahnsteig extends Plugin {
                 ", orderId=" + orderId +
                 ", id=" + id +
                 '}';
+    }
+
+    public Bahnhof getBahnhof() {
+        return bahnhof;
     }
 }

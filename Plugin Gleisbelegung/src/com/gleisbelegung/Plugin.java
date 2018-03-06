@@ -217,13 +217,6 @@ public class Plugin extends Application implements Runnable{
             File f = new File(Einstellungen.appOrdner + File.separator + "Log.txt");
 
             RandomAccessFile raf = new RandomAccessFile(f, "rw");
-
-            raf.writeBytes("java Exception");
-            raf.close();
-
-
-
-            raf = new RandomAccessFile(f, "rw");
             String temp = raf.readLine();
             while(temp != null && !temp.contains("java") && !temp.contains("com.") && !temp.contains("GITHUB")){
                 temp = raf.readLine();

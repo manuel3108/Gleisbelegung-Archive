@@ -51,11 +51,11 @@ public class Stellwerk {
         for(int i = 0; i < bahnsteige.length; i++){
             regex[i] = bahnsteige[i].replaceAll("\\P{L}+", "");
             if(currentRegex.equals(regex[i]) && bahnhoefe.size() > 0){
-                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnsteige[i], i));
+                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteige[i], i));
             } else {
                 currentRegex = regex[i];
                 bahnhoefe.add(new Bahnhof(bahnhoefe.size(), currentRegex));
-                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnsteige[i], i));
+                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteige[i], i));
             }
         }
 

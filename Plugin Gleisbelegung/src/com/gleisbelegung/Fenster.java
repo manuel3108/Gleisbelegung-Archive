@@ -47,10 +47,12 @@ public class Fenster{
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
     private ScrollPane spContent;                       //Das ist das Scroll-Feld welches um die Tabelle von oben gewrappt wird.
     private GridPane gpTime;                            //Speichert die Zeiten in einer einzelnen Tabelle
+    private GridPane gpBahnhof;
     private ScrollPane spTime;                          //Wrappt die Zeiten-Tabelle in ein Scroll-Feld
     private GridPane gpPlatform;                        //Eine Tabelle für die Bahnsteige
     private ScrollPane spPlatform;                      //Wrappt die Bahnssteige in ein Scroll-Feld
     private ScrollPane spInformations;                  //Scroll-Feld fr das in der @Main-Klasse deklariert Feld informations
+    private ScrollPane spBahnhof;
     private ScrollBar scrollBarWidth;                   //Scroll-Balken um die Tabelle bewegen zu können
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
@@ -65,6 +67,7 @@ public class Fenster{
     private Pane infoFehler;
 
     private ArrayList<LabelContainer> labelTime;
+    private ArrayList<Bahnsteig> sortierteGleise;
 
     private Stellwerk stellwerk;
 
@@ -106,10 +109,14 @@ public class Fenster{
         firstLabel.setFont(Font.font(Einstellungen.schriftgroesse-5));
         firstLabel.setMinWidth(Einstellungen.spaltenbreite);
         firstLabel.setMaxWidth(Einstellungen.spaltenbreite);
+        firstLabel.setMinHeight(45);
+        firstLabel.setMaxHeight(45);
+        firstLabel.setAlignment(Pos.CENTER);
+        firstLabel.setWrapText(true);
         firstLabel.setAlignment(Pos.CENTER);
         Platform.runLater(() -> {
             firstLabel.setText(stellwerk.getStellwerksname());
-            firstLabel.setStyle("-fx-text-fill: white; -fx-border-color: #fff #505050 #505050 #fff; -fx-border-width: 0 5 5 0; ");
+            firstLabel.setStyle("-fx-text-fill: white; -fx-border-color: #fff #505050 #505050 #fff; -fx-border-width: 0 5 5 0;");
         });
 
         scrollBarWidth = new ScrollBar();
@@ -118,7 +125,10 @@ public class Fenster{
         scrollBarWidth.setMax(1);
         scrollBarWidth.setUnitIncrement(0.03);
         scrollBarWidth.setVisibleAmount(0.3);
-        scrollBarWidth.valueProperty().addListener((ov, old_val, new_val) -> spContent.setHvalue(scrollBarWidth.getValue()));
+        scrollBarWidth.valueProperty().addListener((ov, old_val, new_val) -> {
+            spContent.setHvalue(scrollBarWidth.getValue());
+            spBahnhof.setHvalue(spContent.getHvalue());
+        });
 
         scrollBarHeight = new ScrollBar();
         scrollBarHeight.setOrientation(Orientation.VERTICAL);
@@ -146,6 +156,7 @@ public class Fenster{
             spPlatform.setHvalue(spContent.getHvalue());
             scrollBarWidth.adjustValue(spContent.getHvalue());
         });
+        spContent.setTranslateY(50);
 
         gpTime = new GridPane();
         gpTime.setHgap(0);
@@ -155,6 +166,7 @@ public class Fenster{
         spTime.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spTime.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spTime.setStyle("-fx-background: #303030; -fx-padding: 0;");
+        spTime.setTranslateY(50);
 
         gpPlatform = new GridPane();
         gpPlatform.setHgap(0);
@@ -165,8 +177,19 @@ public class Fenster{
         spPlatform.setStyle("-fx-background: #303030; -fx-padding: 0;");
         spPlatform.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spPlatform.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        spPlatform.setTranslateY(10);
 
-        Pane content = new Pane(spPlatform, spContent, spTime, scrollBarWidth, scrollBarHeight, firstLabel);
+        gpBahnhof = new GridPane();
+        gpBahnhof.setHgap(0);
+        gpBahnhof.setVgap(0);
+        spBahnhof = new ScrollPane();
+        spBahnhof.setContent(gpBahnhof);
+        spBahnhof.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        spBahnhof.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        spBahnhof.setStyle("-fx-background: #303030; -fx-padding: 0;");
+        spBahnhof.setTranslateX(Einstellungen.spaltenbreite);
+
+        Pane content = new Pane(spBahnhof, spPlatform, spContent, spTime, scrollBarWidth, scrollBarHeight, firstLabel);
 
         informations = new Pane();
         informations.setStyle("-fx-background-color: #404040");
@@ -191,11 +214,10 @@ public class Fenster{
         });
 
         pZugSuche = new Pane(lZugSuche, zugSuche);
-        pZugSuche.setStyle("-fx-background-color: #404040");
-
+        pZugSuche.setStyle("-fx-background-color: #404040;");
 
         infoFehler = new Pane(spInformations, pZugSuche);
-        infoFehler.setStyle("-fx-background-color: #404040");
+        infoFehler.setStyle("-fx-background-color: #404040;");
 
         BorderPane bp = new BorderPane();
         bp.setStyle("-fx-background-color: #303030;");
@@ -212,13 +234,6 @@ public class Fenster{
         primaryStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> { try{ updateUi(); }catch(Exception e) { e.printStackTrace(); } });
         primaryStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> { try{ updateUi(); }catch(Exception e) { e.printStackTrace(); } });
 
-        /*boolean ssh = Einstellungen.informationenAnzeigen;
-        Einstellungen.informationenAnzeigen = true;
-        updateUi();
-        Einstellungen.informationenAnzeigen = false;
-        updateUi();
-        Einstellungen.informationenAnzeigen = ssh;
-        updateUi();*/
         updateUi();
 
         for (int i = 0; i < Einstellungen.vorschau; i++) {
@@ -236,7 +251,7 @@ public class Fenster{
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
                 LabelContainer lc = new LabelContainer(i,null);
                 lc.updateLabel(bahnhof.getBahnsteig(i).getName(), true);
-                lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0");
+                lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0;");
 
                 int temp = bahnhof.getBahnsteig(i).getId();
                 Platform.runLater(() -> gpPlatform.add(lc.getLabel(), temp, 0));
@@ -282,9 +297,11 @@ public class Fenster{
 
                 b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().setLetzterBahnsteig(true);
                 Label l = b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().getLabel();
-                l.setStyle(l.getStyle() + "; -fx-border-width: 0 5 5 0");
+                l.setStyle(l.getStyle() + " -fx-border-width: 0 5 5 0;");
             }
         }
+
+        sortiereGleise();
 
         this.refresh.setDisable(false);
 
@@ -317,7 +334,7 @@ public class Fenster{
             informations.getChildren().clear();
             for(Zug z : trains){
                 Label trainName = new Label(z.getZugName() + z.getVerspaetungToString());
-                trainName.setStyle("-fx-text-fill: white");
+                trainName.setStyle("-fx-text-fill: whiteM");
                 trainName.setFont(Font.font(Einstellungen.schriftgroesse-2));
                 trainName.setTranslateY(heightCounter);
                 if(z.getFahrplan() != null){
@@ -330,7 +347,7 @@ public class Fenster{
                 }
 
                 Label vonBis = new Label(z.getVon() + " - " + z.getNach());
-                vonBis.setStyle("-fx-text-fill: white");
+                vonBis.setStyle("-fx-text-fill: white;");
                 vonBis.setFont(Font.font(Einstellungen.schriftgroesse-5));
                 vonBis.setTranslateY(heightCounter + 25);
 
@@ -356,9 +373,9 @@ public class Fenster{
                         l.setPrefWidth(Einstellungen.spaltenbreite - 25);
 
                         if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
-                            l.setStyle("-fx-text-fill: white; -fx-background-color: green");
+                            l.setStyle("-fx-text-fill: white; -fx-background-color: green;");
                         } else{
-                            l.setStyle("-fx-text-fill: white");
+                            l.setStyle("-fx-text-fill: white;");
                         }
 
                         informations.getChildren().add(l);
@@ -379,9 +396,9 @@ public class Fenster{
                         l.setPrefWidth(215);
 
                         if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
-                            l.setStyle("-fx-text-fill: white; -fx-background-color: green");
+                            l.setStyle("-fx-text-fill: white; -fx-background-color: green;");
                         } else{
-                            l.setStyle("-fx-text-fill: white");
+                            l.setStyle("-fx-text-fill: white;");
                         }
 
                         informations.getChildren().add(l);
@@ -576,15 +593,20 @@ public class Fenster{
         scrollBarHeight.setPrefHeight(stageHeight - 91);
         scrollBarHeight.setTranslateX(stageWidth - 30);
 
-        spTime.setTranslateY(25);
+        spTime.setTranslateY(45);
         spTime.setMinHeight(stageHeight - 120);
         spTime.setMaxHeight(stageHeight - 120);
 
-        spContent.setTranslateY(25);
+        spContent.setTranslateY(45);
         spContent.setTranslateX(Einstellungen.spaltenbreite);
         spContent.setMinHeight(stageHeight - 120);
         spContent.setMaxHeight(stageHeight - 120);
 
+        spBahnhof.setTranslateX(Einstellungen.spaltenbreite);
+        spBahnhof.setMinWidth(stageWidth - 95);
+        spBahnhof.setMaxWidth(stageWidth - 95);
+
+        spPlatform.setTranslateY(20);
         spPlatform.setTranslateX(Einstellungen.spaltenbreite);
         spPlatform.setMinWidth(stageWidth - 95);
         spPlatform.setMaxWidth(stageWidth - 95);
@@ -609,6 +631,9 @@ public class Fenster{
             spContent.setMinWidth(stageWidth - Einstellungen.informationenBreite - 115);
             spContent.setMaxWidth(stageWidth - Einstellungen.informationenBreite - 115);
 
+            spBahnhof.setMinWidth(stageWidth - Einstellungen.informationenBreite - 135);
+            spBahnhof.setMaxWidth(stageWidth - Einstellungen.informationenBreite - 135);
+
             spPlatform.setMinWidth(stageWidth - Einstellungen.informationenBreite - 115);
             spPlatform.setMaxWidth(stageWidth - Einstellungen.informationenBreite - 115);
 
@@ -623,6 +648,9 @@ public class Fenster{
 
             spContent.setMinWidth(stageWidth - 95);
             spContent.setMaxWidth(stageWidth - 95);
+
+            spBahnhof.setMinWidth(stageWidth - 95);
+            spBahnhof.setMaxWidth(stageWidth - 95);
 
             spPlatform.setMinWidth(stageWidth - 95);
             spPlatform.setMaxWidth(stageWidth - 95);
@@ -894,6 +922,7 @@ public class Fenster{
 
                     updateSettings();
                     updateUi();
+                    erzeugeBahnsteigLabel();
                 }
             } catch (Exception ex){
                 ex.printStackTrace();
@@ -961,7 +990,7 @@ public class Fenster{
 
     private void sortiereGleise(){
         Platform.runLater(() -> {
-            ArrayList<Bahnsteig> sortierteGleise = new ArrayList<>();
+            sortierteGleise = new ArrayList<>();
             for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
                 sortierteGleise.addAll(bahnhof.getBahnsteige());
             }
@@ -988,6 +1017,8 @@ public class Fenster{
                 x++;
                 y = 0;
             }
+
+            erzeugeBahnsteigLabel();
         });
     }
 
@@ -995,7 +1026,7 @@ public class Fenster{
         Stage stage = new Stage();
 
         Label l = new Label("Reihenfolge festlegen:");
-        l.setStyle("-fx-text-fill: white");
+        l.setStyle("-fx-text-fill: white;");
         l.setFont(Font.font(Einstellungen.schriftgroesse));
         l.setTranslateY(25);
         l.setTranslateX(25);
@@ -1016,7 +1047,7 @@ public class Fenster{
         });
 
         Pane p = new Pane(l,tf,b);
-        p.setStyle("-fx-background-color: #303030");
+        p.setStyle("-fx-background-color: #303030;");
         p.setMinSize(500,200);
         p.setMaxSize(500, 200);
 
@@ -1025,5 +1056,79 @@ public class Fenster{
         stage.setScene(scene);
         stage.show();
         stage.setAlwaysOnTop(true);
+    }
+
+    private void erzeugeBahnsteigLabel(){
+        int aufeinanderfolgendeBahnsteige = 1;
+        Bahnsteig letzterBahnsteig = null;
+        int counter = 0;
+
+        gpBahnhof.getChildren().clear();
+
+        for(Bahnsteig bahnsteig : sortierteGleise){
+            if(bahnsteig.isSichtbar()){
+                bahnsteig.getBahnhof().getBahnhofLabel().clear();
+
+                if(bahnsteig.getGleisLabel().isLetzterBahnsteig()){
+                    bahnsteig.getGleisLabel().setLetzterBahnsteig(false);
+                    bahnsteig.getGleisLabel().getLabel().setStyle(bahnsteig.getGleisLabel().getLabel().getStyle() + " -fx-border-width: 0 1 5 0;");
+                }
+                for(LabelContainer lc : bahnsteig.getSpalte()){
+                    lc.setLetzterBahnsteig(false);
+                    lc.updateLabel();
+                }
+
+                if(letzterBahnsteig != null && letzterBahnsteig.getBahnhof().getId() == bahnsteig.getBahnhof().getId()){
+                    if(bahnsteig.isSichtbar()){
+                        aufeinanderfolgendeBahnsteige++;
+                    }
+                } else if(letzterBahnsteig != null){
+                    LabelContainer lc = new LabelContainer(-1, null);
+                    lc.getLabel().setText("Hallo " + letzterBahnsteig.getBahnhof().getName() + " Test");
+                    letzterBahnsteig.getBahnhof().addBahnhofLabel(lc);
+
+                    final int tempCounter = aufeinanderfolgendeBahnsteige;
+                    final int temp = counter;
+                    Platform.runLater(() -> {
+                        lc.getLabel().setStyle("-fx-border-width: 0 5 1 0; -fx-border-color: #505050;");
+                        lc.getLabel().setMinWidth(Einstellungen.spaltenbreite * tempCounter);
+                        lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite * tempCounter);
+                        gpBahnhof.add(lc.getLabel(), temp, 0);
+                    });
+
+                    letzterBahnsteig.getGleisLabel().setLetzterBahnsteig(true);
+                    letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getLabel().getStyle() + " -fx-border-width: 0 5 5 0;");
+                    for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
+                        labelContainer.setLetzterBahnsteig(true);
+                        labelContainer.updateLabel();
+                    }
+
+                    aufeinanderfolgendeBahnsteige = 1;
+                }
+
+                counter++;
+                letzterBahnsteig = bahnsteig;
+            }
+        }
+
+        LabelContainer lc = new LabelContainer(-1, null);
+        lc.getLabel().setText("Hallo " + letzterBahnsteig.getBahnhof().getName() + " Test");
+        letzterBahnsteig.getBahnhof().addBahnhofLabel(lc);
+
+        final int tempCounter = aufeinanderfolgendeBahnsteige;
+        final int temp = counter;
+        Platform.runLater(() -> {
+            lc.getLabel().setStyle("-fx-border-width: 0 5 1 0; -fx-border-color: #505050;");
+            lc.getLabel().setMinWidth(Einstellungen.spaltenbreite * tempCounter);
+            lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite * tempCounter);
+            gpBahnhof.add(lc.getLabel(), temp, 0);
+        });
+
+        letzterBahnsteig.getGleisLabel().setLetzterBahnsteig(true);
+        letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getLabel().getStyle() + " -fx-border-width: 0 5 5 0;");
+        for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
+            labelContainer.setLetzterBahnsteig(true);
+            labelContainer.updateLabel();
+        }
     }
 }
