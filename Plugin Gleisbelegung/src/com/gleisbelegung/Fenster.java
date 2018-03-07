@@ -351,7 +351,7 @@ public class Fenster{
                         Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
                         l.setFont(Font.font(Einstellungen.schriftgroesse-5));
                         l.setTranslateY(heightCounter + 55);
-                        l.setPrefWidth(Einstellungen.spaltenbreite - 25);
+                        l.setPrefWidth(215);
 
                         if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
                             l.setStyle("-fx-text-fill: white; -fx-background-color: green");
@@ -366,7 +366,8 @@ public class Fenster{
                         if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                             lAbfahrt = lAnkunft + 4*1000*60;
                         }
-
+                        if (z.getFahrplan(i).getVorgaenger() != null)
+                            lAnkunft = z.getFahrplan(i).getVorgaenger().getFahrplan().get(z.getFahrplan(i).getVorgaenger().getFahrplan().size() - 1).getAnkuft();
                         Date anunft = new Date(lAnkunft);
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
@@ -402,7 +403,7 @@ public class Fenster{
         Platform.runLater(() -> {
             if(trains.size() == 1){
                 for(FahrplanHalt fh : trains.get(0).getFahrplan()){
-                    if(fh != null && fh.isDrawable() && fh.getDrawnTo().size() > 0){
+                    if (fh != null && fh.getDrawnTo().size() > 0) {
                         LabelContainer lc = fh.getDrawnTo(0);
                         if(lc != null){
                             try{
@@ -475,29 +476,30 @@ public class Fenster{
         try{
             if(z.getFahrplan() != null){
                 for (int i = 0; i < z.getFahrplan().size(); i++) {
-                    for(Bahnhof b : stellwerk.getBahnhoefe()){
+                    for (Bahnhof b : stellwerk.getBahnhoefe()) {
                         for (int j = 0; j < b.getBahnsteige().size(); j++) {
                             Bahnsteig g = b.getBahnsteig(j);
-                            if(g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getBahnsteig().getName().equals(g.getName())){
-                                if(z.getFahrplan(i).getFlaggedTrain() != null){
+                            if (g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getBahnsteig().getName().equals(g.getName())) {
+                                if (z.getFahrplan(i).getFlaggedTrain() != null) {
                                     Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
-                                    if(z.getFahrplan(i).isDrawable()){
-                                        long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                                        long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung()*1000*60;
-                                        if(eFlag.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()){
+                                    if (z.getFahrplan(i).getVorgaenger() == null) {
+                                        long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
+                                        long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung() * 1000 * 60;
+                                        if (eFlag.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()) {
                                             abfahrt = eFlag.getFahrplan(0).getAbfahrt();
-                                        } else if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
-                                            abfahrt = ankunft + 4*1000*60;
+                                        } else if (z.getVerspaetung() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
+                                            abfahrt = ankunft + 4 * 1000 * 60;
                                         }
 
                                         for (int k = 0; k < Einstellungen.vorschau; k++) {
-                                            if (g.getSpalte() != null && k<g.getSpalte().size()&&b.getBahnsteig(j).getSpalte().get(k) != null) {
+                                            if (g.getSpalte() != null && k < g.getSpalte().size() && b.getBahnsteig(j).getSpalte().get(k) != null) {
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
-                                                if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
+                                                if (ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000 * 60) {
+
                                                     z.getFahrplan(i).addDrawnTo(lc);
 
-                                                    if(z.getFahrplan(i).isCrossing()){
+                                                    if (z.getFahrplan(i).isCrossing()) {
                                                         Platform.runLater(() -> lc.getLabel().setText(lc.getLabel().getText() + " D"));
                                                         System.out.println(z.getZugName() + " Durchfahrt");
                                                     }
@@ -505,24 +507,24 @@ public class Fenster{
                                             }
                                         }
                                     }
-                                } else{
-                                    if(z.getFahrplan(i).isDrawable()){
-                                        long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                                        long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                                        if(z.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()){
+                                } else {
+                                    if (z.getFahrplan(i).getVorgaenger() == null) {
+                                        long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
+                                        long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung() * 1000 * 60;
+                                        if (z.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()) {
                                             abfahrt = z.getFahrplan(i).getAbfahrt();
-                                        } else if(z.getVerspaetung() > 3 && (abfahrt-ankunft)/1000/60 > 3){
-                                            abfahrt = ankunft + 4*1000*60;
+                                        } else if (z.getVerspaetung() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
+                                            abfahrt = ankunft + 4 * 1000 * 60;
                                         }
 
                                         for (int k = 0; k < Einstellungen.vorschau; k++) {
-                                            if (g.getSpalte() != null && k<g.getSpalte().size()&&b.getBahnsteig(j).getSpalte().get(k) != null) {
+                                            if (g.getSpalte() != null && k < g.getSpalte().size() && b.getBahnsteig(j).getSpalte().get(k) != null) {
                                                 LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
-                                                if(ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000*60){
+                                                if (ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000 * 60) {
                                                     z.getFahrplan(i).addDrawnTo(lc);
 
-                                                    if(z.getFahrplan(i).isCrossing()){
-                                                        Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, Einstellungen.schriftgroesse-5)));
+                                                    if (z.getFahrplan(i).isCrossing()) {
+                                                        Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, Einstellungen.schriftgroesse - 5)));
                                                     }
                                                 }
                                             }
@@ -530,6 +532,7 @@ public class Fenster{
                                     }
                                 }
                             }
+
                         }
                     }
                 }
@@ -550,6 +553,16 @@ public class Fenster{
     }
 
     public void update(){
+        for (Zug z : stellwerk.getZuege()) {
+            try {
+                if (z.isNeedUpdate() && z.getFahrplan(0).getVorgaenger() != null) {
+                    z.getFahrplan(0).getVorgaenger().setNeedUpdate(true);
+                }
+            } catch (Exception e) {
+                System.out.println("Fehler koennen passieren :(");
+                e.printStackTrace();
+            }
+        }
         for (Zug z : stellwerk.getZuege()) {
             try {
                 if (z.isNeedUpdate()) {
@@ -700,26 +713,27 @@ public class Fenster{
     private void updateSomeTrains(long time){
         for(Zug z : stellwerk.getZuege()){
             try{
-                if(z.getFahrplan() != null && z.getFahrplan(0) != null){
+                if (z.getFahrplan() != null && z.getFahrplan(0) != null) {
                     for (int i = 0; i < z.getFahrplan().size(); i++) {
-                        if(z.getFahrplan(i) != null && z.getFahrplan(i).getFlaggedTrain() != null){
+                        if (z.getFahrplan(i) != null && z.getFahrplan(i).getFlaggedTrain() != null) {
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
-                            if(z.getFahrplan()!= null && z.getFahrplan(i) != null && eFlag != null && eFlag.getFahrplan() != null && eFlag.getFahrplan(0) != null){
-                                long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung();
-                                long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung();
+                            if (z.getFahrplan() != null && z.getFahrplan(i) != null && eFlag != null && eFlag.getFahrplan() != null && eFlag.getFahrplan(0) != null) {
+                                long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
+                                long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung() * 1000 * 60;
 
-                                if(ankunft <= time && abfahrt >= time){
+                                if (ankunft <= time && abfahrt >= time) {
                                     z.setNeedUpdate(true);
                                 }
                             }
-                        } else if(z.getFahrplan() != null && z.getFahrplan(i) != null){
-                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung();
-                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung();
+                        } else if (z.getFahrplan() != null && z.getFahrplan(i) != null) {
+                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
+                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung() * 1000 * 60;
 
-                            if(ankunft <= time && abfahrt >= time){
+                            if (ankunft <= time && abfahrt >= time) {
                                 z.setNeedUpdate(true);
                             }
+
                         }
                     }
                 }
