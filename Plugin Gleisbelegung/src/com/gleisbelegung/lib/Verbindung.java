@@ -320,7 +320,7 @@ public class Verbindung{
                                 Zug flagged = getFlaggedTrain(fh.getFlags());
                                 if(flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null){
                                     fh.setFlaggedTrain(flagged);
-                                    flagged.getFahrplan(0).setVorgaenger(z);
+                                    flagged.getFahrplan(0).setVorgaenger(fh);
                                 } else{
                                     fh.setFlaggedTrain(null);
                                 }
