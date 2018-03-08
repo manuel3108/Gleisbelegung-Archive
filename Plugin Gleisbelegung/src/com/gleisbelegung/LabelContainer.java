@@ -306,8 +306,8 @@ public class LabelContainer extends Plugin {
                 }
                 if (z.getFahrplan(i).getFlaggedTrain() != null && z.getFahrplan(i).getFlaggedTrain().getFahrplan(0) != null) {
                     lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0).getAbfahrt() + z.getFahrplan(i).getFlaggedTrain().getVerspaetung() * 1000 * 60;
-                } else if (z.getFahrplan(i).getVorgaenger() != null && z.getFahrplan(i).getVorgaenger().getFahrplan(z.getFahrplan(i).getVorgaenger().getFahrplan().size() - 1) != null) {
-                    lAnkunft = z.getFahrplan(i).getVorgaenger().getFahrplan(z.getFahrplan(i).getVorgaenger().getFahrplan().size() - 1).getAnkuft() + z.getFahrplan(i).getVorgaenger().getVerspaetung();
+                } else if (z.getFahrplan(i).getVorgaenger() != null && z.getFahrplan(i).getVorgaenger().getZ() != null) {
+                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZ().getVerspaetung() * 1000 + 60;
                 }
 
                 String durchfahrt = "";

@@ -22,7 +22,7 @@ public class FahrplanHalt {
     private String flags;                           //Die Flags des Haltes
     private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
     private boolean crossing;                       //Hat der Zug hier eine Durchfahrt
-    private Zug vorgaenger;                          //Hat der Zug einen vorgaenger, wenn ja, dann hier gespeichert, wenn nein dann null (gegenstück zu nachfolger)
+    private FahrplanHalt vorgaenger;                          //Hat der Zug einen vorgaenger, wenn ja, dann hier der Flügelt- oder Wechselhalt gespeichert
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
 
     //Speichert gegebene Seite
@@ -39,6 +39,11 @@ public class FahrplanHalt {
         flaggedTrain = null;
 
         crossing = flags.contains("D") || flags.equals("D");
+    }
+
+    //get zug
+    public Zug getZ() {
+        return z;
     }
 
     //get-set Ankunft
@@ -97,7 +102,7 @@ public class FahrplanHalt {
                     lc.removeTrain(z);
                 }
                 if (lc != null && flaggedTrain != null && flaggedTrain.getFahrplan() != null && flaggedTrain.getFahrplan().size() > 0 && flaggedTrain.getFahrplan(0) != null)
-                    flaggedTrain.getFahrplan(0).removeDrawnTo();
+                    lc.removeTrain(flaggedTrain);
             }
         } catch (Exception e){
             System.out.println("Fehler koennen passieren :(");
@@ -143,11 +148,11 @@ public class FahrplanHalt {
         this.crossing = crossing;
     }
 
-    public Zug getVorgaenger() {
+    public FahrplanHalt getVorgaenger() {
         return vorgaenger;
     }
 
-    public void setVorgaenger(Zug vorgaenger) {
+    public void setVorgaenger(FahrplanHalt vorgaenger) {
         this.vorgaenger = vorgaenger;
     }
 

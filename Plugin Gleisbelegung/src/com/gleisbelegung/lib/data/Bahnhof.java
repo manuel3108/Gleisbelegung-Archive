@@ -6,6 +6,7 @@ public class Bahnhof {
     private int id;
     private String name;
     private ArrayList<Bahnsteig> bahnsteige;
+    private boolean sichtbar;
 
     public Bahnhof(int id, String name){
         this.id = id;
@@ -24,6 +25,22 @@ public class Bahnhof {
     }
     public int getAnzahlBahnsteige(){
         return bahnsteige.size();
+    }
+
+    //bahnsteig zählt als sichtbar sobald alle Bahnsteige sichtbar ist
+    public boolean isSichtbar() {
+        for (Bahnsteig b : bahnsteige) {
+            if (!b.isSichtbar())
+                return false;
+
+        }
+        return true;
+    }
+
+    //alle Bahnsteige des bahnhofs werden auf (nicht) sichtbar gesetzt
+    public void setSichtbar(boolean sichtbar) {
+        for (Bahnsteig b : bahnsteige)
+            b.setSichtbar(sichtbar);
     }
 
     @Override
