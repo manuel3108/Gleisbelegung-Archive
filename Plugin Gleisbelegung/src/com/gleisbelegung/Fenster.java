@@ -51,7 +51,7 @@ public class Fenster{
     private ScrollPane spTime;                          //Wrappt die Zeiten-Tabelle in ein Scroll-Feld
     private GridPane gpPlatform;                        //Eine Tabelle für die Bahnsteige
     private ScrollPane spPlatform;                      //Wrappt die Bahnssteige in ein Scroll-Feld
-    private ScrollPane spInformations;                  //Scroll-Feld fr das in der @Main-Klasse deklariert Feld informations
+    private ScrollPane spInformations;                  //Scroll-Feld für das in der @Main-Klasse deklariert Feld informations
     private ScrollBar scrollBarWidth;                   //Scroll-Balken um die Tabelle bewegen zu können
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
@@ -171,9 +171,11 @@ public class Fenster{
 
         informations = new Pane();
         informations.setStyle("-fx-background-color: #404040");
+        informations.setMinWidth(Einstellungen.informationenBreite);
+        informations.setMaxWidth(Einstellungen.informationenBreite);
         spInformations = new ScrollPane(informations);
         spInformations.setStyle("-fx-background-color: #404040; -fx-padding: 0;");
-        spInformations.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        spInformations.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         spInformations.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         Label lZugSuche = new Label("Zugsuche:");
@@ -762,7 +764,7 @@ public class Fenster{
         tfai.setTranslateX(300);
         tfai.setTranslateY(10);
 
-        Label v = new Label("Vorschau (in m):");
+        Label v = new Label("Vorschau (in min):");
         v.setFont(Font.font(18));
         v.setTranslateY(40);
         v.setTranslateX(10);
@@ -791,7 +793,7 @@ public class Fenster{
         zib.setFont(Font.font(18));
         zib.setTranslateY(130);
         zib.setTranslateX(10);
-        TextField tfzib = new TextField(String.valueOf(Einstellungen.spaltenbreite));
+        TextField tfzib = new TextField(String.valueOf(Einstellungen.informationenBreite));
         tfzib.setTranslateX(300);
         tfzib.setTranslateY(130);
 
@@ -903,7 +905,7 @@ public class Fenster{
                 Einstellungen.update = Integer.parseInt(tfai.getText());
                 Einstellungen.spaltenbreite = Integer.parseInt(tfsb.getText());
                 Einstellungen.schriftgroesse = Integer.parseInt(tffs.getText());
-                Einstellungen.spaltenbreite = Integer.parseInt(tfzib.getText());
+                Einstellungen.informationenBreite = Integer.parseInt(tfzib.getText());
                 Einstellungen.informationenAnzeigen = cbezi.isSelected();
                 Einstellungen.soundAbspielen = cbtmb.isSelected();
 
