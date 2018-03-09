@@ -286,7 +286,7 @@ public class Verbindung {
                             updateNeeded = true;
                         } else if (z.getFahrplan() != null) {
                             for (int i = 0; i < z.getFahrplan().size(); i++) {
-                                if (z.getFahrplan(i) != null && fahrplan.get(i) != null && z.getFahrplan(i).getAnkuft() != 0) {
+                            if (z.getFahrplan(i) != null && fahrplan.get(i) != null) {
                                     if (z.getFahrplan(i).getAnkuft() != fahrplan.get(i).getAnkuft()) {
                                         updateNeeded = true;
                                     } else if (z.getFahrplan(i).getAbfahrt() != fahrplan.get(i).getAbfahrt()) {
@@ -331,10 +331,10 @@ public class Verbindung {
                         try {
                             if (fh != null && fh.getFlags() != null && !fh.getFlags().equals("")) {
                                 Zug flagged = getFlaggedTrain(fh.getFlags());
-                                if (flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null) {
-                                    flagged.getFahrplan(0).setDrawable(false);
+                                if(flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null){
                                     fh.setFlaggedTrain(flagged);
-                                } else {
+                                    flagged.getFahrplan(0).setVorgaenger(fh);
+                                } else{
                                     fh.setFlaggedTrain(null);
                                 }
                             }

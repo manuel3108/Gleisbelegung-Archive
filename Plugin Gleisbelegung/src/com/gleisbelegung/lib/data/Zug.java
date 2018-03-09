@@ -137,11 +137,11 @@ public class Zug {
         this.newTrain = newTrain;
     }
 
-    //Entfernen den Zug aus dem LabelContainer
+    //Entfernen den Zug aus dem LabelContainer (nur wenn hier kein Wechsel VON einem anderen Zug stattfindet)
     public void removeFromGrid(){
         if(fahrplan != null){
             for(FahrplanHalt fh : fahrplan){
-                if(fh != null){
+                if (fh != null && fh.getVorgaenger() == null) {
                     fh.removeDrawnTo();
                 }
             }

@@ -1,8 +1,10 @@
 package com.gleisbelegung.lib.data;
 
-import com.gleisbelegung.Plugin;
 import com.gleisbelegung.LabelContainer;
+import com.gleisbelegung.Plugin;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.ArrayList;
 
@@ -10,7 +12,7 @@ public class Bahnsteig extends Plugin {
     private ArrayList<LabelContainer> spalte;
     private LabelContainer gleisLabel;
     private String name;
-    private boolean sichtbar;
+    private BooleanProperty sichtbar;
     private boolean hervorgehoben;
     private int orderId;
     private int id;
@@ -19,7 +21,7 @@ public class Bahnsteig extends Plugin {
     public Bahnsteig(Bahnhof b, String name, int orderId){
         this.bahnhof = b;
         this.name = name;
-        this.sichtbar = true;
+        this.sichtbar = new SimpleBooleanProperty(true);
         this.orderId = orderId;
         id = orderId;
 
@@ -41,11 +43,15 @@ public class Bahnsteig extends Plugin {
         this.name = name;
     }
 
-    public boolean isSichtbar() {
+    public BooleanProperty getSichtbarProperty() {
         return sichtbar;
     }
+
+    public boolean isSichtbar() {
+        return sichtbar.get();
+    }
     public void setSichtbar(boolean sichtbar) {
-        this.sichtbar = sichtbar;
+        this.sichtbar.set(sichtbar);
     }
 
     public LabelContainer getGleisLabel() {

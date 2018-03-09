@@ -139,7 +139,14 @@ public class LabelContainer extends Plugin {
                     l.setStyle(l.getStyle() + " -fx-border-width: 0 5 1 0");
                 }
             });
-        } else{
+        } else if (trains.size() == 2 && trains.get(1).getFahrplan(0).getVorgaenger() != null) {
+            Zug train = trains.get(1);
+            Platform.runLater(() -> {
+                l.setText(train.getZugName() + train.getVerspaetungToString());
+                l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
+                l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(train.getZugName()) + ";");
+            });
+        } else {
             Platform.runLater(() -> {
                 if(trains != null && trains.size() > 0){
                     String text = "";
@@ -315,6 +322,11 @@ public class LabelContainer extends Plugin {
                 long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
                 if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                     lAbfahrt = lAnkunft + 4*1000*60;
+                }
+                if (z.getFahrplan(i).getFlaggedTrain() != null && z.getFahrplan(i).getFlaggedTrain().getFahrplan(0) != null) {
+                    lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0).getAbfahrt() + z.getFahrplan(i).getFlaggedTrain().getVerspaetung() * 1000 * 60;
+                } else if (z.getFahrplan(i).getVorgaenger() != null && z.getFahrplan(i).getVorgaenger().getZ() != null) {
+                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZ().getVerspaetung() * 1000 * 60;
                 }
 
                 String durchfahrt = "";
