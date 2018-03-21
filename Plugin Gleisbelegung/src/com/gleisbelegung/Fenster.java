@@ -799,7 +799,6 @@ public class Fenster{
         TextField tfv = new TextField(String.valueOf(Einstellungen.vorschau));
         tfv.setTranslateX(300);
         tfv.setTranslateY(40);
-        tfv.setDisable(true);
 
         Label sb = new Label("Spaltenbreite (in px):");
         sb.setFont(Font.font(18));
