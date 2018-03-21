@@ -852,6 +852,7 @@ public class Fenster{
         gleise.setTranslateX(0);
         gleise.setTranslateY(290);
 
+        stageHeight = 290;
 
         CheckBox[] cbBahnhof = new CheckBox[stellwerk.getBahnhoefe().size()];
         CheckBox[] cbGleis = new CheckBox[stellwerk.getAnzahlBahnsteige()];
@@ -864,7 +865,7 @@ public class Fenster{
             tempY += 30;
             CheckBox cb = new CheckBox(bahnhof.getName());
             if ("".equals(cb.getText())) {
-                cb.setText("Bahnhof");
+                cb.setText(stellwerk.getStellwerksname());
             }
             cbBahnhof[counterBhf] = cb;
             cbBahnhof[counterBhf].setTranslateX(10);
@@ -889,7 +890,6 @@ public class Fenster{
                 cbGleis[counterGleis].selectedProperty().bindBidirectional(bahnhof.getBahnsteig(i).getSichtbarProperty());
 
                 if (i % 2 != 0 && i < bahnhof.getBahnsteige().size() - 1) {
-                    stageHeight += 30;
                     tempY += 30;
                     tempX = 190;
                 } else {
@@ -903,7 +903,8 @@ public class Fenster{
             }
             tempX = 190;
         }
-        stageHeight += tempY + 120;
+
+        stageHeight += tempY + 100; //+100 der Schönheit wegen
 
         Label laaoaw = new Label("Alle Gleise An- oder Abwählen:");
         laaoaw.setFont(Font.font(18));
@@ -984,8 +985,8 @@ public class Fenster{
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         Scene scene;
-        if(stageHeight > primaryStage.getHeight()){
-            scene = new Scene(sp, stageWidth, primaryStage.getHeight());
+        if(stageHeight > primaryStage.getHeight() - 100){ //Fenster kann nun nicht mehr unter der Taskleiste flimmern
+            scene = new Scene(sp, stageWidth, primaryStage.getHeight() - 100); //Fenster kann nun nicht mehr unter der Taskleiste flimmern
         } else{
             scene = new Scene(sp, stageWidth, stageHeight);
         }
@@ -1127,7 +1128,8 @@ public class Fenster{
                     }
                 } else if(letzterBahnsteig != null){
                     LabelContainer lc = new LabelContainer(-1, null);
-                    lc.getLabel().setText("Hallo " + letzterBahnsteig.getBahnhof().getName() + " Test");
+                    if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
+                    else lc.getLabel().setText(stellwerk.getStellwerksname());
                     letzterBahnsteig.getBahnhof().addBahnhofLabel(lc);
 
                     final int tempCounter = aufeinanderfolgendeBahnsteige;
@@ -1155,7 +1157,8 @@ public class Fenster{
         }
 
         LabelContainer lc = new LabelContainer(-1, null);
-        lc.getLabel().setText("Hallo " + letzterBahnsteig.getBahnhof().getName() + " Test");
+        if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
+        else lc.getLabel().setText(stellwerk.getStellwerksname());
         letzterBahnsteig.getBahnhof().addBahnhofLabel(lc);
 
         final int tempCounter = aufeinanderfolgendeBahnsteige;

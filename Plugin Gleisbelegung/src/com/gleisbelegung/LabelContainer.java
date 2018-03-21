@@ -152,7 +152,7 @@ public class LabelContainer extends Plugin {
                     String text = "";
 
                     for (Zug z : trains) {
-                        text += z.getZugName() + z.getVerspaetungToString() + ", ";
+                        text += z.getZugName() + z.getVerspaetungToString() + ", "; //TODO kann laut Log null werden
                     }
                     text = text.substring(0, text.length() - 2);
 
@@ -161,6 +161,7 @@ public class LabelContainer extends Plugin {
                     l.setTooltip(new Tooltip(temp));
                     l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + " -fx-background-color: red;");
 
+                    //TODO implement playColisonSound()
                     //playColisonSound(bahnsteig);
 
                     if(letzterBahnsteig){
