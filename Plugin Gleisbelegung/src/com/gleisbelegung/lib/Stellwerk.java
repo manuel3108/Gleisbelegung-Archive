@@ -58,12 +58,6 @@ public class Stellwerk {
                 bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteige[i], i));
             }
         }
-
-        /*for(Bahnhof b : bahnhoefe){
-            for(Bahnsteig ba : b.getBahnsteige()){
-                System.out.println(b.getName() + " " + ba.getName());
-            }
-        }*/
     }
 
     public boolean aktualisiereDaten(){
