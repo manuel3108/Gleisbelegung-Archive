@@ -193,7 +193,7 @@ public class Fenster{
         Pane content = new Pane(spBahnhof, spPlatform, spContent, spTime, scrollBarWidth, scrollBarHeight, firstLabel);
 
         informations = new Pane();
-        informations.setStyle("-fx-background-color: #404040");
+        informations.setStyle("-fx-background-color: #404040;");
         informations.setMinWidth(Einstellungen.informationenBreite);
         informations.setMaxWidth(Einstellungen.informationenBreite);
         spInformations = new ScrollPane(informations);
@@ -1048,6 +1048,7 @@ public class Fenster{
             int y = 0;
             for(Bahnsteig b : sortierteGleise){
                 gpPlatform.addColumn(x,b.getGleisLabel().getLabel());
+                b.setOrderId(x);
                 for(LabelContainer lc : b.getSpalte()){
                     try {
                         gp.add(lc.getLabel(), x, y);
