@@ -176,7 +176,6 @@ public class Plugin extends Application implements Runnable{
             } catch (IOException e) {
                 System.out.println("Die Verbindung mit dem SIM kam nicht zur stande. Prüfe ob die Plugin-Schnitstelle aktiviert ist!");
                 System.exit(-1);
-                e.printStackTrace();
             }
             f = new Fenster(stellwerk, primaryStage, refresh);
             update = true;
