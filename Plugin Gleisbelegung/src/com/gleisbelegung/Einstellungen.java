@@ -19,6 +19,7 @@ public class Einstellungen {
     public static int informationenBreite = 300;
     public static String appOrdner;
     public static boolean maximiert = true;
+    public static Fenster fenster;
     private File einstellungen;
 
     public Einstellungen(){

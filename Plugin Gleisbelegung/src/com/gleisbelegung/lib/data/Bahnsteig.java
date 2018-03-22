@@ -85,8 +85,7 @@ public class Bahnsteig extends Plugin {
             }
 
             hervorgehoben = false;
-        }
-        else {
+        } else {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #181818");
 
             for(LabelContainer lc : spalte){

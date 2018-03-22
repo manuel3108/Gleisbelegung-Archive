@@ -395,6 +395,9 @@ public class LabelContainer extends Plugin {
             e.printStackTrace();
         }
     }
+    public boolean getHervorhebungDurchGleis(){
+        return hervorhebungDurchGleis;
+    }
 
     public boolean isLetzterBahnsteig() {
         return letzterBahnsteig;

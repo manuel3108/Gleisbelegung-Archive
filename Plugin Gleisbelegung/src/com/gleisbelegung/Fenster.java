@@ -1031,7 +1031,7 @@ public class Fenster{
         firstLabel.setMinWidth(Einstellungen.spaltenbreite);
     }
 
-    private void sortiereGleise(){
+    public void sortiereGleise(){
         Platform.runLater(() -> {
             sortierteGleise = new ArrayList<>();
             for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){

@@ -173,6 +173,7 @@ public class Plugin extends Application implements Runnable{
 
             stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
             f = new Fenster(stellwerk, primaryStage, refresh);
+            Einstellungen.fenster = f;
             update = true;
 
             Thread t = new Thread(this);
