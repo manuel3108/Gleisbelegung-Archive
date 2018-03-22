@@ -174,8 +174,8 @@ public class Plugin extends Application implements Runnable{
             try {
                 stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
             } catch (IOException e) {
-                System.out.println("Die Verbindung mit dem SIM kam nicht zur stande. Prüfe ob die Plugin-Schnitstelle aktiviert ist!");
-                System.exit(-1);
+                System.out.println("Die Verbindung mit dem SIM kam nicht zustande. Prüfe ob die Plugin-Schnitstelle aktiviert ist!");
+                System.exit(1);
             }
             f = new Fenster(stellwerk, primaryStage, refresh);
             Einstellungen.fenster = f;
