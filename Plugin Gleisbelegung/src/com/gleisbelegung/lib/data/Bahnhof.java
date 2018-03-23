@@ -18,14 +18,14 @@ public class Bahnhof {
     private int id;
     private String name;
     private ArrayList<Bahnsteig> bahnsteige;
-    private ArrayList<LabelContainer> bahnhofLabel;
+    private ArrayList<BahnhofTeil> bahnhofTeile;
     private boolean sichtbar;
 
     public Bahnhof(int id, String name){
         this.id = id;
         this.name = name;
         this.bahnsteige = new ArrayList<>();
-        bahnhofLabel = new ArrayList<>();
+        this.bahnhofTeile = new ArrayList<>();
     }
 
     public int getId(){
@@ -44,7 +44,6 @@ public class Bahnhof {
         return bahnsteige.size();
     }
 
-    //bahnsteig zählt als sichtbar sobald alle Bahnsteige sichtbar ist
     public boolean isSichtbar() {
         for (Bahnsteig b : bahnsteige) {
             if (!b.isSichtbar())
@@ -54,36 +53,28 @@ public class Bahnhof {
         return true;
     }
 
-    //alle Bahnsteige des bahnhofs werden auf (nicht) sichtbar gesetzt
     public void setSichtbar(boolean sichtbar) {
         for (Bahnsteig b : bahnsteige)
             b.setSichtbar(sichtbar);
     }
 
-    @Override
-    public String toString() {
-        return "Bahnhof{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", bahnsteige=" + bahnsteige +
-                '}';
+    public ArrayList<BahnhofTeil> getBahnhofTeile() {
+        return bahnhofTeile;
     }
+    public void addBahnhofLabel(LabelContainer bahnhofLabel, ArrayList<Bahnsteig> bahnsteige) {
+        BahnhofTeil bt = new BahnhofTeil(bahnhofLabel, bahnsteige);
+        bahnhofTeile.add(bt);
 
-    public ArrayList<LabelContainer> getBahnhofLabel() {
-        return bahnhofLabel;
-    }
-    public void addBahnhofLabel(LabelContainer bahnhofLabel) {
         bahnhofLabel.getLabel().setOnMouseClicked(e -> {
             if(e.getButton() == MouseButton.PRIMARY){
-                hervorheben();
+                hervorheben(bt);
+                System.out.println(bt.bahnsteige.size());
             } else if(e.getButton() == MouseButton.SECONDARY) {
-                einstellungen();
+                einstellungen(bt);
             }
         });
-        this.bahnhofLabel.add(bahnhofLabel);
     }
-
-    private void einstellungen(){
+    private void einstellungen(BahnhofTeil bt){
         Stage stage = new Stage();
 
         Label l = new Label("Reihenfolge festlegen:");
@@ -102,8 +93,9 @@ public class Bahnhof {
         b.setTranslateX(25);
         b.setTranslateY(120);
         b.setOnAction(e -> {
-            for(Bahnsteig ba : bahnsteige){
-                ba.setOrderId(Integer.parseInt(tf.getText())-1);
+            int order = Integer.parseInt(tf.getText())-1;
+            for(Bahnsteig ba : bt.bahnsteige){
+                ba.setOrderId(order);
             }
 
             stage.close();
@@ -122,9 +114,28 @@ public class Bahnhof {
         stage.setAlwaysOnTop(true);
     }
 
-    private void hervorheben(){
-        for(Bahnsteig b: bahnsteige){
+    private void hervorheben(BahnhofTeil bt){
+        for(Bahnsteig b: bt.bahnsteige){
             b.hebeHervor();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Bahnhof{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", bahnsteige=" + bahnsteige +
+                '}';
+    }
+}
+
+class BahnhofTeil{
+    LabelContainer bahnhofsLabel;
+    ArrayList<Bahnsteig> bahnsteige;
+
+    public BahnhofTeil(LabelContainer bahnhofsLabel, ArrayList<Bahnsteig> bahnsteige){
+        this.bahnhofsLabel = bahnhofsLabel;
+        this.bahnsteige = bahnsteige;
     }
 }

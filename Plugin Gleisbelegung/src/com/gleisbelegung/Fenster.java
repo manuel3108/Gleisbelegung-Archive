@@ -1109,13 +1109,14 @@ public class Fenster{
     private void erzeugeBahnsteigLabel(){
         int aufeinanderfolgendeBahnsteige = 1;
         Bahnsteig letzterBahnsteig = null;
+        ArrayList<Bahnsteig> bahnsteige = new ArrayList<>();
         int counter = 0;
 
         gpBahnhof.getChildren().clear();
 
         for(Bahnsteig bahnsteig : sortierteGleise){
             if(bahnsteig.isSichtbar()){
-                bahnsteig.getBahnhof().getBahnhofLabel().clear();
+                bahnsteig.getBahnhof().getBahnhofTeile().clear();
 
                 if(bahnsteig.getGleisLabel().isLetzterBahnsteig()){
                     bahnsteig.getGleisLabel().setLetzterBahnsteig(false);
@@ -1130,12 +1131,16 @@ public class Fenster{
                 if(letzterBahnsteig != null && letzterBahnsteig.getBahnhof().getId() == bahnsteig.getBahnhof().getId()){
                     if(bahnsteig.isSichtbar()){
                         aufeinanderfolgendeBahnsteige++;
+                        bahnsteige.add(letzterBahnsteig);
                     }
                 } else if(letzterBahnsteig != null){
                     LabelContainer lc = new LabelContainer(-1, null);
                     if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
                     else lc.getLabel().setText(stellwerk.getStellwerksname());
-                    letzterBahnsteig.getBahnhof().addBahnhofLabel(lc);
+
+                    bahnsteige.add(letzterBahnsteig);
+                    letzterBahnsteig.getBahnhof().addBahnhofLabel(lc, new ArrayList<>(bahnsteige));
+                    bahnsteige.clear();
 
                     final int tempCounter = aufeinanderfolgendeBahnsteige;
                     final int temp = counter;
@@ -1170,7 +1175,10 @@ public class Fenster{
         LabelContainer lc = new LabelContainer(-1, null);
         if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
         else lc.getLabel().setText(stellwerk.getStellwerksname());
-        letzterBahnsteig.getBahnhof().addBahnhofLabel(lc);
+
+        bahnsteige.add(letzterBahnsteig);
+        letzterBahnsteig.getBahnhof().addBahnhofLabel(lc, new ArrayList<>(bahnsteige));
+        bahnsteige.clear();
 
         final int tempCounter = aufeinanderfolgendeBahnsteige;
         final int temp = counter;
