@@ -1151,7 +1151,7 @@ public class Fenster{
     public void zeigeOrderIds(){
         for(Bahnhof b : stellwerk.getBahnhoefe()){
             for(Bahnsteig ba : b.getBahnsteige()){
-                ba.getGleisLabel().getLabel().setText(ba.getName() + " (" + ba.getOrderId() + ")");
+                ba.getGleisLabel().getLabel().setText(ba.getName() + " (" + (ba.getOrderId() + 1) + ")");
             }
         }
     }
