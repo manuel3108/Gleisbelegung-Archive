@@ -14,7 +14,6 @@ public class Einstellungen {
     public static int vorschau = 60;
     public static int spaltenbreite = 100;
     public static int schriftgroesse = 18;
-    public static boolean soundAbspielen = true;
     public static boolean informationenAnzeigen = true;
     public static int informationenBreite = 300;
     public static String appOrdner;
@@ -47,7 +46,6 @@ public class Einstellungen {
                 bw.write("\t<vorschau>" + vorschau + "</vorschau>\n");
                 bw.write("\t<spaltenbreite>" + spaltenbreite + "</spaltenbreite>\n");
                 bw.write("\t<schriftgroesse>" + schriftgroesse + "</schriftgroesse>\n");
-                bw.write("\t<soundAbspielen>" + soundAbspielen + "</soundAbspielen>\n");
                 bw.write("\t<informationenAnzeigen>" + informationenAnzeigen + "</informationenAnzeigen>\n");
                 bw.write("\t<informationenBreite>" + informationenBreite + "</informationenBreite>\n");
                 bw.write("\t<maximiert>" + maximiert + "</maximiert>\n");
@@ -73,7 +71,6 @@ public class Einstellungen {
                 vorschau = Integer.parseInt(e.getElementsByTagName("vorschau").item(0).getTextContent());
                 spaltenbreite = Integer.parseInt(e.getElementsByTagName("spaltenbreite").item(0).getTextContent());
                 schriftgroesse = Integer.parseInt(e.getElementsByTagName("schriftgroesse").item(0).getTextContent());
-                soundAbspielen = Boolean.parseBoolean(e.getElementsByTagName("soundAbspielen").item(0).getTextContent());
                 informationenAnzeigen = Boolean.parseBoolean(e.getElementsByTagName("informationenAnzeigen").item(0).getTextContent());
                 informationenBreite = Integer.parseInt(e.getElementsByTagName("informationenBreite").item(0).getTextContent());
                 maximiert = Boolean.parseBoolean(e.getElementsByTagName("maximiert").item(0).getTextContent());

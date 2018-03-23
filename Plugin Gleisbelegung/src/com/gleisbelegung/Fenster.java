@@ -25,6 +25,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
@@ -839,18 +842,6 @@ public class Fenster{
         if(Einstellungen.informationenAnzeigen) cbezi.setSelected(true);
         if(! Einstellungen.informationenAnzeigen) cbezi.setSelected(false);
 
-        Label tmb = new Label("Ton bei Mehrfachbelegung:");
-        tmb.setFont(Font.font(18));
-        tmb.setTranslateY(220);
-        tmb.setTranslateX(10);
-        CheckBox cbtmb = new CheckBox();
-        cbtmb.setTranslateX(300);
-        cbtmb.setTranslateY(220);
-        cbtmb.setFont(Font.font(18));
-        if(Einstellungen.soundAbspielen) cbtmb.setSelected(true);
-        if(! Einstellungen.soundAbspielen) cbtmb.setSelected(false);
-
-
         Pane gleise = new Pane();
         gleise.setTranslateX(0);
         gleise.setTranslateY(290);
@@ -939,7 +930,6 @@ public class Fenster{
                 Einstellungen.schriftgroesse = Integer.parseInt(tffs.getText());
                 Einstellungen.informationenBreite = Integer.parseInt(tfzib.getText());
                 Einstellungen.informationenAnzeigen = cbezi.isSelected();
-                Einstellungen.soundAbspielen = cbtmb.isSelected();
 
                 if(Einstellungen.vorschau != Integer.parseInt(tfv.getText())){
                     Einstellungen.vorschau = Integer.parseInt(tfv.getText());
@@ -979,7 +969,7 @@ public class Fenster{
         Pane p = new Pane();
         p.setPrefWidth(stageWidth);
         p.setPrefHeight(stageHeight);
-        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern, tmb, cbtmb);
+        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern);
         p.setStyle("-fx-background: #303030; -fx-padding: 0;");
 
         ScrollPane sp = new ScrollPane(p);

@@ -179,9 +179,6 @@ public class LabelContainer extends Plugin {
                     aussehen.textFarbe = "#fff";
                     prepareBorder();
 
-                    //TODO implement playColisonSound()
-                    //playColisonSound(bahnsteig);
-
                     if(letzterBahnsteig){
                         aussehen.raender.setze(0, 5, 1, 0);
                     }
