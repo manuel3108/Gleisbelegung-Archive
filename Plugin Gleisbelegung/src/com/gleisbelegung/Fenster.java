@@ -1080,7 +1080,10 @@ public class Fenster{
                     }
                 } else if(letzterBahnsteig != null){
                     LabelContainer lc = new LabelContainer(-1, null);
-                    if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
+                    if(!letzterBahnsteig.getBahnhof().getAlternativName().equals("")) {
+                        lc.getLabel().setText(letzterBahnsteig.getBahnhof().getAlternativName() + (!letzterBahnsteig.getBahnhof().getName().equals("") ? " (" + letzterBahnsteig.getBahnhof().getName() + ")" : ""));
+                    }
+                    else if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
                     else lc.getLabel().setText(stellwerk.getStellwerksname());
 
                     bahnsteige.add(letzterBahnsteig);
@@ -1118,7 +1121,10 @@ public class Fenster{
         }
 
         LabelContainer lc = new LabelContainer(-1, null);
-        if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
+        if(!letzterBahnsteig.getBahnhof().getAlternativName().equals("")) {
+            lc.getLabel().setText(letzterBahnsteig.getBahnhof().getAlternativName() + (!letzterBahnsteig.getBahnhof().getName().equals("") ? " (" + letzterBahnsteig.getBahnhof().getName() + ")" : ""));
+        }
+        else if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
         else lc.getLabel().setText(stellwerk.getStellwerksname());
 
         bahnsteige.add(letzterBahnsteig);

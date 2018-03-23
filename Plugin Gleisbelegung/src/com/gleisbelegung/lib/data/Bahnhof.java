@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class Bahnhof {
     private int id;
     private String name;
+    private String alternativName = "";
     private ArrayList<Bahnsteig> bahnsteige;
     private ArrayList<BahnhofTeil> bahnhofTeile;
     private boolean sichtbar;
@@ -75,30 +76,43 @@ public class Bahnhof {
         });
     }
 
+    public String getAlternativName() { return alternativName; }
+
     private void einstellungen(BahnhofTeil bt){
         Einstellungen.fenster.zeigeOrderIds();
-
         Stage stage = new Stage();
+
+        Label name = new Label("Name:");
+        name.setStyle("-fx-text-fill: white;");
+        name.setFont(Font.font(Einstellungen.schriftgroesse));
+        name.setTranslateY(25);
+        name.setTranslateX(25);
+
+        TextField tname = new TextField(alternativName);
+        tname.setFont(Font.font(Einstellungen.schriftgroesse-3));
+        tname.setTranslateX(25);
+        tname.setTranslateY(60);
 
         Label l = new Label("Reihenfolge festlegen:");
         l.setStyle("-fx-text-fill: white;");
         l.setFont(Font.font(Einstellungen.schriftgroesse));
-        l.setTranslateY(25);
         l.setTranslateX(25);
+        l.setTranslateY(95);
 
         TextField tf = new TextField(String.valueOf(bahnsteige.get(0).getOrderId()+1));
         tf.setFont(Font.font(Einstellungen.schriftgroesse-3));
         tf.setTranslateX(25);
-        tf.setTranslateY(60);
+        tf.setTranslateY(130);
 
         Button b = new Button("Speichern");
         b.setFont(Font.font(Einstellungen.schriftgroesse));
         b.setTranslateX(25);
-        b.setTranslateY(120);
+        b.setTranslateY(190);
         b.setOnAction(e -> {
             int order = Integer.parseInt(tf.getText())-1;
             for(Bahnsteig ba : bt.bahnsteige){
                 ba.setOrderId(order);
+                alternativName = tname.getText();
             }
 
             stage.close();
@@ -106,12 +120,12 @@ public class Bahnhof {
             Einstellungen.fenster.sortiereGleise();
         });
 
-        Pane p = new Pane(l,tf,b);
+        Pane p = new Pane(name, tname,l,tf,b);
         p.setStyle("-fx-background-color: #303030;");
         p.setMinSize(500,200);
         p.setMaxSize(500, 200);
 
-        Scene scene = new Scene(p, 300,200);
+        Scene scene = new Scene(p, 300,250);
 
         stage.setScene(scene);
         stage.show();
