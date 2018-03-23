@@ -254,7 +254,11 @@ public class Fenster{
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
                 LabelContainer lc = new LabelContainer(i,null);
                 lc.updateLabel(bahnhof.getBahnsteig(i).getName(), true);
-                lc.getLabel().setStyle("-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 5 0;");
+                lc.getAussehen().textFarbe = "#fff";
+                lc.getAussehen().raender.farbeUnten = "#505050";
+                lc.getAussehen().raender.farbeRechts = "#505050";
+                lc.getAussehen().raender.setze(0, 1, 5, 0);
+                lc.getLabel().setStyle(lc.getAussehen().toCSSStyle());
 
                 int temp = bahnhof.getBahnsteig(i).getId();
                 Platform.runLater(() -> gpPlatform.add(lc.getLabel(), temp, 0));
@@ -1115,7 +1119,8 @@ public class Fenster{
 
                 if(bahnsteig.getGleisLabel().isLetzterBahnsteig()){
                     bahnsteig.getGleisLabel().setLetzterBahnsteig(false);
-                    bahnsteig.getGleisLabel().getLabel().setStyle(bahnsteig.getGleisLabel().getLabel().getStyle() + " -fx-border-width: 0 1 5 0;");
+                    bahnsteig.getGleisLabel().getAussehen().raender.setze(0, 1, 5, 0);
+                    bahnsteig.getGleisLabel().getLabel().setStyle(bahnsteig.getGleisLabel().getAussehen().toCSSStyle());
                 }
                 for(LabelContainer lc : bahnsteig.getSpalte()){
                     lc.setLetzterBahnsteig(false);
@@ -1135,14 +1140,20 @@ public class Fenster{
                     final int tempCounter = aufeinanderfolgendeBahnsteige;
                     final int temp = counter;
                     Platform.runLater(() -> {
-                        lc.getLabel().setStyle("-fx-border-width: 0 5 1 0; -fx-border-color: #505050;");
+                        lc.getAussehen().textFarbe = "#fff";
+                        lc.getAussehen().raender.farbeUnten = "#505050";
+                        lc.getAussehen().raender.farbeRechts = "#505050";
+                        lc.getAussehen().raender.setze(0, 5, 1, 0);
                         lc.getLabel().setMinWidth(Einstellungen.spaltenbreite * tempCounter);
                         lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite * tempCounter);
+                        lc.getLabel().setStyle(lc.getAussehen().toCSSStyle());
                         gpBahnhof.add(lc.getLabel(), temp, 0);
                     });
 
                     letzterBahnsteig.getGleisLabel().setLetzterBahnsteig(true);
-                    letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getLabel().getStyle() + " -fx-border-width: 0 5 5 0;");
+                    letzterBahnsteig.getGleisLabel().getAussehen().raender.setze(0, 5, 5, 0);
+                    letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getAussehen().toCSSStyle());
+
                     for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
                         labelContainer.setLetzterBahnsteig(true);
                         labelContainer.updateLabel();
@@ -1164,14 +1175,20 @@ public class Fenster{
         final int tempCounter = aufeinanderfolgendeBahnsteige;
         final int temp = counter;
         Platform.runLater(() -> {
-            lc.getLabel().setStyle("-fx-border-width: 0 5 1 0; -fx-border-color: #505050;");
+            lc.getAussehen().textFarbe = "#fff";
+            lc.getAussehen().raender.farbeUnten = "#505050";
+            lc.getAussehen().raender.farbeRechts = "#505050";
+            lc.getAussehen().raender.setze(0, 5, 1, 0);
+            lc.getLabel().setStyle(lc.getAussehen().toCSSStyle());
+
             lc.getLabel().setMinWidth(Einstellungen.spaltenbreite * tempCounter);
             lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite * tempCounter);
             gpBahnhof.add(lc.getLabel(), temp, 0);
         });
 
         letzterBahnsteig.getGleisLabel().setLetzterBahnsteig(true);
-        letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getLabel().getStyle() + " -fx-border-width: 0 5 5 0;");
+        letzterBahnsteig.getGleisLabel().getAussehen().raender.setze(0, 5, 5, 0);
+        letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getAussehen().toCSSStyle());
         for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
             labelContainer.setLetzterBahnsteig(true);
             labelContainer.updateLabel();

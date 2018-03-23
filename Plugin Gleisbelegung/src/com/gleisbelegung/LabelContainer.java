@@ -29,13 +29,14 @@ public class LabelContainer extends Plugin {
     private long time = -1;                         //Die Zeit die in der jeweiligen Zeile die richtige ist.
     private Bahnsteig bahnsteig;                          //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
     private boolean letzterBahnsteig;
-
+    private Aussehen aussehen;
     private boolean hervorhebungDurchGleis;
 
     public LabelContainer(int labelIndex, Bahnsteig bahnsteig){
         this.bahnsteig = bahnsteig;
         this.labelIndex = labelIndex;
         trains = new ArrayList<>();
+        aussehen = new Aussehen();
         hervorhebungDurchGleis = false;
 
         l = new Label();
@@ -117,34 +118,49 @@ public class LabelContainer extends Plugin {
                 l.setText("");
                 l.setTooltip(null);
                 if(hervorhebungDurchGleis){
-                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + " -fx-background-color: #181818;");
+                    aussehen.hintergrundFarbe = "#181818";
+                    aussehen.textFarbe = "#fff";
+                    prepareBorder();
                 } else if (labelIndex % 2 == 0) {
-                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder());
+                    aussehen.hintergrundFarbe = "transparent";
+                    aussehen.textFarbe = "#fff";
+                    prepareBorder();
                 } else {
-                    l.setStyle("-fx-background-color: #292929; -fx-text-fill: #fff; " + prepareBorder());
+                    aussehen.hintergrundFarbe = "#292929";
+                    aussehen.textFarbe = "#fff";
+                    prepareBorder();
                 }
 
                 if(letzterBahnsteig){
-                    l.setStyle(l.getStyle() + " -fx-border-width: 0 5 1 0;");
+                    aussehen.raender.setze(0, 5 ,1, 0);
                 }
+
+                l.setStyle(aussehen.toCSSStyle());
             });
         } else if(trains.size() == 1){
             Zug train = trains.get(0);
             Platform.runLater(() -> {
-                    l.setText(train.getZugName() + train.getVerspaetungToString());
-                    l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
-                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + " -fx-background-color: #" + prepareTrainStyle(train.getZugName()) + ";");
+                l.setText(train.getZugName() + train.getVerspaetungToString());
+                l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
+                aussehen.hintergrundFarbe = prepareTrainStyle(train.getZugName());
+                aussehen.textFarbe = "#fff";
+                prepareBorder();
 
                 if(letzterBahnsteig){
-                    l.setStyle(l.getStyle() + " -fx-border-width: 0 5 1 0");
+                    aussehen.raender.setze(0, 5 ,1, 0);
                 }
+
+                l.setStyle(aussehen.toCSSStyle());
             });
-        } else if (trains.size() == 2 && trains.get(1).getFahrplan(0).getVorgaenger() != null) {
+        } else if (trains.size() == 2 && trains.get(1).getFahrplan(0).getVorgaenger() != null) {  //TODO sinn dieser Alternative, identisch zu oben?
             Zug train = trains.get(1);
             Platform.runLater(() -> {
                 l.setText(train.getZugName() + train.getVerspaetungToString());
                 l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
-                l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + "-fx-background-color: #" + prepareTrainStyle(train.getZugName()) + ";");
+                aussehen.hintergrundFarbe = prepareTrainStyle(train.getZugName());
+                aussehen.textFarbe = "#fff";
+                prepareBorder();
+                l.setStyle(aussehen.toCSSStyle());
             });
         } else {
             Platform.runLater(() -> {
@@ -159,14 +175,18 @@ public class LabelContainer extends Plugin {
                     final String temp = text;
                     l.setText(temp);
                     l.setTooltip(new Tooltip(temp));
-                    l.setStyle("-fx-text-fill: #fff; " + prepareBorder() + " -fx-background-color: red;");
+                    aussehen.hintergrundFarbe = "red";
+                    aussehen.textFarbe = "#fff";
+                    prepareBorder();
 
                     //TODO implement playColisonSound()
                     //playColisonSound(bahnsteig);
 
                     if(letzterBahnsteig){
-                        l.setStyle(l.getStyle() + " -fx-border-width: 0 5 1 0;");
+                        aussehen.raender.setze(0, 5, 1, 0);
                     }
+
+                    l.setStyle(aussehen.toCSSStyle());
                 }
             });
         }
@@ -221,62 +241,69 @@ public class LabelContainer extends Plugin {
                 }
             }
 
-            return out;
+            return "#" + out;
         } catch (Exception e){
             e.printStackTrace();
             return "";
         }
     }
 
-    private String prepareBorder(){
-        try{
-            String fullHour = "-fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 1 1 0;";
-            String fiveMin = "-fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 1 1 0;";
-            String fiveteenMin = "-fx-border-color: yellow #505050 #95b57b yellow; -fx-border-width: 0 1 1 0;";
-            String normal = "-fx-border-color: yellow #505050 #505050 yellow; -fx-border-width: 0 1 1 0;";
+    private void prepareBorder(){
+        Date dNow = new Date(time);
+        SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
+        String localTime = ft.format(dNow);
 
-            Date dNow = new Date(time);
-            SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
-            String localTime = ft.format(dNow);
-
-            if(localTime.endsWith("00")){
-                return fullHour;
-            } else if(localTime.endsWith("15") || localTime.endsWith("30") || localTime.endsWith("45")){
-                return fiveteenMin;
-            } else if(localTime.endsWith("5") || localTime.endsWith("0")){
-                return fiveMin;
-            } else{
-                return normal;
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            return "";
+        if(localTime.endsWith("00")){
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#05af3b";
+            aussehen.raender.setze(0, 1, 1, 0);
+        } else if(localTime.endsWith("15") || localTime.endsWith("30") || localTime.endsWith("45")){
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#95b57b";
+            aussehen.raender.setze(0, 1, 1, 0);
+        } else if(localTime.endsWith("5") || localTime.endsWith("0")){
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#969696";
+            aussehen.raender.setze(0, 1, 1, 0);
+        } else{
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#505050";
+            aussehen.raender.setze(0, 1, 1, 0);
         }
     }
 
     private void prepareBorderForLabelTime() {
         String in = l.getText();
 
-        String fullHour = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #05af3b yellow; -fx-border-width: 0 5 1 0;";
-        String fiveMin = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #969696 yellow; -fx-border-width: 0 5 1 0;";
-        String fiveteenMin = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #95b57b yellow; -fx-border-width: 0 5 1 0;";
-        String normal = "-fx-text-fill: #fff; -fx-border-color: yellow #505050 #505050 yellow; -fx-border-width: 0 5 1 0;";
-
         if(in.endsWith("00")){
-            l.setStyle(fullHour);
+            aussehen.textFarbe = "#fff";
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#05af3b";
+            aussehen.raender.setze(0, 5, 1, 0);
         } else if(in.endsWith("15") || in.endsWith("30") || in.endsWith("45")){
-            l.setStyle(fiveteenMin);
+            aussehen.textFarbe = "#fff";
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#95b57b";
+            aussehen.raender.setze(0, 5, 1, 0);
         } else if(in.endsWith("5") || in.endsWith("0")){
-            l.setStyle(fiveMin);
+            aussehen.textFarbe = "#fff";
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#969696";
+            aussehen.raender.setze(0, 5, 1, 0);
         } else{
-            l.setStyle(normal);
+            aussehen.textFarbe = "#fff";
+            aussehen.raender.farbeRechts = "#505050";
+            aussehen.raender.farbeUnten = "#505050";
+            aussehen.raender.setze(0, 5, 1, 0);
         }
 
         if (labelIndex % 2 == 0) {
-            l.setStyle(l.getStyle() + " -fx-background-color: #303030;");
+            aussehen.hintergrundFarbe = "#303030";
         } else {
-            l.setStyle(l.getStyle() + " -fx-background-color: #292929;");
+            aussehen.hintergrundFarbe = "#292929";
         }
+
+        l.setStyle(aussehen.toCSSStyle());
     }
 
     public ArrayList<Zug> getTrains(){
@@ -404,5 +431,44 @@ public class LabelContainer extends Plugin {
     }
     public void setLetzterBahnsteig(boolean letzterBahnsteig) {
         this.letzterBahnsteig = letzterBahnsteig;
+    }
+
+    public Aussehen getAussehen() {
+        return aussehen;
+    }
+}
+
+class Aussehen{
+    public String hintergrundFarbe;
+    public String textFarbe;
+    public Raender raender;
+
+    public Aussehen(){
+        raender = new Raender();
+        hintergrundFarbe = "transparent";
+    }
+
+    public String toCSSStyle(){
+        return "-fx-background-color: " + hintergrundFarbe + "; -fx-text-fill: " + textFarbe + "; " + raender.toCSSStyle();
+    }
+}
+
+class Raender{
+    public String farbeRechts;
+    public String farbeUnten;
+    public int oben;
+    public int rechts;
+    public int unten;
+    public int links;
+
+    public void setze(int oben, int rechts, int unten, int links){
+        this.oben = oben;
+        this.rechts = rechts;
+        this.unten = unten;
+        this.links = links;
+    }
+
+    public String toCSSStyle(){
+        return "-fx-border-color: transparent " + farbeRechts + " " + farbeUnten + " transparent; -fx-border-width: " + oben + " " + rechts + " " + unten + " " + links + ";";
     }
 }
