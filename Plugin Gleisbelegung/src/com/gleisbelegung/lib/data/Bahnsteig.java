@@ -132,6 +132,8 @@ public class Bahnsteig extends Plugin {
     }
 
     private void aendereReihenfolge(){
+        Einstellungen.fenster.zeigeOrderIds();
+
         Stage stage = new Stage();
 
         Label l = new Label("Reihenfolge festlegen:");
@@ -152,6 +154,7 @@ public class Bahnsteig extends Plugin {
         b.setOnAction(e -> {
             orderId = Integer.parseInt(tf.getText())-1;
             stage.close();
+            Einstellungen.fenster.versteckeOrderIds();
             Einstellungen.fenster.sortiereGleise();
         });
 
@@ -165,6 +168,10 @@ public class Bahnsteig extends Plugin {
         stage.setScene(scene);
         stage.show();
         stage.setAlwaysOnTop(true);
+
+        stage.setOnCloseRequest(e -> {
+            Einstellungen.fenster.versteckeOrderIds();
+        });
     }
 
     @Override

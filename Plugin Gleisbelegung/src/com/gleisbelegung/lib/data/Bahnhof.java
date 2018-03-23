@@ -74,7 +74,10 @@ public class Bahnhof {
             }
         });
     }
+
     private void einstellungen(BahnhofTeil bt){
+        Einstellungen.fenster.zeigeOrderIds();
+
         Stage stage = new Stage();
 
         Label l = new Label("Reihenfolge festlegen:");
@@ -99,6 +102,7 @@ public class Bahnhof {
             }
 
             stage.close();
+            Einstellungen.fenster.versteckeOrderIds();
             Einstellungen.fenster.sortiereGleise();
         });
 
@@ -112,6 +116,10 @@ public class Bahnhof {
         stage.setScene(scene);
         stage.show();
         stage.setAlwaysOnTop(true);
+
+        stage.setOnCloseRequest(e -> {
+            Einstellungen.fenster.versteckeOrderIds();
+        });
     }
 
     private void hervorheben(BahnhofTeil bt){

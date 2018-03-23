@@ -1147,4 +1147,20 @@ public class Fenster{
             labelContainer.updateLabel();
         }
     }
+
+    public void zeigeOrderIds(){
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            for(Bahnsteig ba : b.getBahnsteige()){
+                ba.getGleisLabel().getLabel().setText(ba.getName() + " (" + ba.getOrderId() + ")");
+            }
+        }
+    }
+
+    public void versteckeOrderIds(){
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            for(Bahnsteig ba : b.getBahnsteige()){
+                ba.getGleisLabel().getLabel().setText(ba.getName());
+            }
+        }
+    }
 }
