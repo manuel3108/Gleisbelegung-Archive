@@ -265,15 +265,6 @@ public class Fenster{
 
                 int temp = bahnhof.getBahnsteig(i).getId();
                 Platform.runLater(() -> gpPlatform.add(lc.getLabel(), temp, 0));
-
-                final int tempI = i;
-                lc.getLabel().setOnMouseClicked(e -> {
-                    if(e.getButton() == MouseButton.PRIMARY){
-                        bahnhof.getBahnsteig(tempI).hebeHervor();
-                    } else if(e.getButton() == MouseButton.SECONDARY){
-                        aendereReihenfolge(bahnhof.getBahnsteig(tempI));
-                    }
-                });
                 bahnhof.getBahnsteig(i).setGleisLabel(lc);
             }
         }
@@ -1058,42 +1049,6 @@ public class Fenster{
 
             erzeugeBahnsteigLabel();
         });
-    }
-
-    private void aendereReihenfolge(Bahnsteig bahnsteig){
-        Stage stage = new Stage();
-
-        Label l = new Label("Reihenfolge festlegen:");
-        l.setStyle("-fx-text-fill: white;");
-        l.setFont(Font.font(Einstellungen.schriftgroesse));
-        l.setTranslateY(25);
-        l.setTranslateX(25);
-
-        TextField tf = new TextField(String.valueOf(bahnsteig.getOrderId()+1));
-        tf.setFont(Font.font(Einstellungen.schriftgroesse-3));
-        tf.setTranslateX(25);
-        tf.setTranslateY(60);
-
-        Button b = new Button("Speichern");
-        b.setFont(Font.font(Einstellungen.schriftgroesse));
-        b.setTranslateX(25);
-        b.setTranslateY(120);
-        b.setOnAction(e -> {
-            bahnsteig.setOrderId(Integer.parseInt(tf.getText())-1);
-            stage.close();
-            sortiereGleise();
-        });
-
-        Pane p = new Pane(l,tf,b);
-        p.setStyle("-fx-background-color: #303030;");
-        p.setMinSize(500,200);
-        p.setMaxSize(500, 200);
-
-        Scene scene = new Scene(p, 300,200);
-
-        stage.setScene(scene);
-        stage.show();
-        stage.setAlwaysOnTop(true);
     }
 
     private void erzeugeBahnsteigLabel(){
