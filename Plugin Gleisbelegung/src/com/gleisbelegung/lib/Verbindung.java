@@ -395,6 +395,10 @@ public class Verbindung {
         return null;
     }
 
+    public Socket getSocket(){
+        return socket;
+    }
+
     @Override
     public String toString() {
         return "Verbindung{" +

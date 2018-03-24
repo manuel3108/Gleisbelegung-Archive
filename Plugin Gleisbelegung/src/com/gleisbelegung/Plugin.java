@@ -11,6 +11,7 @@ Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
 import com.gleisbelegung.lib.Stellwerk;
+import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -26,9 +27,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -51,6 +50,32 @@ public class Plugin extends Application implements Runnable{
     @Override
     public void start(Stage primaryStage) {
         Rectangle2D size = Screen.getPrimary().getVisualBounds();
+
+        TextField tfHost = new TextField();
+
+        Socket socketGefunden = null;
+        try {
+            final java.util.Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
+            while (socketGefunden == null && nics.hasMoreElements()) {
+                java.net.NetworkInterface nic = nics.nextElement();
+                final java.util.Enumeration<InetAddress> inetAddresses = nic.getInetAddresses();
+                while (socketGefunden == null && inetAddresses.hasMoreElements()) {
+                    final InetAddress inetAddress = inetAddresses.nextElement();
+                    final Socket socket = new Socket();
+                    try {
+                        socket.bind(null);
+                        socket.connect(new InetSocketAddress(inetAddress, 3691));
+                        if (socketGefunden == null || cmpInetAddress(socket.getLocalAddress(), socketGefunden.getLocalAddress()) < 0) {
+                            socket.setSoTimeout(1000);
+                            socketGefunden = socket;
+                            Platform.runLater(() -> tfHost.setText(inetAddress.getHostAddress()));
+                        }
+                    } catch (IOException e) {}
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
 
         //stageHeight = size.getHeight();
         //stageWidth = size.getWidth();
@@ -75,9 +100,7 @@ public class Plugin extends Application implements Runnable{
         lHost.applyCss();
         lHost.layout();
 
-        TextField tfHost = new TextField();
         tfHost.setText("localhost");
-
         tfHost.setStyle("-fx-text-fill: black;");
         tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
         tfHost.setTranslateX(120);
@@ -87,6 +110,8 @@ public class Plugin extends Application implements Runnable{
         tfHost.applyCss();
         tfHost.layout();
         //p.widthProperty().addListener((observable, oldValue, newValue) -> tfHost.setTranslateX(newValue.doubleValue()/2 - 75));
+
+        final Socket tempSocket = socketGefunden;
 
         Button btLoad = new Button("Verbinden");
         btLoad.setStyle("-fx-text-fill: black;");
@@ -98,7 +123,7 @@ public class Plugin extends Application implements Runnable{
         btLoad.layout();
         btLoad.setOnAction(e -> {
             host = tfHost.getText();
-            Platform.runLater(this::startLoading);
+            Platform.runLater(() -> startLoading(tempSocket));
         });
 
         firstSP.getChildren().addAll(lHint, lHost, tfHost, btLoad);
@@ -134,45 +159,55 @@ public class Plugin extends Application implements Runnable{
         u = new Update();
         u.checkForNewVersion(version);
 
-        /*for (int i = 0; i < 255; i++) {
-            if(socket == null){
-                final int temp = i;
-                Runnable r = () -> {
-                    try {
-                        if(InetAddress.getByName("192.168.1." + temp).isReachable(1000)){
-                            try{
-                                socket = new Socket("192.168.1." + temp, 3691);
-                                socket.setSoTimeout(1000);
-
-                                Platform.runLater(() -> tfHost.setText("192.168.1." + temp));
-                            } catch (Exception e){
-                                socket = null;
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                };
-                Thread t = new Thread(r);
-                t.setDaemon(true);
-                t.start();
-            }
-        }*/
-
         einstellungen = new Einstellungen();
         this.primaryStage.setMaximized(Einstellungen.maximiert);
 
         setOutputStreams();
     }
 
-    private void startLoading(){
+    /**
+     * Vergleicht zwei IP Adressen.
+     * * Link local < local < unique < multicast
+     * * loopback < IPv4 < IPv6
+     *
+     * @param address0
+     * @param address1
+     *
+     * @return
+     */
+    private static int cmpInetAddress(final InetAddress address0, final InetAddress address1) {
+        if (address0.isLoopbackAddress() ^ address1.isLoopbackAddress()) {
+            return address0.isLoopbackAddress() ? -1 : 1;
+        }
+        if (address0.isLinkLocalAddress() ^ address1.isLinkLocalAddress()) {
+            return address0.isLinkLocalAddress() ? -1 : 1;
+        }
+        if (address0.isSiteLocalAddress() ^ address1.isSiteLocalAddress()) {
+            return address0.isSiteLocalAddress() ? -1 : 1;
+        }
+        if (address0.isAnyLocalAddress() ^ address1.isAnyLocalAddress()) {
+            return address0.isAnyLocalAddress() ? -1 : 1;
+        }
+        if (address0.isMulticastAddress() ^ address1.isMulticastAddress()) {
+            return address0.isMulticastAddress() ? 1 : -1;
+        }
+        // IPv4 < IPv6
+        if (InetAddress.class.isAssignableFrom(address0.getClass()) ^ InetAddress.class.isAssignableFrom(address1.getClass()) ) {
+            return InetAddress.class.isAssignableFrom(address0.getClass()) ? -1 : 1;
+        }
+        return 0;
+    }
+
+    private void startLoading(Socket socketGefunden){
         Runnable r = () -> {
             refresh = new Button();
             refresh.setDisable(true);
             refresh.setOnAction(e -> neustart());
 
             try {
-                stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
+                if(stellwerk != null && stellwerk.getSocket() != null) stellwerk = new Stellwerk(stellwerk.getSocket(), "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
+                else if(socketGefunden != null) stellwerk = new Stellwerk(socketGefunden, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
+                else stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
             } catch (IOException e) {
                 System.out.println("Die Verbindung mit dem SIM kam nicht zustande. Prüfe ob die Plugin-Schnitstelle aktiviert ist!");
                 System.exit(1);
@@ -194,7 +229,7 @@ public class Plugin extends Application implements Runnable{
                 update = false;
                 refresh.setDisable(true);
                 Thread.sleep(2000);
-                startLoading();
+                startLoading(null);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

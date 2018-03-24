@@ -26,14 +26,26 @@ public class Stellwerk {
     private static Verbindung v;
 
     public Stellwerk(String host, int port, String pluginName, String pluginBeschreibung, String autor, int version) throws IOException {
-        Stellwerk.host = host;
-        Stellwerk.port = port;
+        this.host = host;
+        this.port = port;
 
         startzeit = System.currentTimeMillis();
         bahnhoefe = new ArrayList<>();
         zuege = new ArrayList<>();
 
         v = new Verbindung(new Socket(host, port), this, pluginName, pluginBeschreibung, autor, version);
+        v.update();
+    }
+
+    public Stellwerk(Socket socket, String pluginName, String pluginBeschreibung, String autor, int version) throws IOException {
+        host = null;
+        port = 0;
+
+        startzeit = System.currentTimeMillis();
+        bahnhoefe = new ArrayList<>();
+        zuege = new ArrayList<>();
+
+        v = new Verbindung(socket, this, pluginName, pluginBeschreibung, autor, version);
         v.update();
     }
 
@@ -80,6 +92,9 @@ public class Stellwerk {
     }
     public int getPort() {
         return port;
+    }
+    public Socket getSocket(){
+        return v.getSocket();
     }
     public String getStellwerksname() {
         return stellwerksname;
