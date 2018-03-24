@@ -852,6 +852,10 @@ public class Fenster{
             if ("".equals(cb.getText())) {
                 cb.setText(stellwerk.getStellwerksname());
             }
+            if(!bahnhof.getAlternativName().equals("")){
+                if(!bahnhof.getName().equals("")) cb.setText(bahnhof.getAlternativName() + " (" + bahnhof.getName() + ")");
+                else cb.setText(bahnhof.getAlternativName());
+            }
             cbBahnhof[counterBhf] = cb;
             cbBahnhof[counterBhf].setTranslateX(10);
             cbBahnhof[counterBhf].setTranslateY(tempY);
