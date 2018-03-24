@@ -852,6 +852,10 @@ public class Fenster{
             if ("".equals(cb.getText())) {
                 cb.setText(stellwerk.getStellwerksname());
             }
+            if(!bahnhof.getAlternativName().equals("")){
+                if(!bahnhof.getName().equals("")) cb.setText(bahnhof.getAlternativName() + " (" + bahnhof.getName() + ")");
+                else cb.setText(bahnhof.getAlternativName());
+            }
             cbBahnhof[counterBhf] = cb;
             cbBahnhof[counterBhf].setTranslateX(10);
             cbBahnhof[counterBhf].setTranslateY(tempY);
@@ -1080,7 +1084,10 @@ public class Fenster{
                     }
                 } else if(letzterBahnsteig != null){
                     LabelContainer lc = new LabelContainer(-1, null);
-                    if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
+                    if(!letzterBahnsteig.getBahnhof().getAlternativName().equals("")) {
+                        lc.getLabel().setText(letzterBahnsteig.getBahnhof().getAlternativName() + (!letzterBahnsteig.getBahnhof().getName().equals("") ? " (" + letzterBahnsteig.getBahnhof().getName() + ")" : ""));
+                    }
+                    else if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
                     else lc.getLabel().setText(stellwerk.getStellwerksname());
 
                     bahnsteige.add(letzterBahnsteig);
@@ -1118,7 +1125,10 @@ public class Fenster{
         }
 
         LabelContainer lc = new LabelContainer(-1, null);
-        if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
+        if(!letzterBahnsteig.getBahnhof().getAlternativName().equals("")) {
+            lc.getLabel().setText(letzterBahnsteig.getBahnhof().getAlternativName() + (!letzterBahnsteig.getBahnhof().getName().equals("") ? " (" + letzterBahnsteig.getBahnhof().getName() + ")" : ""));
+        }
+        else if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
         else lc.getLabel().setText(stellwerk.getStellwerksname());
 
         bahnsteige.add(letzterBahnsteig);
@@ -1151,7 +1161,7 @@ public class Fenster{
     public void zeigeOrderIds(){
         for(Bahnhof b : stellwerk.getBahnhoefe()){
             for(Bahnsteig ba : b.getBahnsteige()){
-                ba.getGleisLabel().getLabel().setText(ba.getName() + " (" + ba.getOrderId() + ")");
+                ba.getGleisLabel().getLabel().setText(ba.getName() + " (" + (ba.getOrderId() + 1) + ")");
             }
         }
     }
