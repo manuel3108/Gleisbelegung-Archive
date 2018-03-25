@@ -150,7 +150,6 @@ public class Einstellungen {
                         Element bahnhof = (Element) bahnhofNode;
                         int x = Integer.parseInt(bahnhof.getElementsByTagName("x").item(0).getTextContent());
                         int y = Integer.parseInt(bahnhof.getElementsByTagName("y").item(0).getTextContent());
-                        System.out.println(b.getName() + " x" + x + " y" + y);
 
                         NodeList bahnsteige = bahnhof.getElementsByTagName("bahnsteig");
 
