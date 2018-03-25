@@ -54,16 +54,23 @@ public class Stellwerk {
     }
 
     void erstelleBahnhoefe(String[] bahnsteige){
-        String currentRegex = "";
-        String[] regex = new String[bahnsteige.length];
+        String letzterBahnhofsName = "";
+        String bahnsteigsName = "";
+        String[] bahnhofsName = new String[bahnsteige.length];
         for(int i = 0; i < bahnsteige.length; i++){
-            regex[i] = bahnsteige[i].replaceAll("\\P{L}+", "");
-            if(currentRegex.equals(regex[i]) && bahnhoefe.size() > 0){
-                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteige[i], i));
+            if(Character.isLetter(bahnsteige[i].charAt(bahnsteige[i].length()-1)) && bahnsteige[i].matches(".*\\d+.*")){
+                bahnsteigsName = bahnsteige[i];
+                bahnsteige[i] = bahnsteige[i].substring(0, bahnsteige[i].length() - 1);
             } else {
-                currentRegex = regex[i];
-                bahnhoefe.add(new Bahnhof(bahnhoefe.size(), currentRegex));
-                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteige[i], i));
+                bahnsteigsName = bahnsteige[i];
+            }
+            bahnhofsName[i] = bahnsteige[i].replaceAll("\\P{L}+", "");
+            if(letzterBahnhofsName.equals(bahnhofsName[i]) && bahnhoefe.size() > 0){
+                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
+            } else {
+                letzterBahnhofsName = bahnhofsName[i];
+                bahnhoefe.add(new Bahnhof(bahnhoefe.size(), letzterBahnhofsName));
+                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
             }
         }
     }
