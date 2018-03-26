@@ -48,120 +48,153 @@ public class Plugin extends Application implements Runnable{
 
     @Override
     public void start(Stage primaryStage) {
-        Rectangle2D size = Screen.getPrimary().getVisualBounds();
+        Runnable r = () -> {
+            Rectangle2D size = Screen.getPrimary().getVisualBounds();
 
-        TextField tfHost = new TextField();
+            TextField tfHost = new TextField();
 
-        Socket socketGefunden = null;
-        try {
-            final java.util.Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
-            while (socketGefunden == null && nics.hasMoreElements()) {
-                java.net.NetworkInterface nic = nics.nextElement();
-                final java.util.Enumeration<InetAddress> inetAddresses = nic.getInetAddresses();
-                while (socketGefunden == null && inetAddresses.hasMoreElements()) {
-                    final InetAddress inetAddress = inetAddresses.nextElement();
-                    final Socket socket = new Socket();
-                    try {
-                        socket.bind(null);
-                        socket.connect(new InetSocketAddress(inetAddress, 3691));
-                        if (socketGefunden == null || cmpInetAddress(socket.getLocalAddress(), socketGefunden.getLocalAddress()) < 0) {
-                            socket.setSoTimeout(1000);
-                            socketGefunden = socket;
-                            Platform.runLater(() -> tfHost.setText(inetAddress.getHostAddress()));
-                        }
-                    } catch (IOException e) {}
+            //stageHeight = size.getHeight();
+            //stageWidth = size.getWidth();
+            int sceneWidth = 1000;
+            int sceneHeight = 500;
+
+            firstSP = new StackPane();
+            firstSP.setStyle("-fx-background-color: #303030");
+
+            Label lHint = new Label("IP-Adress nur ändern, wenn SIM auf einem anderen Rechner läuft. \nWenn dies der Fall ist, muss auf dem SIM-Rechner die Windows-Firewall\n (wahrscheinlich auch jede andere), deaktiviert werden.");
+            lHint.setStyle("-fx-text-fill: white;");
+            lHint.setFont(Font.font(Einstellungen.schriftgroesse));
+            lHint.setTranslateY(0);
+            lHint.applyCss();
+            lHint.layout();
+
+            Label lHost = new Label("Bitte die IP des Rechners eingeben: ");
+            lHost.setStyle("-fx-text-fill: white;");
+            lHost.setFont(Font.font(Einstellungen.schriftgroesse));
+            lHost.setTranslateY(80);
+            lHost.setTranslateX(-120);
+            lHost.applyCss();
+            lHost.layout();
+
+            tfHost.setText("Warten...");
+            tfHost.setStyle("-fx-text-fill: black;");
+            tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
+            tfHost.setTranslateX(120);
+            tfHost.setTranslateY(80);
+            tfHost.setMinWidth(150);
+            tfHost.setMaxWidth(150);
+            tfHost.applyCss();
+            tfHost.layout();
+            tfHost.setDisable(true);
+            //p.widthProperty().addListener((observable, oldValue, newValue) -> tfHost.setTranslateX(newValue.doubleValue()/2 - 75));
+
+            Socket socketGefunden = null;
+            final Socket tempSocket = socketGefunden;
+
+            Button btLoad = new Button("Verbinden");
+            btLoad.setStyle("-fx-text-fill: black;");
+            btLoad.setFont(Font.font(Einstellungen.schriftgroesse));
+            btLoad.setTranslateX((lHost.getWidth() + tfHost.getWidth())/2);
+            btLoad.setTranslateY(130);
+            btLoad.setMinWidth(150);
+            btLoad.applyCss();
+            btLoad.layout();
+            btLoad.setDisable(true);
+            btLoad.setOnAction(e -> {
+                host = tfHost.getText();
+                Platform.runLater(() -> startLoading(tempSocket));
+            });
+
+            firstSP.getChildren().addAll(lHint, lHost, tfHost, btLoad);
+            firstSP.applyCss();
+            firstSP.layout();
+
+            Scene s = new Scene(firstSP, sceneWidth, sceneHeight);
+
+            Platform.runLater(() -> {
+                primaryStage.setScene(s);
+                primaryStage.setTitle("Plugin: Gleisbelegung");
+                primaryStage.show();
+                primaryStage.setMinWidth(1000);
+                primaryStage.setMinHeight(500);
+                primaryStage.setMaximized(true);
+            });
+
+            try{
+                primaryStage.getIcons().add(new Image(Plugin.class.getResourceAsStream("res/icon.png")));
+            } catch(Exception e){
+                try{
+                    primaryStage.getIcons().add(new Image("res/icon.png"));
+                } catch (Exception e1){
+                    e.printStackTrace();
+                    e1.printStackTrace();
                 }
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
 
-        //stageHeight = size.getHeight();
-        //stageWidth = size.getWidth();
-        int sceneWidth = 1000;
-        int sceneHeight = 500;
+            primaryStage.setOnCloseRequest(we -> {
+                checkLogOnClosing();
+                Plugin.einstellungen.schreibeEinstellungen();
+            });
+            this.primaryStage = primaryStage;
 
-        firstSP = new StackPane();
-        firstSP.setStyle("-fx-background-color: #303030");
-
-        Label lHint = new Label("IP-Adress nur ändern, wenn SIM auf einem anderen Rechner läuft. \nWenn dies der Fall ist, muss auf dem SIM-Rechner die Windows-Firewall\n (wahrscheinlich auch jede andere), deaktiviert werden.");
-        lHint.setStyle("-fx-text-fill: white;");
-        lHint.setFont(Font.font(Einstellungen.schriftgroesse));
-        lHint.setTranslateY(0);
-        lHint.applyCss();
-        lHint.layout();
-
-        Label lHost = new Label("Bitte die IP des Rechners eingeben: ");
-        lHost.setStyle("-fx-text-fill: white;");
-        lHost.setFont(Font.font(Einstellungen.schriftgroesse));
-        lHost.setTranslateY(80);
-        lHost.setTranslateX(-120);
-        lHost.applyCss();
-        lHost.layout();
-
-        tfHost.setText("localhost");
-        tfHost.setStyle("-fx-text-fill: black;");
-        tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
-        tfHost.setTranslateX(120);
-        tfHost.setTranslateY(80);
-        tfHost.setMinWidth(150);
-        tfHost.setMaxWidth(150);
-        tfHost.applyCss();
-        tfHost.layout();
-        //p.widthProperty().addListener((observable, oldValue, newValue) -> tfHost.setTranslateX(newValue.doubleValue()/2 - 75));
-
-        final Socket tempSocket = socketGefunden;
-
-        Button btLoad = new Button("Verbinden");
-        btLoad.setStyle("-fx-text-fill: black;");
-        btLoad.setFont(Font.font(Einstellungen.schriftgroesse));
-        btLoad.setTranslateX((lHost.getWidth() + tfHost.getWidth())/2);
-        btLoad.setTranslateY(130);
-        btLoad.setMinWidth(150);
-        btLoad.applyCss();
-        btLoad.layout();
-        btLoad.setOnAction(e -> {
-            host = tfHost.getText();
-            Platform.runLater(() -> startLoading(tempSocket));
-        });
-
-        firstSP.getChildren().addAll(lHint, lHost, tfHost, btLoad);
-        firstSP.applyCss();
-        firstSP.layout();
-
-        Scene s = new Scene(firstSP, sceneWidth, sceneHeight);
-
-        primaryStage.setScene(s);
-        primaryStage.setTitle("Plugin: Gleisbelegung");
-        primaryStage.show();
-        primaryStage.setMinWidth(1000);
-        primaryStage.setMinHeight(500);
-        primaryStage.setMaximized(true);
-
-        try{
-            primaryStage.getIcons().add(new Image(Plugin.class.getResourceAsStream("res/icon.png")));
-        } catch(Exception e){
-            try{
-                primaryStage.getIcons().add(new Image("res/icon.png"));
-            } catch (Exception e1){
+            Platform.runLater(() -> tfHost.setText("Prüfe Version..."));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-                e1.printStackTrace();
             }
-        }
+            u = new Update();
+            u.checkForNewVersion(version);
 
-        primaryStage.setOnCloseRequest(we -> {
-            checkLogOnClosing();
-            Plugin.einstellungen.schreibeEinstellungen();
-        });
-        this.primaryStage = primaryStage;
+            einstellungen = new Einstellungen();
+            Platform.runLater(() -> {
+                this.primaryStage.setMaximized(Einstellungen.maximiert);
+            });
 
-        u = new Update();
-        u.checkForNewVersion(version);
+            Platform.runLater(() -> tfHost.setText("Lese Einstellungen..."));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            setOutputStreams();
 
-        einstellungen = new Einstellungen();
-        this.primaryStage.setMaximized(Einstellungen.maximiert);
+            Platform.runLater(() -> tfHost.setText("Suche IP-Adressen..."));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        setOutputStreams();
+            try {
+                final java.util.Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
+                while (socketGefunden == null && nics.hasMoreElements()) {
+                    java.net.NetworkInterface nic = nics.nextElement();
+                    final java.util.Enumeration<InetAddress> inetAddresses = nic.getInetAddresses();
+                    while (socketGefunden == null && inetAddresses.hasMoreElements()) {
+                        final InetAddress inetAddress = inetAddresses.nextElement();
+                        final Socket socket = new Socket();
+                        try {
+                            socket.bind(null);
+                            socket.connect(new InetSocketAddress(inetAddress, 3691));
+                            if (socketGefunden == null || cmpInetAddress(socket.getLocalAddress(), socketGefunden.getLocalAddress()) < 0) {
+                                socket.setSoTimeout(1000);
+                                socketGefunden = socket;
+                                Platform.runLater(() -> tfHost.setText(inetAddress.getHostAddress()));
+                            }
+                        } catch (IOException e) {}
+                    }
+                }
+                Platform.runLater(() -> {
+                    if(tfHost.getText().equals("Warten...")) tfHost.setText("localhost");
+                    btLoad.setDisable(false);
+                    tfHost.setDisable(false);
+                });
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+        };
+        new Thread(r).start();
     }
 
     /**
