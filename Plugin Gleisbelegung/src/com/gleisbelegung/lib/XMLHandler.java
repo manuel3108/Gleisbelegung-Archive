@@ -26,8 +26,7 @@ public class XMLHandler {
     public XML read(){
         try {
             return XML.read(in, XML_CHARSET);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) { //Ausgabe entfernt, um Fehler beim Neustart nicht auszugeben, da der Neustart auch mit diesem Fehler funktioniert
             return null;
         }
     }

@@ -578,7 +578,7 @@ public class Fenster{
     public void update(){
         for (Zug z : stellwerk.getZuege()) {
             try {
-                if (z.isNeedUpdate() && z.getFahrplan(0).getVorgaenger() != null) {
+                if (z.isNeedUpdate() && z.getFahrplan(0) != null && z.getFahrplan(0).getVorgaenger() != null) {
                     z.getFahrplan(0).getVorgaenger().getZ().setNeedUpdate(true);
                 }
             } catch (Exception e) {

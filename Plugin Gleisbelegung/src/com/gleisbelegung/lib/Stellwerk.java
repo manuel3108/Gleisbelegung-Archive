@@ -37,7 +37,7 @@ public class Stellwerk {
         v.update();
     }
 
-    public Stellwerk(Socket socket, String pluginName, String pluginBeschreibung, String autor, int version) throws IOException {
+    public Stellwerk(Socket socket, String pluginName, String pluginBeschreibung, String autor, int version){
         host = null;
         port = 0;
 
@@ -120,6 +120,9 @@ public class Stellwerk {
     }
     public long getSpielzeit() {
         return spielzeit;
+    }
+    public void setSpielzeit(long spielzeit) {
+        this.spielzeit = spielzeit;
     }
     public long getStartzeit() {
         return startzeit;
