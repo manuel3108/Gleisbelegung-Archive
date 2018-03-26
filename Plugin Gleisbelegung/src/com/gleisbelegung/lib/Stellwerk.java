@@ -121,6 +121,9 @@ public class Stellwerk {
     public long getSpielzeit() {
         return spielzeit;
     }
+    public void setSpielzeit(long spielzeit) {
+        this.spielzeit = spielzeit;
+    }
     public long getStartzeit() {
         return startzeit;
     }

@@ -426,6 +426,7 @@ public class Plugin extends Application implements Runnable{
             try {
                 int time = (int) ((System.currentTimeMillis() - timeFromLastUpdate) / 1000);
                 if(!stellwerk.isAktualisiere()) stellwerk.aktualisiereSimZeit();
+                else stellwerk.setSpielzeit(stellwerk.getSpielzeit() + 1000);
 
                 if (time >= Einstellungen.update) {
                     timeFromLastUpdate = System.currentTimeMillis();
