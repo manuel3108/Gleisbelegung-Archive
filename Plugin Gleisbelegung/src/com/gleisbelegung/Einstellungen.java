@@ -33,7 +33,9 @@ public class Einstellungen {
         File pluginOrdner = new File(appOrdner);
 
         if (pluginOrdner.exists()) {
-            leseEinstellungen();
+            if (einstellungen.exists()) {
+                leseEinstellungen();
+            }
         } else if(pluginOrdner.mkdirs()){
             System.out.println("Ordner wurde angelegt, und für Speicherungen vorbereitet");
         } else {
