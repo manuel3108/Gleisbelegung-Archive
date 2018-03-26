@@ -37,7 +37,7 @@ public class Stellwerk {
         v.update();
     }
 
-    public Stellwerk(Socket socket, String pluginName, String pluginBeschreibung, String autor, int version) throws IOException {
+    public Stellwerk(Socket socket, String pluginName, String pluginBeschreibung, String autor, int version){
         host = null;
         port = 0;
 

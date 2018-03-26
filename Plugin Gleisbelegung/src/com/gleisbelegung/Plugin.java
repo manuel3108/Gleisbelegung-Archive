@@ -226,6 +226,7 @@ public class Plugin extends Application implements Runnable{
     public void neustart(){
         Runnable r = () -> {
             try {
+                System.out.println("INFORMATION: Neustart");
                 update = false;
                 refresh.setDisable(true);
                 Thread.sleep(2000);

@@ -102,10 +102,10 @@ public class Verbindung {
         }
         stellwerk.erstelleBahnhoefe(bahnsteige);
 
-        if (setSocketCode("<wege />") != 1) {
+        /*if (setSocketCode("<wege />") != 1) { //auf der SIM-Seite noch nicht implementiert
             stellwerk.errorWindow(-10, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-10);
-        }
+        }*/
     }
 
     //Sendet Daten-Anfragen an die Plugin-Schnitstelle
