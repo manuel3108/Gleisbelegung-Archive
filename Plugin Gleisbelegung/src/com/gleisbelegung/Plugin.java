@@ -11,7 +11,6 @@ Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
 import com.gleisbelegung.lib.Stellwerk;
-import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -40,7 +39,7 @@ public class Plugin extends Application implements Runnable{
     private Fenster f;
 
     private String host = "192.168.1.25";                   //Die Ip des Rechnsers, auf welchem die Sim läuft           (Wird bei einer Änderung beim Pluginstart aktualisiert)
-    private int version = 15;                                //Aktualle Version des Plugins
+    private int version = 16;                                //Aktualle Version des Plugins
 
     private Stellwerk stellwerk;
     public static Einstellungen einstellungen;
@@ -153,6 +152,7 @@ public class Plugin extends Application implements Runnable{
         primaryStage.setOnCloseRequest(we -> {
             checkLogOnClosing();
             Plugin.einstellungen.schreibeEinstellungen();
+            if(stellwerk != null) einstellungen.schreibeStellwerksEinstellungen(stellwerk);
         });
         this.primaryStage = primaryStage;
 
@@ -212,6 +212,9 @@ public class Plugin extends Application implements Runnable{
                 System.out.println("Die Verbindung mit dem SIM kam nicht zustande. Prüfe ob die Plugin-Schnitstelle aktiviert ist!");
                 System.exit(1);
             }
+
+            einstellungen.leseStellwerksEinstellungen(stellwerk);
+
             f = new Fenster(stellwerk, primaryStage, refresh);
             Einstellungen.fenster = f;
             update = true;
@@ -227,6 +230,9 @@ public class Plugin extends Application implements Runnable{
         Runnable r = () -> {
             try {
                 System.out.println("INFORMATION: Neustart");
+                einstellungen.schreibeStellwerksEinstellungen(stellwerk);
+                einstellungen.schreibeEinstellungen();
+
                 update = false;
                 refresh.setDisable(true);
                 Thread.sleep(2000);

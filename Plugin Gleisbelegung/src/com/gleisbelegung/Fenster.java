@@ -303,6 +303,7 @@ public class Fenster{
         }
 
         sortiereGleise();
+        updateSettings();
 
         this.refresh.setDisable(false);
 
