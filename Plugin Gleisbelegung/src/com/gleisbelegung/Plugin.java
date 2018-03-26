@@ -207,20 +207,61 @@ public class Plugin extends Application implements Runnable{
                 if(stellwerk != null && stellwerk.getSocket() != null) stellwerk = new Stellwerk(stellwerk.getSocket(), "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
                 else if(socketGefunden != null) stellwerk = new Stellwerk(socketGefunden, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
                 else stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
+
+                f = new Fenster(stellwerk, primaryStage, refresh);
+                Einstellungen.fenster = f;
+                update = true;
+
+                Thread t = new Thread(this);
+                t.setDaemon(true);
+                t.start();
             } catch (IOException e) {
-                System.out.println("Die Verbindung mit dem SIM kam nicht zustande. Prüfe ob die Plugin-Schnitstelle aktiviert ist!");
-                System.exit(1);
+                errorWindow(-100, "Es liegt ein Fehler bei der Anmeldung vor.\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             }
-
-            f = new Fenster(stellwerk, primaryStage, refresh);
-            Einstellungen.fenster = f;
-            update = true;
-
-            Thread t = new Thread(this);
-            t.setDaemon(true);
-            t.start();
         };
         new Thread(r).start();
+    }
+
+    void errorWindow(int exitCode, String message){
+        Platform.runLater(() -> {
+            Stage stage = new Stage();
+            stage.setTitle("Fehler");
+
+            Label fehler = new Label("Es ist ein Fehler aufgetreten :(");
+            fehler.setStyle("-fx-text-fill: white;");
+            fehler.setFont(Font.font(18));
+            fehler.setTranslateY(25);
+            fehler.setTranslateX(25);
+
+            Label fehlerCode = new Label("Diese Zahl kann bei der Fehlersuche helfen: " + exitCode);
+            fehlerCode.setStyle("-fx-text-fill: white;");
+            fehlerCode.setFont(Font.font(18));
+            fehlerCode.setTranslateY(50);
+            fehlerCode.setTranslateX(25);
+
+            Label fehlerBegruendung = new Label(message);
+            fehlerBegruendung.setStyle("-fx-text-fill: white;");
+            fehlerBegruendung.setFont(Font.font(18));
+            fehlerBegruendung.setTranslateY(75);
+            fehlerBegruendung.setTranslateX(25);
+
+            Button b = new Button("OK!");
+            b.setFont(Font.font(18));
+            b.setTranslateY(140);
+            b.setTranslateX(300);
+            b.setOnAction(e -> stage.close());
+
+            Pane p = new Pane(fehler, fehlerCode, fehlerBegruendung,b);
+            p.setStyle("-fx-background-color: #303030;");
+            p.setMinSize(500,200);
+            p.setMaxSize(500, 200);
+
+            Scene scene = new Scene(p, 700,200);
+
+            stage.setScene(scene);
+            stage.show();
+            stage.setAlwaysOnTop(true);
+        });
     }
 
     public void neustart(){

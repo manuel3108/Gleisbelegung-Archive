@@ -39,35 +39,35 @@ public class Verbindung {
             this.socket = socket;
             xml = new XMLHandler(socket.getInputStream());
         } catch (IOException e) {
-            stellwerk.errorWindow(-1, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
+            System.out.println("Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-1);
         }
 
         XML temp = xml.read();
         if (temp != null && Integer.parseInt(temp.get("code")) != 300) {
-            stellwerk.errorWindow(-2, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
+            System.out.println("Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-2);
         }
 
         if (setSocketCode("<register name=\"" + pluginName + "\" autor=\"" + autor + "\" version=\"" + version + "\" protokoll=\"1\" text=\"" + pluginBeschreibung + "\" />") != 1) {
-            stellwerk.errorWindow(-3, "Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
+            System.out.println("Es liegt ein Fehler bei der Anmeldung vor.\n\nPrüfe ob die Plugin-Schnittstelle aktiv ist und ob überhaupt ein Simulator läuft.");
             System.exit(-3);
         }
 
         temp = xml.read();
         if (temp != null && Integer.parseInt(temp.get("code")) != 220) {
-            stellwerk.errorWindow(-4, "Anmeldung erfolgreich!\n\nSollte diese Meldung kommen, habe ich etwas falsch Programmiert");
+            System.out.println("Anmeldung erfolgreich!\n\nSollte diese Meldung kommen, habe ich etwas falsch Programmiert");
             System.exit(-4);
         }
 
         if (setSocketCode("<anlageninfo />") != 1) {
-            stellwerk.errorWindow(-5, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-5);
         }
 
         temp = xml.read();
         if (temp == null) {
-            stellwerk.errorWindow(-6, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-6);
         }
         stellwerk.simbuild = Integer.parseInt(temp.get("simbuild"));
@@ -77,19 +77,19 @@ public class Verbindung {
 
         long timeBeforeSending = System.currentTimeMillis();
         if (setSocketCode("<simzeit sender='" + timeBeforeSending + "' />") != 1) {
-            stellwerk.errorWindow(-7, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-7);
         }
 
         temp = xml.read();
         if (temp == null) {
-            stellwerk.errorWindow(-8, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-8);
         }
         stellwerk.spielzeit = ((System.currentTimeMillis() - timeBeforeSending) / 1000) / 2 + Long.parseLong(temp.get("zeit")) - 1000 * 60 * 60;
 
         if (setSocketCode("<bahnsteigliste />") != 1) {
-            stellwerk.errorWindow(-9, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-9);
         }
 
@@ -103,7 +103,7 @@ public class Verbindung {
         stellwerk.erstelleBahnhoefe(bahnsteige);
 
         /*if (setSocketCode("<wege />") != 1) { //auf der SIM-Seite noch nicht implementiert
-            stellwerk.errorWindow(-10, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println(-10, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-10);
         }*/
     }
@@ -124,12 +124,12 @@ public class Verbindung {
     public void aktualisiereSimZeit() {
         long timeBeforeSending = System.currentTimeMillis();
         if (setSocketCode("<simzeit sender='" + timeBeforeSending + "' />") != 1) {
-            stellwerk.errorWindow(-7, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-7);
         }
         XML temp = xml.read();
         if (temp == null) {
-            stellwerk.errorWindow(-8, "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
+            System.out.println("Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-8);
         }
         stellwerk.spielzeit = ((System.currentTimeMillis() - timeBeforeSending) / 1000) / 2 + Long.parseLong(temp.get("zeit")) - 1000 * 60 * 60;
