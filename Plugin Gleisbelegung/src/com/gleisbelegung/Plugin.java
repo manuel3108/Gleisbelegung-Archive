@@ -120,16 +120,18 @@ public class Plugin extends Application implements Runnable{
                 primaryStage.setMaximized(true);
             });
 
-            try{
-                primaryStage.getIcons().add(new Image(Plugin.class.getResourceAsStream("res/icon.png")));
-            } catch(Exception e){
+            Platform.runLater(() -> {
                 try{
-                    primaryStage.getIcons().add(new Image("res/icon.png"));
-                } catch (Exception e1){
-                    e.printStackTrace();
-                    e1.printStackTrace();
+                    primaryStage.getIcons().add(new Image(Plugin.class.getResourceAsStream("res/icon.png")));
+                } catch(Exception e){
+                    try{
+                        primaryStage.getIcons().add(new Image("res/icon.png"));
+                    } catch (Exception e1){
+                        e.printStackTrace();
+                        e1.printStackTrace();
+                    }
                 }
-            }
+            });
 
             primaryStage.setOnCloseRequest(we -> {
                 checkLogOnClosing();
