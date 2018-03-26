@@ -152,7 +152,6 @@ public class Plugin extends Application implements Runnable{
         primaryStage.setOnCloseRequest(we -> {
             checkLogOnClosing();
             Plugin.einstellungen.schreibeEinstellungen();
-            if(stellwerk != null) einstellungen.schreibeStellwerksEinstellungen(stellwerk);
         });
         this.primaryStage = primaryStage;
 
@@ -213,8 +212,6 @@ public class Plugin extends Application implements Runnable{
                 System.exit(1);
             }
 
-            einstellungen.leseStellwerksEinstellungen(stellwerk);
-
             f = new Fenster(stellwerk, primaryStage, refresh);
             Einstellungen.fenster = f;
             update = true;
@@ -230,7 +227,6 @@ public class Plugin extends Application implements Runnable{
         Runnable r = () -> {
             try {
                 System.out.println("INFORMATION: Neustart");
-                einstellungen.schreibeStellwerksEinstellungen(stellwerk);
                 einstellungen.schreibeEinstellungen();
 
                 update = false;
