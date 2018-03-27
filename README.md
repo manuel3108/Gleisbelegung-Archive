@@ -1,6 +1,6 @@
 # Plugin Gleisbelegung
 Dieses Plugin wurde für das Online-Spiel StellwerkSim erstellt. Das Ziel dieses Plugins ist es übersichtlich darzustellen, welcher Zug, auf welchen Gleis und zu welcher Zeit in deinem Stellwerk halten wird. Um die Übersichtlichkeit auf deine Bedürfniss anpassen zu können stehen dir einige Einstellungen zur Verfügung um beispielsweise die Schriftgröße an deinen Bildschirm anpassen zu können.
-![](/res/1.png)
+![](https://github.com/manuel3108/Gleisbelegung/blob/1.5/res/1.PNG)
 
 ## Ich wills nur benutzen
 Kein Problem, ![hier](https://github.com/manuel3108/Gleisbelegung/releases) findest du die aktuellen Downloads, sowie den jeweiligen Änderungen. Die aktuellste Version findest du immer ganz oben. "Beta" oder "Pre-Release"-Versionen können schwerwiegende Fehler beinhalten, sind im Gegenzug allerdings auch mit den neusten Funktionen ausgestattet.
@@ -17,7 +17,7 @@ Solltest du im allgemeinen Fragen zu Github oder der Installation aller notwendi
 Das Plugin ist vollständig in Java geschrieben und kommuniziert mit der Simulation über die TCP/IP-Schnitstelle.
 
 Zur Übersicht gibt es hier nun eine Übersicht aller Klassen, um ein grobes Verständnis der Struktur zu verschaffen:
-![](/res/Klassenübersicht.png)
+![](https://github.com/manuel3108/Gleisbelegung/blob/1.5/res/Klassen%C3%BCbersicht.PNG)
 
 ## Das ist wichtig
 - Wir sind alle Menschen und machen alle manchmal Fehler, also verzeihe ihnen.
