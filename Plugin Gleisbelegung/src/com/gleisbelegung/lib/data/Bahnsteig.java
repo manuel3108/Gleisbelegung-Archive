@@ -1,6 +1,11 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung.lib.data;
 
+import com.gleisbelegung.Einstellungen;
+import com.gleisbelegung.LabelContainer;
+import com.gleisbelegung.Plugin;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,21 +17,24 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 
-public class Gleis extends Plugin_Gleisbelegung {
+public class Bahnsteig extends Plugin {
     private ArrayList<LabelContainer> spalte;
     private LabelContainer gleisLabel;
-    private String gleisName;
-    private boolean sichtbar;
+    private String name;
+    private BooleanProperty sichtbar;
     private boolean hervorgehoben;
     private int orderId;
     private int id;
+    private Bahnhof bahnhof;
 
-    public Gleis(String gleisName, int orderId){
-        this.gleisName = gleisName;
-        this.sichtbar = true;
+    public Bahnsteig(Bahnhof b, String name, int orderId){
+        this.bahnhof = b;
+        this.name = name;
+        this.sichtbar = new SimpleBooleanProperty(true);
         this.orderId = orderId;
         id = orderId;
 
+        spalte = new ArrayList<>();
         hervorgehoben = false;
     }
 
@@ -37,33 +45,37 @@ public class Gleis extends Plugin_Gleisbelegung {
         this.spalte = spalte;
     }
 
-    public String getGleisName() {
-        return gleisName;
+    public String getName() {
+        return name;
     }
-    public void setGleisName(String gleisName) {
-        this.gleisName = gleisName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BooleanProperty getSichtbarProperty() {
+        return sichtbar;
     }
 
     public boolean isSichtbar() {
-        return sichtbar;
+        return sichtbar.get();
     }
     public void setSichtbar(boolean sichtbar) {
-        this.sichtbar = sichtbar;
+        this.sichtbar.set(sichtbar);
     }
 
     public LabelContainer getGleisLabel() {
         return gleisLabel;
     }
     public void setGleisLabel(LabelContainer gleisLabel) {
-        gleisLabel.getLabel().setOnMouseClicked(e -> {
+        this.gleisLabel = gleisLabel;
+
+        this.gleisLabel.getLabel().setOnMouseClicked(e -> {
             if(e.getButton() == MouseButton.PRIMARY){
                 hebeHervor();
             } else if(e.getButton() == MouseButton.SECONDARY){
                 aendereReihenfolge();
             }
         });
-
-        this.gleisLabel = gleisLabel;
     }
 
     public void setLabelContainerToWith(int width){
@@ -75,12 +87,14 @@ public class Gleis extends Plugin_Gleisbelegung {
             });
         }
 
-        gleisLabel.getLabel().setMaxWidth(width);
-        gleisLabel.getLabel().setPrefWidth(width);
-        gleisLabel.getLabel().setMinWidth(width);
+        Platform.runLater(() -> {
+            gleisLabel.getLabel().setMaxWidth(width);
+            gleisLabel.getLabel().setPrefWidth(width);
+            gleisLabel.getLabel().setMinWidth(width);
+        });
     }
 
-    private void hebeHervor(){
+    public void hebeHervor(){
         if(hervorgehoben) {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #303030");
             for(LabelContainer lc : spalte){
@@ -88,8 +102,7 @@ public class Gleis extends Plugin_Gleisbelegung {
             }
 
             hervorgehoben = false;
-        }
-        else {
+        } else {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #181818");
 
             for(LabelContainer lc : spalte){
@@ -106,33 +119,47 @@ public class Gleis extends Plugin_Gleisbelegung {
     public int getOrderId(){
         return orderId;
     }
+    public void setOrderId(int orderId){
+        this.orderId = orderId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Bahnhof getBahnhof() {
+        return bahnhof;
+    }
 
     private void aendereReihenfolge(){
+        Einstellungen.fenster.zeigeOrderIds();
+
         Stage stage = new Stage();
 
         Label l = new Label("Reihenfolge festlegen:");
-        l.setStyle("-fx-text-fill: white");
-        l.setFont(Font.font(settingsFontSize));
+        l.setStyle("-fx-text-fill: white;");
+        l.setFont(Font.font(Einstellungen.schriftgroesse));
         l.setTranslateY(25);
         l.setTranslateX(25);
 
         TextField tf = new TextField(String.valueOf(orderId+1));
-        tf.setFont(Font.font(settingsFontSize-3));
+        tf.setFont(Font.font(Einstellungen.schriftgroesse-3));
         tf.setTranslateX(25);
         tf.setTranslateY(60);
 
         Button b = new Button("Speichern");
-        b.setFont(Font.font(settingsFontSize));
+        b.setFont(Font.font(Einstellungen.schriftgroesse));
         b.setTranslateX(25);
         b.setTranslateY(120);
         b.setOnAction(e -> {
             orderId = Integer.parseInt(tf.getText())-1;
             stage.close();
-            Plugin_Gleisbelegung.sortiereGleiseListener();
+            Einstellungen.fenster.versteckeOrderIds();
+            Einstellungen.fenster.sortiereGleise();
         });
 
         Pane p = new Pane(l,tf,b);
-        p.setStyle("-fx-background-color: #303030");
+        p.setStyle("-fx-background-color: #303030;");
         p.setMinSize(500,200);
         p.setMaxSize(500, 200);
 
@@ -141,9 +168,22 @@ public class Gleis extends Plugin_Gleisbelegung {
         stage.setScene(scene);
         stage.show();
         stage.setAlwaysOnTop(true);
+
+        stage.setOnCloseRequest(e -> {
+            Einstellungen.fenster.versteckeOrderIds();
+        });
     }
 
-    public int getId() {
-        return id;
+    @Override
+    public String toString() {
+        return "Bahnsteig{" +
+                "spalte=" + spalte +
+                ", gleisLabel=" + gleisLabel +
+                ", gleisName='" + name + '\'' +
+                ", sichtbar=" + sichtbar +
+                ", hervorgehoben=" + hervorgehoben +
+                ", orderId=" + orderId +
+                ", id=" + id +
+                '}';
     }
 }

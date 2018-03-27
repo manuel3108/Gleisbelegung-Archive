@@ -1,4 +1,4 @@
-package com.gleisbelegung.plugin;
+package com.gleisbelegung.lib.data;
 /*
 @author: Manuel Serret
 @email: manuel-serret@t-online.de
@@ -9,36 +9,40 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Speichert alle Daten für einen FahrplanHalt
  */
 
+import com.gleisbelegung.LabelContainer;
 import java.util.ArrayList;
-
-import de.heidelbach_net.util.XML;
 
 public class FahrplanHalt {
     private Zug z;                                  //Der Zug zu dem der Halt gehört
     private long ankuft;                            //Die GEPLANTE Ankunft des Zuges
     private long abfahrt;                           //Die GEPLANTE Abfahrt des Zuges
-    private String gleis;                           //Das GEPLANTE Gleis des Zuges
-    private String plangleis;                       //Das aktuelle Gleis
+    private Bahnsteig gleis;                           //Das GEPLANTE Bahnsteig des Zuges
+    private Bahnsteig plangleis;                       //Das aktuelle Bahnsteig
     private String flags;                           //Die Flags des Haltes
     private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
-    private boolean drawable;                       //Ist der Zug zeichenbar
     private boolean crossing;                       //Hat der Zug hier eine Durchfahrt
+    private FahrplanHalt vorgaenger;                          //Hat der Zug einen vorgaenger, wenn ja, dann hier der Flügelt- oder Wechselhalt gespeichert
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
 
     //Speichert gegebene Seite
-    public FahrplanHalt(XML fahrplan, Zug z){
+    public FahrplanHalt(long abfahrt, Bahnsteig gleis, String flags, Bahnsteig plangleis, long ankuft, Zug z){
         this.z = z;
-        this.abfahrt = Long.parseLong(fahrplan.get("ab"));
-        this.gleis = fahrplan.get("name");
-        this.flags = fahrplan.get("flags");
-        this.plangleis = fahrplan.get("plan");
-        this.ankuft = Long.parseLong(fahrplan.get("an"));
+        this.abfahrt = abfahrt;
+        this.gleis = gleis;
+        this.flags = flags;
+        this.plangleis = plangleis;
+        this.ankuft = ankuft;
 
         this.drawnTo = new ArrayList<>();
-        this.drawable = true;
+        this.vorgaenger = null;
         flaggedTrain = null;
 
         crossing = flags.contains("D") || flags.equals("D");
+    }
+
+    //get zug
+    public Zug getZ() {
+        return z;
     }
 
     //get-set Ankunft
@@ -57,19 +61,19 @@ public class FahrplanHalt {
         this.abfahrt = abfahrt;
     }
 
-    //get-set Gleis
-    public String getGleis() {
+    //get-set Bahnsteig
+    public Bahnsteig getBahnsteig() {
         return gleis;
     }
-    public void setGleis(String gleis) {
+    public void setBahnsteig(Bahnsteig gleis) {
         this.gleis = gleis;
     }
 
     //get-set Plangleis
-    public String getPlangleis() {
+    public Bahnsteig getPlanBahnsteig() {
         return plangleis;
     }
-    public void setPlangleis(String plangleis) {
+    public void setPlanBahnsteig(Bahnsteig plangleis) {
         this.plangleis = plangleis;
     }
 
@@ -89,21 +93,15 @@ public class FahrplanHalt {
         this.flaggedTrain = flaggedTrain;
     }
 
-    //get-set Drawable
-    public boolean isDrawable() {
-        return drawable;
-    }
-    public void setDrawable(boolean drawable) {
-        this.drawable = drawable;
-    }
-
     //Entferne den Halt überall wo er gemalt wurde
     public void removeDrawnTo() {
         try{
-            for(LabelContainer lc : drawnTo){
-                if(lc != null && z != null){
+            for (LabelContainer lc : drawnTo) {
+                if (lc != null) {
                     lc.removeTrain(z);
                 }
+                if (lc != null && flaggedTrain != null && flaggedTrain.getFahrplan() != null && flaggedTrain.getFahrplan().size() > 0 && flaggedTrain.getFahrplan(0) != null)
+                    lc.removeTrain(flaggedTrain);
             }
         } catch (Exception e){
             System.out.println("Fehler koennen passieren :(");
@@ -115,11 +113,16 @@ public class FahrplanHalt {
     public void addDrawnTo(LabelContainer lc) {
         try{
             lc.addTrain(z);
-
-            if(drawnTo != null){
+            if (drawnTo != null) {
                 this.drawnTo.add(lc);
             }
-        } catch (Exception e){
+            if (flaggedTrain != null) {
+                lc.addTrain(flaggedTrain);
+                if (drawnTo != null && flaggedTrain.getFahrplan() != null && flaggedTrain.getFahrplan().size() > 0 && flaggedTrain.getFahrplan(0) != null) {
+                    flaggedTrain.getFahrplan(0).drawnTo.add(lc);
+                }
+            }
+        } catch (Exception e) {
             System.out.println("Fehler koennen passieren :(");
             e.printStackTrace();
         }
@@ -142,5 +145,28 @@ public class FahrplanHalt {
     }
     public void setCrossing(boolean crossing) {
         this.crossing = crossing;
+    }
+
+    public FahrplanHalt getVorgaenger() {
+        return vorgaenger;
+    }
+
+    public void setVorgaenger(FahrplanHalt vorgaenger) {
+        this.vorgaenger = vorgaenger;
+    }
+
+    @Override
+    public String toString() {
+        return "FahrplanHalt{" +
+                "ankuft=" + ankuft +
+                ", abfahrt=" + abfahrt +
+                ", gleis='" + gleis + '\'' +
+                ", plangleis='" + plangleis + '\'' +
+                ", flags='" + flags + '\'' +
+                ", drawnTo=" + drawnTo +
+                ", vorgaenger=" + vorgaenger +
+                ", crossing=" + crossing +
+                ", flaggedTrain=" + flaggedTrain +
+                '}';
     }
 }
