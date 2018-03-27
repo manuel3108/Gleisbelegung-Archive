@@ -129,6 +129,7 @@ public class Plugin extends Application implements Runnable{
             primaryStage.setOnCloseRequest(we -> {
                 checkLogOnClosing();
                 Plugin.einstellungen.schreibeEinstellungen();
+                if(stellwerk != null) einstellungen.schreibeStellwerksEinstellungen(stellwerk);
             });
             this.primaryStage = primaryStage;
 
@@ -243,6 +244,8 @@ public class Plugin extends Application implements Runnable{
                 else if(socketGefunden != null) stellwerk = new Stellwerk(socketGefunden, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
                 else stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
 
+                einstellungen.leseStellwerksEinstellungen(stellwerk);
+
                 f = new Fenster(stellwerk, primaryStage, refresh);
                 Einstellungen.fenster = f;
                 update = true;
@@ -304,6 +307,7 @@ public class Plugin extends Application implements Runnable{
             try {
                 System.out.println("INFORMATION: Neustart");
                 einstellungen.schreibeEinstellungen();
+                einstellungen.schreibeStellwerksEinstellungen(stellwerk);
 
                 update = false;
                 refresh.setDisable(true);
