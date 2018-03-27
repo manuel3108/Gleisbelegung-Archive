@@ -481,10 +481,10 @@ public class Plugin extends Application implements Runnable{
                 }
             }
 
-            Platform.runLater(() -> l.setText("Fertig. Vielen Dank für deine Hilfe!"));
+            Platform.runLater(() -> l.setText("Fertig. Vielen Dank für deine Hilfe!\nDeine Log-Id ist " + id));
             Runnable r = () -> {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
