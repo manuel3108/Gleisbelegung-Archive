@@ -1001,12 +1001,23 @@ public class Fenster{
         for (Bahnhof b : stellwerk.getBahnhoefe()) {
             for(Bahnsteig ba : b.getBahnsteige()){
                 ba.getGleisLabel().getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
-                ba.getGleisLabel().getLabel().setMaxWidth(Einstellungen.spaltenbreite);
-                ba.getGleisLabel().getLabel().setMinWidth(Einstellungen.spaltenbreite);
+                if(ba.isSichtbar()){
+                    ba.getGleisLabel().getLabel().setMaxWidth(Einstellungen.spaltenbreite);
+                    ba.getGleisLabel().getLabel().setMinWidth(Einstellungen.spaltenbreite);
+                } else{
+                    ba.getGleisLabel().getLabel().setMaxWidth(0);
+                    ba.getGleisLabel().getLabel().setMinWidth(0);
+                }
+
                 for(LabelContainer lc : ba.getSpalte()){
                     lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
-                    lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
-                    lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
+                    if(ba.isSichtbar()){
+                        lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
+                        lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
+                    } else{
+                        lc.getLabel().setMaxWidth(0);
+                        lc.getLabel().setMinWidth(0);
+                    }
                 }
             }
         }

@@ -187,6 +187,11 @@ public class Verbindung {
 
                 if (zugdetails == null || !zugdetails.getKey().equals("zugdetails")) {
                     // Fehler
+                    if (zugdetails.getKey().equals("status")) {
+                      System.out.println("INFORMATION: " + z.getZugName() + " hat status 402 \"zid unbekannt\" " + z.getVerspaetung() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
+                      removing.add(z);
+                    }
+                    continue;
                 } else {
                     String verspaetungString = zugdetails.get("verspaetung");
                     if (verspaetungString != null) {
