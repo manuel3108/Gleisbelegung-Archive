@@ -170,22 +170,6 @@ public class Einstellungen {
                     }
                     bahnhofCounter++;
                 }
-
-                /*int counter = 0;
-                for(Bahnhof b : stellwerk.getBahnhoefe()){
-                    for(Bahnsteig ba : b.getBahnsteige()){
-                        Node nNode = nList.item(counter);
-
-                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eElement = (Element) nNode;
-
-                            ba.setOrderId(Integer.parseInt(eElement.getElementsByTagName("orderId").item(0).getTextContent()));
-                            ba.setSichtbar(Boolean.parseBoolean(eElement.getElementsByTagName("sichtbar").item(0).getTextContent()));
-                        }
-
-                        counter++;
-                    }
-                }*/
             } else{
                 System.out.println("Einstellungsdatei niicht mehr auf dem neusten Stand. Einstellungen können erst nach einm Klick auf Speichern erneut gelesen werden.");
             }
