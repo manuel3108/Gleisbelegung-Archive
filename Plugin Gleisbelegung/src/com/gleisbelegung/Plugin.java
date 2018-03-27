@@ -183,7 +183,7 @@ public class Plugin extends Application implements Runnable{
                 }
                 final Socket tempSocket = socketGefunden;
                 Platform.runLater(() -> {
-                    if(tfHost.getText().equals("Warten...")) tfHost.setText("localhost");
+                    if(tfHost.getText().equals("Suche IP-Adressen...")) tfHost.setText("localhost");
                     btLoad.setDisable(false);
                     tfHost.setDisable(false);
 
