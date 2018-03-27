@@ -88,9 +88,6 @@ public class Plugin extends Application implements Runnable{
             tfHost.setDisable(true);
             //p.widthProperty().addListener((observable, oldValue, newValue) -> tfHost.setTranslateX(newValue.doubleValue()/2 - 75));
 
-            Socket socketGefunden = null;
-            final Socket tempSocket = socketGefunden;
-
             Button btLoad = new Button("Verbinden");
             btLoad.setStyle("-fx-text-fill: black;");
             btLoad.setFont(Font.font(Einstellungen.schriftgroesse));
@@ -100,10 +97,6 @@ public class Plugin extends Application implements Runnable{
             btLoad.applyCss();
             btLoad.layout();
             btLoad.setDisable(true);
-            btLoad.setOnAction(e -> {
-                host = tfHost.getText();
-                Platform.runLater(() -> startLoading(tempSocket));
-            });
 
             firstSP.getChildren().addAll(lHint, lHost, tfHost, btLoad);
             firstSP.applyCss();
@@ -168,6 +161,7 @@ public class Plugin extends Application implements Runnable{
                 e.printStackTrace();
             }
 
+            Socket socketGefunden = null;
             try {
                 final java.util.Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
                 while (socketGefunden == null && nics.hasMoreElements()) {
@@ -187,10 +181,16 @@ public class Plugin extends Application implements Runnable{
                         } catch (IOException e) {}
                     }
                 }
+                final Socket tempSocket = socketGefunden;
                 Platform.runLater(() -> {
                     if(tfHost.getText().equals("Warten...")) tfHost.setText("localhost");
                     btLoad.setDisable(false);
                     tfHost.setDisable(false);
+
+                    btLoad.setOnAction(e -> {
+                        host = tfHost.getText();
+                        Platform.runLater(() -> startLoading(tempSocket));
+                    });
                 });
             } catch (SocketException e) {
                 e.printStackTrace();
