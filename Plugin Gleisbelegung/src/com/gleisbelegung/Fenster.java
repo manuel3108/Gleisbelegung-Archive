@@ -54,10 +54,12 @@ public class Fenster{
     private double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
     private Stage primaryStage;
     private Button refresh;
+    private Button sichtwechsel;
     private Pane infoFehler;
     private ScrollPane spInformations;                  //Scroll-Feld für das in der @Main-Klasse deklariert Feld informations
 
     public Gleisbelegung gleisbelegung;
+    public Stellwerksuebersicht stellwerksuebersicht;
     private Stellwerk stellwerk;
 
     Fenster(Stellwerk stellwerk, Stage primaryStage, Button refresh) {
@@ -66,6 +68,7 @@ public class Fenster{
         this.refresh = refresh;
 
         gleisbelegung = new Gleisbelegung(stellwerk);
+        stellwerksuebersicht = new Stellwerksuebersicht(stellwerk);
 
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
@@ -88,11 +91,14 @@ public class Fenster{
         einstellungen.setFont(Font.font(Einstellungen.schriftgroesse - 2));
         einstellungen.setOnAction(e -> { try{ settings(); }catch(Exception ex) { ex.printStackTrace(); } });
 
+        sichtwechsel = new Button("Bahnhofsübersicht");
+        sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse - 2));
+
         refresh.setText("Neustart");
         refresh.setFont(Font.font(Einstellungen.schriftgroesse - 2));
 
         Pane topP = new Pane();
-        Platform.runLater(() -> topP.getChildren().addAll(pluginName, simZeit, einstellungen, refresh));
+        Platform.runLater(() -> topP.getChildren().addAll(pluginName, simZeit, einstellungen, refresh, sichtwechsel));
 
         informations = new Pane();
         informations.setStyle("-fx-background-color: #404040;");
@@ -127,8 +133,21 @@ public class Fenster{
         BorderPane bp = new BorderPane();
         bp.setStyle("-fx-background-color: #303030;");
         bp.setTop(topP);
-        bp.setCenter(gleisbelegung.getContent());
+        bp.setCenter(stellwerksuebersicht.getContent());
         bp.setRight(infoFehler);
+
+        Einstellungen.sicht = 2;
+        sichtwechsel.setOnAction(e -> {
+            if(Einstellungen.sicht == 1){
+                Einstellungen.sicht = 2;
+                sichtwechsel.setText("Gleisbelegung");
+                bp.setCenter(stellwerksuebersicht.getContent());
+            } else if(Einstellungen.sicht == 2){
+                Einstellungen.sicht = 1;
+                sichtwechsel.setText("Stellwerksübersicht");
+                bp.setCenter(gleisbelegung.getContent());
+            }
+        });
 
         s = new Scene(bp, stageWidth, stageHeight);
 
@@ -303,6 +322,7 @@ public class Fenster{
 
     public void update(){
         gleisbelegung.update();
+        stellwerksuebersicht.update();
     }
 
     private void updateUi(){
@@ -310,9 +330,11 @@ public class Fenster{
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
 
-        einstellungen.setTranslateX(stageWidth/2 - 150);
+        einstellungen.setTranslateX(stageWidth/2 - 200);
 
-        refresh.setTranslateX(stageWidth/2);
+        sichtwechsel.setTranslateX(stageWidth/2 + 60);
+
+        refresh.setTranslateX(stageWidth/2 - 50);
 
         simZeit.setTranslateX(stageWidth - simZeit.getWidth() - 30);
 
@@ -329,6 +351,7 @@ public class Fenster{
         }
 
         gleisbelegung.updateUi(stageWidth, stageHeight);
+        stellwerksuebersicht.updateUi(stageWidth, stageHeight);
     }
 
     private void settings() {
@@ -579,8 +602,9 @@ public class Fenster{
 
         pluginName.setFont(Font.font(Einstellungen.schriftgroesse));
         simZeit.setFont(Font.font(Einstellungen.schriftgroesse));
-        einstellungen.setFont(Font.font(Einstellungen.schriftgroesse));
-        refresh.setFont(Font.font(Einstellungen.schriftgroesse));
+        einstellungen.setFont(Font.font(Einstellungen.schriftgroesse-2));
+        refresh.setFont(Font.font(Einstellungen.schriftgroesse-2));
+        sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse-2));
         gleisbelegung.getFirstLabel().setFont(Font.font(Einstellungen.schriftgroesse-5));
 
         gleisbelegung.getFirstLabel().setMaxWidth(Einstellungen.spaltenbreite);

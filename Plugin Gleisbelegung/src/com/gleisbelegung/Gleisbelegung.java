@@ -470,11 +470,12 @@ public class Gleisbelegung {
         int counter = 0;
 
         gpBahnhof.getChildren().clear();
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            b.getBahnhofTeile().clear();
+        }
 
         for(Bahnsteig bahnsteig : sortierteGleise){
             if(bahnsteig.isSichtbar()){
-                bahnsteig.getBahnhof().getBahnhofTeile().clear();
-
                 if(bahnsteig.getGleisLabel().isLetzterBahnsteig()){
                     bahnsteig.getGleisLabel().setLetzterBahnsteig(false);
                     bahnsteig.getGleisLabel().getAussehen().raender.setze(0, 1, 5, 0);

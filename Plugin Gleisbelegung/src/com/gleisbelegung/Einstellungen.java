@@ -21,6 +21,7 @@ public class Einstellungen {
     public static int schriftgroesse = 18;
     public static boolean informationenAnzeigen = true;
     public static int informationenBreite = 300;
+    public static int sicht;
     public static String appOrdner;
     public static boolean maximiert = true;
     public static Fenster fenster;

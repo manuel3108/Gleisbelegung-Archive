@@ -1,8 +1,8 @@
 package com.gleisbelegung.lib.data;
 
 import com.gleisbelegung.Einstellungen;
-import com.gleisbelegung.Fenster;
 import com.gleisbelegung.LabelContainer;
+import com.sun.javafx.geom.Vec2d;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,12 +21,14 @@ public class Bahnhof {
     private ArrayList<Bahnsteig> bahnsteige;
     private ArrayList<BahnhofTeil> bahnhofTeile;
     private boolean sichtbar;
+    private Vec2d pos;
 
     public Bahnhof(int id, String name){
         this.id = id;
         this.name = name;
         this.bahnsteige = new ArrayList<>();
         this.bahnhofTeile = new ArrayList<>();
+        pos = new Vec2d(30, id*40 + 40);
     }
 
     public int getId(){
@@ -149,6 +151,10 @@ public class Bahnhof {
                 ", name='" + name + '\'' +
                 ", bahnsteige=" + bahnsteige +
                 '}';
+    }
+
+    public Vec2d getPos() {
+        return pos;
     }
 }
 
