@@ -98,6 +98,24 @@ public class Stellwerksuebersicht {
             gc.fillText(text, b.getPos().x + 100 - (Math.round(temp.getBoundsInLocal().getWidth())/2), b.getPos().y);
             gc.strokeRect(b.getPos().x, b.getPos().y - 20, 200, Math.round(temp.getBoundsInLocal().getHeight()) + 5);
         }
+
+        erstelleVerbindungsLinien();
+    }
+
+    private void erstelleVerbindungsLinien(){
+        gc.setFill(Paint.valueOf("#fff"));
+
+
+        neueLinie(stellwerk.getBahnhoefe().get(0), stellwerk.getBahnhoefe().get(1));
+        neueLinie(stellwerk.getBahnhoefe().get(2), stellwerk.getBahnhoefe().get(1));
+        neueLinie(stellwerk.getBahnhoefe().get(0), stellwerk.getBahnhoefe().get(2));
+    }
+
+    private void neueLinie(Bahnhof b1, Bahnhof b2){
+        if(b1.getPos().x < b2.getPos().x && b1.getPos().x + 200 < b2.getPos().x) gc.strokeLine(b1.getPos().x + 200, b1.getPos().y - 5, b2.getPos().x, b2.getPos().y - 5);
+        else if(b1.getPos().x > b2.getPos().x && b1.getPos().x > b2.getPos().x + 200) gc.strokeLine(b1.getPos().x, b1.getPos().y - 5, b2.getPos().x + 200, b2.getPos().y - 5);
+        else if(b1.getPos().y < b2.getPos().y) gc.strokeLine(b1.getPos().x + 100, b1.getPos().y + 10, b2.getPos().x + 100, b2.getPos().y - 20);
+        else if(b1.getPos().y > b2.getPos().y) gc.strokeLine(b1.getPos().x + 100, b1.getPos().y - 20, b2.getPos().x + 100, b2.getPos().y + 10);
     }
 
     public Pane getContent() {
