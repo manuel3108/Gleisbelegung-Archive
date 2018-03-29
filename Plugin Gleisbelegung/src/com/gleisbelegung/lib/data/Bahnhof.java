@@ -79,7 +79,7 @@ public class Bahnhof {
     public String getAlternativName() { return alternativName; }
 
     private void einstellungen(BahnhofTeil bt){
-        Einstellungen.fenster.zeigeOrderIds();
+        Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
         Stage stage = new Stage();
 
         Label name = new Label("Name:");
@@ -116,8 +116,8 @@ public class Bahnhof {
             }
 
             stage.close();
-            Einstellungen.fenster.versteckeOrderIds();
-            Einstellungen.fenster.sortiereGleise();
+            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
+            Einstellungen.fenster.gleisbelegung.sortiereGleise();
         });
 
         Pane p = new Pane(name, tname,l,tf,b);
@@ -132,7 +132,7 @@ public class Bahnhof {
         stage.setAlwaysOnTop(true);
 
         stage.setOnCloseRequest(e -> {
-            Einstellungen.fenster.versteckeOrderIds();
+            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
         });
     }
 
