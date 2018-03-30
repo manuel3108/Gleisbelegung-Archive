@@ -162,8 +162,8 @@ public class Bahnhof {
     public ArrayList<BahnhofVerbindung> getBahnhofVerbindungen() {
         return bahnhofVerbindungen;
     }
-    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, int verbindungsPosition){
-        bahnhofVerbindungen.add(new BahnhofVerbindung(bahnhof, laenge, verbindungsPosition));
+    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, Vec2d linienPos){
+        bahnhofVerbindungen.add(new BahnhofVerbindung(bahnhof, laenge, linienPos));
     }
     public double getVerbindungsLaenge(Bahnhof bahnhof){
         for(BahnhofVerbindung bv : bahnhofVerbindungen){
@@ -172,6 +172,14 @@ public class Bahnhof {
             }
         }
         return -1;
+    }
+    public Vec2d getLinienPos(Bahnhof bahnhof){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                return bv.linienPos;
+            }
+        }
+        return null;
     }
 }
 
@@ -188,11 +196,11 @@ class BahnhofTeil{
 class BahnhofVerbindung{
     Bahnhof bahnhof;
     double laenge;
-    int verbindungsPosition;
+    Vec2d linienPos;
 
-    public BahnhofVerbindung(Bahnhof bahnhof, double laenge, int verbindungsPositon){
+    public BahnhofVerbindung(Bahnhof bahnhof, double laenge, Vec2d linienPos){
         this.bahnhof = bahnhof;
         this.laenge = laenge;
-        this.verbindungsPosition = verbindungsPositon;
+        this.linienPos = linienPos;
     }
 }

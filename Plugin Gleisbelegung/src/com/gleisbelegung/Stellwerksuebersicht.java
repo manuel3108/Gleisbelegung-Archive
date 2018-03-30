@@ -50,7 +50,7 @@ public class Stellwerksuebersicht {
             Bahnhof b = getBahnhof(mouse.getX(), mouse.getY());
             
             if(b != null){
-                System.out.println(b.getName() + " wurde geklickt!");
+                //System.out.println(b.getName() + " wurde geklickt!");
             }
         });
         gc = canvas.getGraphicsContext2D();
@@ -121,38 +121,36 @@ public class Stellwerksuebersicht {
     }
 
     private void neueLinie(Bahnhof b1, Bahnhof b2){
-        int verbindungsPositionB1 = 0; //0: oben, 1: rechts, 2: unten, 3: links
-        int verbindungsPositionB2 = 0; //0: oben, 1: rechts, 2: unten, 3: links
+        Vec2d linienPosB1 = new Vec2d();
+        Vec2d linienPosB2 = new Vec2d();
 
         if(b1.getPos().x < b2.getPos().x && b1.getPos().x + 200 < b2.getPos().x){
-            gc.strokeLine(b1.getPos().x + 200, b1.getPos().y - 5, b2.getPos().x, b2.getPos().y - 5);
-            verbindungsPositionB1 = 1;
-            verbindungsPositionB2 = 3;
+            linienPosB1.x = b1.getPos().x + 200;
+            linienPosB1.y = b1.getPos().y - 5;
+            linienPosB2.x = b2.getPos().x;
+            linienPosB2.y = b2.getPos().y - 5;
+        } else if(b1.getPos().x > b2.getPos().x && b1.getPos().x > b2.getPos().x + 200){
+            linienPosB1.x = b1.getPos().x;
+            linienPosB1.y = b1.getPos().y - 5;
+            linienPosB2.x = b2.getPos().x + 200;
+            linienPosB2.y = b2.getPos().y - 5;
+        } else if(b1.getPos().y < b2.getPos().y){
+            linienPosB1.x = b1.getPos().x + 100;
+            linienPosB1.y = b1.getPos().y + 10;
+            linienPosB2.x = b2.getPos().x + 100;
+            linienPosB2.y = b2.getPos().y - 20;
+        } else if(b1.getPos().y > b2.getPos().y){
+            linienPosB1.x = b1.getPos().x + 100;
+            linienPosB1.y = b1.getPos().y - 20;
+            linienPosB2.x = b2.getPos().x + 100;
+            linienPosB2.y = b2.getPos().y + 10;
         }
-        else if(b1.getPos().x > b2.getPos().x && b1.getPos().x > b2.getPos().x + 200){
-            gc.strokeLine(b1.getPos().x, b1.getPos().y - 5, b2.getPos().x + 200, b2.getPos().y - 5);
-            verbindungsPositionB1 = 3;
-            verbindungsPositionB2 = 1;
-        }
-        else if(b1.getPos().y < b2.getPos().y){
-            gc.strokeLine(b1.getPos().x + 100, b1.getPos().y + 10, b2.getPos().x + 100, b2.getPos().y - 20);
-            verbindungsPositionB1 = 2;
-            verbindungsPositionB2 = 0;
-        }
-        else if(b1.getPos().y > b2.getPos().y){
-            gc.strokeLine(b1.getPos().x + 100, b1.getPos().y - 20, b2.getPos().x + 100, b2.getPos().y + 10);
-            verbindungsPositionB1 = 0;
-            verbindungsPositionB2 = 2;
-        }
+
+        gc.strokeLine(linienPosB1.x, linienPosB1.y, linienPosB2.x, linienPosB2.y);
 
         double verbindungsLaenge = berechneVerbindungsLaenge(b1, b2);
-        b1.addBahnhofVerbindung(b2, verbindungsLaenge, verbindungsPositionB1);
-        b2.addBahnhofVerbindung(b1, verbindungsLaenge, verbindungsPositionB2);
-
-//        gc.setFill(Paint.valueOf("#fff"));
-//        gc.strokeText(verbindungsLaenge + " px ", (b1.getPos().x + b2.getPos().x)/2, (b1.getPos().y + b2.getPos().y)/2);
-
-//        System.out.println(verbindungsLaenge + " " + verbindungsPositionB1 + " " + b1.getName() + " " + verbindungsPositionB2 + " " + b2.getName());
+        b1.addBahnhofVerbindung(b2, verbindungsLaenge, linienPosB1);
+        b2.addBahnhofVerbindung(b1, verbindungsLaenge, linienPosB2);
     }
 
     private double berechneVerbindungsLaenge(Bahnhof b1, Bahnhof b2){
@@ -181,10 +179,25 @@ public class Stellwerksuebersicht {
                     double aufenthalt = (double) ((z.getFahrplan(1).getAnkuft()/1000) - (z.getFahrplan(0).getAbfahrt()/1000));
                     double wert = 1 - ((double) ankunftsZeit / aufenthalt);
 
-                    double x = b1.getPos().x + wert * (b2.getPos().x - b1.getPos().x);
-                    double y = b1.getPos().y + wert * (b2.getPos().y - b1.getPos().y);
+                    Vec2d linienPosB1 = b1.getLinienPos(b2);
+                    Vec2d linienPosB2 = b2.getLinienPos(b1);
 
-                    gc.strokeText(z.getZugName(), x, y);
+                    double x = linienPosB1.x + wert * (linienPosB2.x - linienPosB1.x);
+                    double y = linienPosB1.y + wert * (linienPosB2.y - linienPosB1.y);
+
+                    double ak = linienPosB2.x - linienPosB1.x;
+                    double gk = linienPosB2.y - linienPosB1.y;
+
+                    double winkel = Math.toDegrees(Math.atan(gk/ak));
+
+                    gc.save();
+                    gc.translate(x, y);
+                    gc.rotate(winkel);
+                    System.out.println("winkel " + winkel);
+                    gc.translate(-x, -y);
+                    gc.setFill(Paint.valueOf("#fff"));
+                    gc.fillText(z.getZugName(), x, y);
+                    gc.restore();
                 }
             }
         }
