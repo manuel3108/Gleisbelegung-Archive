@@ -20,6 +20,7 @@ public class Bahnhof {
     private String alternativName = "";
     private ArrayList<Bahnsteig> bahnsteige;
     private ArrayList<BahnhofTeil> bahnhofTeile;
+    private ArrayList<BahnhofVerbindung> bahnhofVerbindungen;
     private boolean sichtbar;
     private Vec2d pos;
 
@@ -28,6 +29,7 @@ public class Bahnhof {
         this.name = name;
         this.bahnsteige = new ArrayList<>();
         this.bahnhofTeile = new ArrayList<>();
+        this.bahnhofVerbindungen = new ArrayList<>();
         pos = new Vec2d(30, id*40 + 40);
     }
 
@@ -156,6 +158,21 @@ public class Bahnhof {
     public Vec2d getPos() {
         return pos;
     }
+
+    public ArrayList<BahnhofVerbindung> getBahnhofVerbindungen() {
+        return bahnhofVerbindungen;
+    }
+    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, int verbindungsPosition){
+        bahnhofVerbindungen.add(new BahnhofVerbindung(bahnhof, laenge, verbindungsPosition));
+    }
+    public double getVerbindungsLaenge(Bahnhof bahnhof){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                return bv.laenge;
+            }
+        }
+        return -1;
+    }
 }
 
 class BahnhofTeil{
@@ -165,5 +182,17 @@ class BahnhofTeil{
     public BahnhofTeil(LabelContainer bahnhofsLabel, ArrayList<Bahnsteig> bahnsteige){
         this.bahnhofsLabel = bahnhofsLabel;
         this.bahnsteige = bahnsteige;
+    }
+}
+
+class BahnhofVerbindung{
+    Bahnhof bahnhof;
+    double laenge;
+    int verbindungsPosition;
+
+    public BahnhofVerbindung(Bahnhof bahnhof, double laenge, int verbindungsPositon){
+        this.bahnhof = bahnhof;
+        this.laenge = laenge;
+        this.verbindungsPosition = verbindungsPositon;
     }
 }

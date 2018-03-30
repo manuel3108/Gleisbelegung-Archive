@@ -68,7 +68,7 @@ public class Fenster{
         this.refresh = refresh;
 
         gleisbelegung = new Gleisbelegung(stellwerk);
-        stellwerksuebersicht = new Stellwerksuebersicht(stellwerk);
+        stellwerksuebersicht = new Stellwerksuebersicht(stellwerk, informations);
 
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
