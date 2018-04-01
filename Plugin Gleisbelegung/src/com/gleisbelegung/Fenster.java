@@ -68,7 +68,7 @@ public class Fenster{
         this.refresh = refresh;
 
         gleisbelegung = new Gleisbelegung(stellwerk);
-        stellwerksuebersicht = new Stellwerksuebersicht(stellwerk, informations);
+        stellwerksuebersicht = new Stellwerksuebersicht(stellwerk);
 
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
@@ -100,15 +100,6 @@ public class Fenster{
         Pane topP = new Pane();
         Platform.runLater(() -> topP.getChildren().addAll(pluginName, simZeit, einstellungen, refresh, sichtwechsel));
 
-        informations = new Pane();
-        informations.setStyle("-fx-background-color: #404040;");
-        informations.setMinWidth(Einstellungen.informationenBreite);
-        informations.setMaxWidth(Einstellungen.informationenBreite);
-        spInformations = new ScrollPane(informations);
-        spInformations.setStyle("-fx-background-color: #404040; -fx-padding: 0;");
-        spInformations.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        spInformations.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
         Label lZugSuche = new Label("Zugsuche:");
         lZugSuche.setFont(Font.font(Einstellungen.schriftgroesse-2));
         lZugSuche.setStyle("-fx-text-fill: white;");
@@ -126,6 +117,15 @@ public class Fenster{
 
         pZugSuche = new Pane(lZugSuche, zugSuche);
         pZugSuche.setStyle("-fx-background-color: #404040;");
+
+        informations = new Pane();
+        informations.setStyle("-fx-background-color: #404040;");
+        informations.setMinWidth(Einstellungen.informationenBreite);
+        informations.setMaxWidth(Einstellungen.informationenBreite);
+        spInformations = new ScrollPane(informations);
+        spInformations.setStyle("-fx-background-color: #404040; -fx-padding: 0;");
+        spInformations.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        spInformations.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         infoFehler = new Pane(spInformations, pZugSuche);
         infoFehler.setStyle("-fx-background-color: #404040;");

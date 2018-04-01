@@ -2,16 +2,20 @@ package com.gleisbelegung;
 
 import com.gleisbelegung.lib.Stellwerk;
 import com.gleisbelegung.lib.data.Bahnhof;
+import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
 import com.sun.javafx.geom.Vec2d;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 
 public class Stellwerksuebersicht {
@@ -20,11 +24,13 @@ public class Stellwerksuebersicht {
     private GraphicsContext gc;
     private Canvas canvas;
     private Bahnhof bewegeBahnhof;
-    private Pane informationen;
+    private boolean warUeberBahnhof;
+    private boolean istUeberBahnhof;
+    private Vec2d letzteMausPos;
 
-    public Stellwerksuebersicht(Stellwerk stellwerk, Pane informationen){
+    public Stellwerksuebersicht(Stellwerk stellwerk){
         this.stellwerk = stellwerk;
-        this.informationen = informationen;
+        letzteMausPos = new Vec2d();
 
         canvas = new Canvas(500, 500);
         canvas.setOnDragDetected(mouse -> {
@@ -46,12 +52,23 @@ public class Stellwerksuebersicht {
                 update();
             }
         });
-        canvas.setOnMouseClicked(mouse -> {
+        canvas.setOnMouseMoved(mouse -> {
             Bahnhof b = getBahnhof(mouse.getX(), mouse.getY());
             
-            if(b != null){
-                //System.out.println(b.getName() + " wurde geklickt!");
+            if(b != null && bewegeBahnhof == null && !istUeberBahnhof){
+                zeigeBahnhofsInformationen(b);
+                warUeberBahnhof = true;
+                istUeberBahnhof = true;
+            } else if(b != null && bewegeBahnhof == null && warUeberBahnhof){
+                warUeberBahnhof = false;
+                update();
+            } else if(bewegeBahnhof == null){
+                istUeberBahnhof = false;
+                update();
             }
+
+            letzteMausPos.x = mouse.getX();
+            letzteMausPos.y = mouse.getY();
         });
         gc = canvas.getGraphicsContext2D();
 
@@ -74,6 +91,28 @@ public class Stellwerksuebersicht {
             }
         }
         return null;
+    }
+
+    private void zeigeBahnhofsInformationen(Bahnhof b){
+        int counter = 0;
+
+        ArrayList<FahrplanHalt> abfahrten = new ArrayList<>();
+        for(Zug z : stellwerk.getZuege()){
+            for(FahrplanHalt fh : z.getFahrplan()){
+                if(fh.getBahnsteig().getId() == b.getId()){
+                    abfahrten.add(fh);
+                }
+            }
+        }
+
+        abfahrten.sort(Comparator.comparing(FahrplanHalt::getAbfahrt));
+
+        gc.fillText("Nächste Abfahrten", b.getPos().x, b.getPos().y + 30);
+        for(int i = 0; i < abfahrten.size() && i < 5; i++){
+            Date dNow = new Date(abfahrten.get(i).getAbfahrt());
+            SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
+            gc.fillText(ft.format(dNow) + " " + abfahrten.get(i).getZ().getZugName() + abfahrten.get(i).getZ().getVerspaetungToString(), b.getPos().x, b.getPos().y + 50 + i*20);
+        }
     }
     
     public void updateUi(double stageWidth, double stageHight){
@@ -109,6 +148,9 @@ public class Stellwerksuebersicht {
         erstelleVerbindungsLinien();
 
         zeichneZuege();
+
+        Bahnhof b = getBahnhof(letzteMausPos.x, letzteMausPos.y);
+        if(b != null) zeigeBahnhofsInformationen(b);
     }
 
     private void erstelleVerbindungsLinien(){
@@ -193,7 +235,6 @@ public class Stellwerksuebersicht {
                     gc.save();
                     gc.translate(x, y);
                     gc.rotate(winkel);
-                    System.out.println("winkel " + winkel);
                     gc.translate(-x, -y);
                     gc.setFill(Paint.valueOf("#fff"));
                     gc.fillText(z.getZugName(), x, y);
