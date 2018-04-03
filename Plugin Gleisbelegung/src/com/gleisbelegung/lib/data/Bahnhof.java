@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import javafx.scene.shape.Line;
 import java.util.ArrayList;
 
 public class Bahnhof {
@@ -162,8 +163,8 @@ public class Bahnhof {
     public ArrayList<BahnhofVerbindung> getBahnhofVerbindungen() {
         return bahnhofVerbindungen;
     }
-    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, Vec2d linienPos){
-        bahnhofVerbindungen.add(new BahnhofVerbindung(bahnhof, laenge, linienPos));
+    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie, Vec2d linienPos){
+        bahnhofVerbindungen.add(new BahnhofVerbindung(bahnhof, laenge, linie, linienPos));
     }
     public double getVerbindungsLaenge(Bahnhof bahnhof){
         for(BahnhofVerbindung bv : bahnhofVerbindungen){
@@ -173,6 +174,21 @@ public class Bahnhof {
         }
         return -1;
     }
+    public Line getLinie(Bahnhof bahnhof){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                return bv.linie;
+            }
+        }
+        return null;
+    }
+    public ArrayList<Bahnhof> getVerbindungsBahnhoefe(){
+        ArrayList<Bahnhof> bahnhoefe = new ArrayList<>();
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            bahnhoefe.add(bv.bahnhof);
+        }
+        return bahnhoefe;
+    }
     public Vec2d getLinienPos(Bahnhof bahnhof){
         for(BahnhofVerbindung bv : bahnhofVerbindungen){
             if(bv.bahnhof.getId() == bahnhof.getId()){
@@ -180,6 +196,14 @@ public class Bahnhof {
             }
         }
         return null;
+    }
+    public void setLinienPos(Bahnhof bahnhof, Vec2d linienPos){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                bv.linienPos = linienPos;
+                break;
+            }
+        }
     }
 }
 
@@ -196,11 +220,13 @@ class BahnhofTeil{
 class BahnhofVerbindung{
     Bahnhof bahnhof;
     double laenge;
+    Line linie;
     Vec2d linienPos;
 
-    public BahnhofVerbindung(Bahnhof bahnhof, double laenge, Vec2d linienPos){
+    public BahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie, Vec2d linienPos){
         this.bahnhof = bahnhof;
         this.laenge = laenge;
+        this.linie = linie;
         this.linienPos = linienPos;
     }
 }
