@@ -3,6 +3,7 @@ package com.gleisbelegung;
 import com.gleisbelegung.lib.Stellwerk;
 import com.gleisbelegung.lib.data.Bahnhof;
 import com.gleisbelegung.lib.data.Bahnsteig;
+import com.sun.javafx.geom.Vec2d;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -109,8 +110,8 @@ public class Einstellungen {
                 for(Bahnhof b : stellwerk.getBahnhoefe()){
                     bw.write("\t<bahnhof>\n");
                     bw.write("\t\t<id>" + b.getId() + "</id>\n");
-                    bw.write("\t\t<x>0</x>\n"); //notwendig für 1.7
-                    bw.write("\t\t<y>0</y>\n"); //notwendig für 1.7
+                    bw.write("\t\t<x>" + b.getPos().x + "</x>\n"); //notwendig für 1.6
+                    bw.write("\t\t<y>" + b.getPos().y + "</y>\n"); //notwendig für 1.6
                     for(Bahnsteig ba : b.getBahnsteige()){
                         bw.write("\t\t<bahnsteig>\n");
                         bw.write("\t\t\t<id>" + ba.getId() + "</id>\n");
@@ -151,8 +152,9 @@ public class Einstellungen {
                     Node bahnhofNode = bahnhoefe.item(bahnhofCounter);
                     if(bahnhofNode.getNodeType() == Node.ELEMENT_NODE){
                         Element bahnhof = (Element) bahnhofNode;
-                        int x = Integer.parseInt(bahnhof.getElementsByTagName("x").item(0).getTextContent());
-                        int y = Integer.parseInt(bahnhof.getElementsByTagName("y").item(0).getTextContent());
+                        double x = Double.parseDouble(bahnhof.getElementsByTagName("x").item(0).getTextContent());
+                        double y = Double.parseDouble(bahnhof.getElementsByTagName("y").item(0).getTextContent());
+                        b.setPos(new Vec2d(x, y));
 
                         NodeList bahnsteige = bahnhof.getElementsByTagName("bahnsteig");
 

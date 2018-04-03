@@ -159,6 +159,9 @@ public class Bahnhof {
     public Vec2d getPos() {
         return pos;
     }
+    public void setPos(Vec2d pos) {
+        this.pos = pos;
+    }
 
     public ArrayList<BahnhofVerbindung> getBahnhofVerbindungen() {
         return bahnhofVerbindungen;

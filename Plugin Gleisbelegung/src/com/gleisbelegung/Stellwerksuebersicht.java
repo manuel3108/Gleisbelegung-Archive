@@ -36,6 +36,7 @@ public class Stellwerksuebersicht {
         letzteMausPos = new Vec2d();
         bahnhofsLabel = new ArrayList<>();
         gezeichneteBahnhofsInformationen = new ArrayList<>();
+        int counter = 0;
 
         /*gc.setFill(Paint.valueOf("#fff"));
         gc.setStroke(Paint.valueOf("#4e8abf"));//blau
@@ -53,8 +54,6 @@ public class Stellwerksuebersicht {
             temp.applyCss();
 
             Label l = new Label(text);
-            l.setTranslateX(b.getPos().x);
-            l.setTranslateY(b.getPos().y);
             l.setMinWidth(200);
             l.setPrefWidth(200);
             l.setMaxWidth(200);
@@ -64,6 +63,13 @@ public class Stellwerksuebersicht {
             l.setAlignment(Pos.CENTER);
             l.setStyle("-fx-text-fill: #fff; -fx-border-width: 2; -fx-border-color: #4e8abf");
             l.setFont(Font.font(Einstellungen.schriftgroesse));
+            if(b.getPos().x != 0 && b.getPos().y != 0){
+                l.setTranslateX(b.getPos().x);
+                l.setTranslateY(b.getPos().y);
+            } else {
+                l.setTranslateX(b.getPos().x + counter * 50);
+                l.setTranslateY(b.getPos().y);
+            }
             /*l.setOnMouseDragged(mouse -> { //funktioniert nicht, gibt nur ruckelige werte aus, bzw. teilweise fehlerhaft
                 b.getPos().x = mouse.getX();
                 b.getPos().y = mouse.getY();
@@ -78,6 +84,8 @@ public class Stellwerksuebersicht {
             Platform.runLater(() -> {
                 content.getChildren().add(l);
             });
+
+            counter++;
         }
 
         content = new Pane();
@@ -235,6 +243,8 @@ public class Stellwerksuebersicht {
                 long ankunftsZeit = (z.getFahrplan(1).getAnkuft() - stellwerk.getSpielzeit())/1000;
 
                 if(abfahrtsZeit < 0 && ankunftsZeit > 0){
+                    System.out.println(ankunftsZeit + " " + abfahrtsZeit);
+
                     double aufenthalt = (double) ((z.getFahrplan(1).getAnkuft()/1000) - (z.getFahrplan(0).getAbfahrt()/1000));
                     double wert = 1 - ((double) ankunftsZeit / aufenthalt);
 
@@ -282,25 +292,27 @@ public class Stellwerksuebersicht {
 
         abfahrten.sort(Comparator.comparing(FahrplanHalt::getAbfahrt));
 
-        Label l = new Label("Nächste Abfahrten");
-        l.setStyle("-fx-text-fill: #fff;");
-        l.setFont(Font.font(Einstellungen.schriftgroesse));
-        l.setTranslateX(b.getPos().x);
-        l.setTranslateY(b.getPos().y + 30);
-        content.getChildren().add(l);
-        gezeichneteBahnhofsInformationen.add(l);
-
-        for(int i = 0; i < abfahrten.size() && i < 5; i++){
-            Date dNow = new Date(abfahrten.get(i).getAbfahrt());
-            SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
-
-            l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZ().getZugName() + abfahrten.get(i).getZ().getVerspaetungToString());
+        if(abfahrten.size() > 0){
+            Label l = new Label("Nächste Abfahrten");
             l.setStyle("-fx-text-fill: #fff;");
             l.setFont(Font.font(Einstellungen.schriftgroesse));
             l.setTranslateX(b.getPos().x);
-            l.setTranslateY(b.getPos().y + 50 + i * 20);
+            l.setTranslateY(b.getPos().y + 30);
             content.getChildren().add(l);
             gezeichneteBahnhofsInformationen.add(l);
+
+            for(int i = 0; i < abfahrten.size() && i < 5; i++){
+                Date dNow = new Date(abfahrten.get(i).getAbfahrt());
+                SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
+
+                l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZ().getZugName() + abfahrten.get(i).getZ().getVerspaetungToString());
+                l.setStyle("-fx-text-fill: #fff;");
+                l.setFont(Font.font(Einstellungen.schriftgroesse));
+                l.setTranslateX(b.getPos().x);
+                l.setTranslateY(b.getPos().y + 50 + i * 20);
+                content.getChildren().add(l);
+                gezeichneteBahnhofsInformationen.add(l);
+            }
         }
     }
 
