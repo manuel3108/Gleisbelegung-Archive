@@ -135,20 +135,24 @@ public class Stellwerksuebersicht {
     }
 
     public void update(){
-
         zeichneZuege();
-        /*
-
-        zeichneZuege();
-
-        Bahnhof b = getBahnhof(letzteMausPos.x, letzteMausPos.y);
-        if(b != null) zeigeBahnhofsInformationen(b);*/
     }
 
     private void erstelleVerbindungsLinien(){
-        neueLinie(stellwerk.getBahnhoefe().get(0), stellwerk.getBahnhoefe().get(1));
-        neueLinie(stellwerk.getBahnhoefe().get(2), stellwerk.getBahnhoefe().get(1));
-        neueLinie(stellwerk.getBahnhoefe().get(0), stellwerk.getBahnhoefe().get(2));
+        for(Zug z : stellwerk.getZuege()){
+            if(z.getFahrplan().size() > 1){
+                FahrplanHalt letzterFH = null;
+                for(FahrplanHalt fh : z.getFahrplan()){
+                    if(letzterFH != null){
+                        if(!letzterFH.getBahnsteig().getBahnhof().getVerbindungsBahnhoefe().contains(fh.getBahnsteig().getBahnhof())){
+                            neueLinie(letzterFH.getBahnsteig().getBahnhof(), fh.getBahnsteig().getBahnhof());
+                        }
+                    }
+
+                    letzterFH = fh;
+                }
+            }
+        }
     }
 
     private void neueLinie(Bahnhof b1, Bahnhof b2){
