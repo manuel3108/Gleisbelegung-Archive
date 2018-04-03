@@ -235,7 +235,7 @@ public class Stellwerksuebersicht {
 
     private void zeichneZuege(){
         for(Zug z : stellwerk.getZuege()){
-            if(z.getFahrplan().size() > 1){
+            if(z.getFahrplan() != null && z.getFahrplan().size() > 1){
                 Bahnhof b1 = z.getFahrplan(0).getBahnsteig().getBahnhof();
                 Bahnhof b2 = z.getFahrplan(1).getBahnsteig().getBahnhof();
 
@@ -263,7 +263,7 @@ public class Stellwerksuebersicht {
                     l.setTranslateX(x);
                     l.setTranslateY(y);
                     l.setRotate(winkel);
-
+                    l.setText(z.getZugName() + z.getVerspaetungToString());
 
 
                     if(!content.getChildren().contains(l)){
