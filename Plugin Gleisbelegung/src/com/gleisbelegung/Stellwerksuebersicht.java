@@ -5,8 +5,11 @@ import com.gleisbelegung.lib.data.Bahnhof;
 import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
 import com.sun.javafx.geom.Vec2d;
+import javafx.animation.RotateTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
@@ -20,6 +23,8 @@ import java.util.Date;
 
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
+import javafx.util.Duration;
 
 public class Stellwerksuebersicht {
     private Stellwerk stellwerk;
@@ -67,8 +72,9 @@ public class Stellwerksuebersicht {
                 l.setTranslateX(b.getPos().x);
                 l.setTranslateY(b.getPos().y);
             } else {
-                l.setTranslateX(b.getPos().x + counter * 50);
-                l.setTranslateY(b.getPos().y);
+                l.setTranslateX(b.getPos().x);
+                l.setTranslateY(b.getPos().y + counter * 50);
+                b.getPos().y = b.getPos().y + counter * 50;
             }
             /*l.setOnMouseDragged(mouse -> { //funktioniert nicht, gibt nur ruckelige werte aus, bzw. teilweise fehlerhaft
                 b.getPos().x = mouse.getX();
@@ -239,12 +245,10 @@ public class Stellwerksuebersicht {
                 Bahnhof b1 = z.getFahrplan(0).getBahnsteig().getBahnhof();
                 Bahnhof b2 = z.getFahrplan(1).getBahnsteig().getBahnhof();
 
-                long abfahrtsZeit = (z.getFahrplan(0).getAbfahrt() - stellwerk.getSpielzeit())/1000;
-                long ankunftsZeit = (z.getFahrplan(1).getAnkuft() - stellwerk.getSpielzeit())/1000;
+                long abfahrtsZeit = (z.getFahrplan(0).getAbfahrt() + z.getVerspaetung() * 1000 * 60 - stellwerk.getSpielzeit())/1000;
+                long ankunftsZeit = (z.getFahrplan(1).getAnkuft() + z.getVerspaetung() * 1000 * 60 - stellwerk.getSpielzeit())/1000;
 
                 if(abfahrtsZeit < 0 && ankunftsZeit > 0){
-                    System.out.println(ankunftsZeit + " " + abfahrtsZeit);
-
                     double aufenthalt = (double) ((z.getFahrplan(1).getAnkuft()/1000) - (z.getFahrplan(0).getAbfahrt()/1000));
                     double wert = 1 - ((double) ankunftsZeit / aufenthalt);
 
@@ -263,8 +267,9 @@ public class Stellwerksuebersicht {
                     l.setTranslateX(x);
                     l.setTranslateY(y);
                     l.setRotate(winkel);
-                    l.setText(z.getZugName() + z.getVerspaetungToString());
-
+                    Platform.runLater(() -> {
+                        l.setText(z.getZugName() + z.getVerspaetungToString());
+                    });
 
                     if(!content.getChildren().contains(l)){
                         Platform.runLater(() -> {
@@ -284,7 +289,7 @@ public class Stellwerksuebersicht {
         ArrayList<FahrplanHalt> abfahrten = new ArrayList<>();
         for(Zug z : stellwerk.getZuege()){
             for(FahrplanHalt fh : z.getFahrplan()){
-                if(fh.getBahnsteig().getId() == b.getId()){
+                if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZ().getVerspaetung() * 1000 * 60 > stellwerk.getSpielzeit()){
                     abfahrten.add(fh);
                 }
             }
@@ -302,7 +307,7 @@ public class Stellwerksuebersicht {
             gezeichneteBahnhofsInformationen.add(l);
 
             for(int i = 0; i < abfahrten.size() && i < 5; i++){
-                Date dNow = new Date(abfahrten.get(i).getAbfahrt());
+                Date dNow = new Date(abfahrten.get(i).getAbfahrt() + abfahrten.get(i).getZ().getVerspaetung() * 1000 * 60);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                 l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZ().getZugName() + abfahrten.get(i).getZ().getVerspaetungToString());
