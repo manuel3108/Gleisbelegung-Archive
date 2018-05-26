@@ -91,7 +91,7 @@ public class Fenster{
         einstellungen.setFont(Font.font(Einstellungen.schriftgroesse - 2));
         einstellungen.setOnAction(e -> { try{ settings(); }catch(Exception ex) { ex.printStackTrace(); } });
 
-        sichtwechsel = new Button("Bahnhofsübersicht");
+        sichtwechsel = new Button("Stellwerksübersicht (BETA)");
         sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse - 2));
 
         refresh.setText("Neustart");
@@ -133,10 +133,10 @@ public class Fenster{
         BorderPane bp = new BorderPane();
         bp.setStyle("-fx-background-color: #303030;");
         bp.setTop(topP);
-        bp.setCenter(stellwerksuebersicht.getContent());
+        bp.setCenter(gleisbelegung.getContent());
         bp.setRight(infoFehler);
 
-        Einstellungen.sicht = 2;
+        Einstellungen.sicht = 1;
         sichtwechsel.setOnAction(e -> {
             if(Einstellungen.sicht == 1){
                 Einstellungen.sicht = 2;
@@ -144,7 +144,7 @@ public class Fenster{
                 bp.setCenter(stellwerksuebersicht.getContent());
             } else if(Einstellungen.sicht == 2){
                 Einstellungen.sicht = 1;
-                sichtwechsel.setText("Stellwerksübersicht");
+                sichtwechsel.setText("Stellwerksübersicht (BETA)");
                 bp.setCenter(gleisbelegung.getContent());
             }
         });

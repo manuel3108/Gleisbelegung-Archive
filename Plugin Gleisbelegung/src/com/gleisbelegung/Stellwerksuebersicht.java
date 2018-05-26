@@ -5,11 +5,8 @@ import com.gleisbelegung.lib.data.Bahnhof;
 import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
 import com.sun.javafx.geom.Vec2d;
-import javafx.animation.RotateTransition;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
@@ -22,24 +19,19 @@ import java.util.Comparator;
 import java.util.Date;
 
 import javafx.scene.shape.Line;
-import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Translate;
-import javafx.util.Duration;
 
 public class Stellwerksuebersicht {
     private Stellwerk stellwerk;
     private Pane content;
     private Bahnhof bewegeBahnhof;
-    private boolean warUeberBahnhof;
-    private boolean istUeberBahnhof;
-    private Vec2d letzteMausPos;
     private ArrayList<Label> bahnhofsLabel;
+    private ArrayList<Label> uebergabePunkte;
     private ArrayList<Label> gezeichneteBahnhofsInformationen;
 
     public Stellwerksuebersicht(Stellwerk stellwerk){
         this.stellwerk = stellwerk;
-        letzteMausPos = new Vec2d();
         bahnhofsLabel = new ArrayList<>();
+        uebergabePunkte = new ArrayList<>();
         gezeichneteBahnhofsInformationen = new ArrayList<>();
         int counter = 0;
 
@@ -66,7 +58,7 @@ public class Stellwerksuebersicht {
             l.setPrefHeight(Math.round(temp.getBoundsInLocal().getHeight()) + 10);
             l.setMaxHeight(Math.round(temp.getBoundsInLocal().getHeight()) + 10);
             l.setAlignment(Pos.CENTER);
-            l.setStyle("-fx-text-fill: #fff; -fx-border-width: 2; -fx-border-color: #4e8abf");
+            l.setStyle("-fx-text-fill: #fff; -fx-border-width: 2; -fx-border-color: #4e8abf"); //blau
             l.setFont(Font.font(Einstellungen.schriftgroesse));
             if(b.getPos().x != 0 && b.getPos().y != 0){
                 l.setTranslateX(b.getPos().x);
@@ -76,13 +68,6 @@ public class Stellwerksuebersicht {
                 l.setTranslateY(b.getPos().y + counter * 50);
                 b.getPos().y = b.getPos().y + counter * 50;
             }
-            /*l.setOnMouseDragged(mouse -> { //funktioniert nicht, gibt nur ruckelige werte aus, bzw. teilweise fehlerhaft
-                b.getPos().x = mouse.getX();
-                b.getPos().y = mouse.getY();
-                System.out.println(mouse.getX() + " " + mouse.getY());
-                l.setTranslateX(b.getPos().x);
-                l.setTranslateY(b.getPos().y);
-            });*/
             l.setOnMouseEntered(mouse -> zeigeBahnhofsInformationen(b));
             l.setOnMouseExited(mouse -> entferneBahnhofsInformationen());
             bahnhofsLabel.add(l);
@@ -109,7 +94,7 @@ public class Stellwerksuebersicht {
             if(bewegeBahnhof != null) bewegeBahnhof = null;
         });
         content.setOnMouseDragged(mouse -> {
-            if(bewegeBahnhof != null){                
+            if(bewegeBahnhof != null){
                 bewegeBahnhof.getPos().x = mouse.getX() - 100;
                 bewegeBahnhof.getPos().y = mouse.getY() - 15;
                 bahnhofsLabel.get(bewegeBahnhof.getId()).setTranslateX(bewegeBahnhof.getPos().x);
@@ -122,7 +107,7 @@ public class Stellwerksuebersicht {
 
         erstelleVerbindungsLinien();
     }
-    
+
     private Bahnhof getBahnhof(double x, double y){
         for(Bahnhof b : stellwerk.getBahnhoefe()){
             String text;
@@ -140,7 +125,7 @@ public class Stellwerksuebersicht {
         }
         return null;
     }
-    
+
     public void updateUi(double stageWidth, double stageHight){
         /*canvas.setWidth(stageWidth - Einstellungen.informationenBreite - 20);
         canvas.setHeight(stageHight - 80);*/
@@ -187,31 +172,32 @@ public class Stellwerksuebersicht {
         updateLinie(b2);
     }
 
-    private void updateLinie(Bahnhof bewegeBahnhof){
-        ArrayList<Bahnhof> verbindungsBahnhoefe = bewegeBahnhof.getVerbindungsBahnhoefe();
+    private void updateLinie(Bahnhof b){
+        ArrayList<Bahnhof> verbindungsBahnhoefe = b.getVerbindungsBahnhoefe();
+
         for(Bahnhof vb : verbindungsBahnhoefe){
-            Line linie = bewegeBahnhof.getLinie(vb);
+            Line linie = b.getLinie(vb);
             Vec2d linienPosB1 = new Vec2d();
             Vec2d linienPosB2 = new Vec2d();
 
-            if(bewegeBahnhof.getPos().x < vb.getPos().x && bewegeBahnhof.getPos().x + 200 < vb.getPos().x){
-                linienPosB1.x = bewegeBahnhof.getPos().x + 200;
-                linienPosB1.y = bewegeBahnhof.getPos().y + 15;
+            if(b.getPos().x < vb.getPos().x && b.getPos().x + 200 < vb.getPos().x){
+                linienPosB1.x = b.getPos().x + 200;
+                linienPosB1.y = b.getPos().y + 15;
                 linienPosB2.x = vb.getPos().x;
                 linienPosB2.y = vb.getPos().y + 15;
-            } else if(bewegeBahnhof.getPos().x > vb.getPos().x && bewegeBahnhof.getPos().x > vb.getPos().x + 200){
-                linienPosB1.x = bewegeBahnhof.getPos().x;
-                linienPosB1.y = bewegeBahnhof.getPos().y + 15;
+            } else if(b.getPos().x > vb.getPos().x && b.getPos().x > vb.getPos().x + 200){
+                linienPosB1.x = b.getPos().x;
+                linienPosB1.y = b.getPos().y + 15;
                 linienPosB2.x = vb.getPos().x + 200;
                 linienPosB2.y = vb.getPos().y + 15;
-            } else if(bewegeBahnhof.getPos().y < vb.getPos().y){
-                linienPosB1.x = bewegeBahnhof.getPos().x + 100;
-                linienPosB1.y = bewegeBahnhof.getPos().y + 35;
+            } else if(b.getPos().y < vb.getPos().y){
+                linienPosB1.x = b.getPos().x + 100;
+                linienPosB1.y = b.getPos().y + 35;
                 linienPosB2.x = vb.getPos().x + 100;
                 linienPosB2.y = vb.getPos().y;
-            } else if(bewegeBahnhof.getPos().y > vb.getPos().y){
-                linienPosB1.x = bewegeBahnhof.getPos().x + 100;
-                linienPosB1.y = bewegeBahnhof.getPos().y;
+            } else if(b.getPos().y > vb.getPos().y){
+                linienPosB1.x = b.getPos().x + 100;
+                linienPosB1.y = b.getPos().y;
                 linienPosB2.x = vb.getPos().x + 100;
                 linienPosB2.y = vb.getPos().y + 35;
             }
@@ -221,8 +207,8 @@ public class Stellwerksuebersicht {
             linie.setEndX(linienPosB2.x);
             linie.setEndY(linienPosB2.y);
 
-            bewegeBahnhof.setLinienPos(vb, linienPosB1);
-            vb.setLinienPos(bewegeBahnhof, linienPosB2);
+            b.setLinienPos(vb, linienPosB1);
+            vb.setLinienPos(b, linienPosB2);
         }
     }
 
