@@ -1,8 +1,8 @@
 package com.gleisbelegung.lib.data;
 
 import com.gleisbelegung.Einstellungen;
-import com.gleisbelegung.Fenster;
 import com.gleisbelegung.LabelContainer;
+import com.sun.javafx.geom.Vec2d;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import javafx.scene.shape.Line;
 import java.util.ArrayList;
 
 public class Bahnhof {
@@ -20,13 +21,17 @@ public class Bahnhof {
     private String alternativName = "";
     private ArrayList<Bahnsteig> bahnsteige;
     private ArrayList<BahnhofTeil> bahnhofTeile;
+    private ArrayList<BahnhofVerbindung> bahnhofVerbindungen;
     private boolean sichtbar;
+    private Vec2d pos;
 
     public Bahnhof(int id, String name){
         this.id = id;
         this.name = name;
         this.bahnsteige = new ArrayList<>();
         this.bahnhofTeile = new ArrayList<>();
+        this.bahnhofVerbindungen = new ArrayList<>();
+        pos = new Vec2d(30, id*40 + 40);
     }
 
     public int getId(){
@@ -79,7 +84,7 @@ public class Bahnhof {
     public String getAlternativName() { return alternativName; }
 
     private void einstellungen(BahnhofTeil bt){
-        Einstellungen.fenster.zeigeOrderIds();
+        Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
         Stage stage = new Stage();
 
         Label name = new Label("Name:");
@@ -116,8 +121,8 @@ public class Bahnhof {
             }
 
             stage.close();
-            Einstellungen.fenster.versteckeOrderIds();
-            Einstellungen.fenster.sortiereGleise();
+            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
+            Einstellungen.fenster.gleisbelegung.sortiereGleise();
         });
 
         Pane p = new Pane(name, tname,l,tf,b);
@@ -132,7 +137,7 @@ public class Bahnhof {
         stage.setAlwaysOnTop(true);
 
         stage.setOnCloseRequest(e -> {
-            Einstellungen.fenster.versteckeOrderIds();
+            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
         });
     }
 
@@ -150,6 +155,59 @@ public class Bahnhof {
                 ", bahnsteige=" + bahnsteige +
                 '}';
     }
+
+    public Vec2d getPos() {
+        return pos;
+    }
+    public void setPos(Vec2d pos) {
+        this.pos = pos;
+    }
+
+    public ArrayList<BahnhofVerbindung> getBahnhofVerbindungen() {
+        return bahnhofVerbindungen;
+    }
+    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie, Vec2d linienPos){
+        bahnhofVerbindungen.add(new BahnhofVerbindung(bahnhof, laenge, linie, linienPos));
+    }
+    public double getVerbindungsLaenge(Bahnhof bahnhof){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                return bv.laenge;
+            }
+        }
+        return -1;
+    }
+    public Line getLinie(Bahnhof bahnhof){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                return bv.linie;
+            }
+        }
+        return null;
+    }
+    public ArrayList<Bahnhof> getVerbindungsBahnhoefe(){
+        ArrayList<Bahnhof> bahnhoefe = new ArrayList<>();
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            bahnhoefe.add(bv.bahnhof);
+        }
+        return bahnhoefe;
+    }
+    public Vec2d getLinienPos(Bahnhof bahnhof){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                return bv.linienPos;
+            }
+        }
+        return null;
+    }
+    public void setLinienPos(Bahnhof bahnhof, Vec2d linienPos){
+        for(BahnhofVerbindung bv : bahnhofVerbindungen){
+            if(bv.bahnhof.getId() == bahnhof.getId()){
+                bv.linienPos = linienPos;
+                break;
+            }
+        }
+    }
 }
 
 class BahnhofTeil{
@@ -159,5 +217,19 @@ class BahnhofTeil{
     public BahnhofTeil(LabelContainer bahnhofsLabel, ArrayList<Bahnsteig> bahnsteige){
         this.bahnhofsLabel = bahnhofsLabel;
         this.bahnsteige = bahnsteige;
+    }
+}
+
+class BahnhofVerbindung{
+    Bahnhof bahnhof;
+    double laenge;
+    Line linie;
+    Vec2d linienPos;
+
+    public BahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie, Vec2d linienPos){
+        this.bahnhof = bahnhof;
+        this.laenge = laenge;
+        this.linie = linie;
+        this.linienPos = linienPos;
     }
 }
