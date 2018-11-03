@@ -132,7 +132,7 @@ public class Bahnsteig extends Plugin {
     }
 
     private void aendereReihenfolge(){
-        Einstellungen.fenster.zeigeOrderIds();
+        Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
 
         Stage stage = new Stage();
 
@@ -154,8 +154,8 @@ public class Bahnsteig extends Plugin {
         b.setOnAction(e -> {
             orderId = Integer.parseInt(tf.getText())-1;
             stage.close();
-            Einstellungen.fenster.versteckeOrderIds();
-            Einstellungen.fenster.sortiereGleise();
+            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
+            Einstellungen.fenster.gleisbelegung.sortiereGleise();
         });
 
         Pane p = new Pane(l,tf,b);
@@ -170,7 +170,7 @@ public class Bahnsteig extends Plugin {
         stage.setAlwaysOnTop(true);
 
         stage.setOnCloseRequest(e -> {
-            Einstellungen.fenster.versteckeOrderIds();
+            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
         });
     }
 

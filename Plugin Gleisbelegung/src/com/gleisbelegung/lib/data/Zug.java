@@ -9,6 +9,10 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Speichert alle Daten für einen Zug
  */
 
+import com.gleisbelegung.Einstellungen;
+import javafx.scene.control.Label;
+import javafx.scene.text.Font;
+
 import java.util.ArrayList;
 
 public class Zug {
@@ -24,6 +28,7 @@ public class Zug {
     private ArrayList<FahrplanHalt> fahrplan;    //Speichert alle Fahrplanhalt des Zuges aus der @FahrplanHalt-Klasse
     private boolean needUpdate;         //Wenn der Zug ein Update benötigt, dann wird er in @Fenster.drawTrain() neu gezeichnet
     private boolean newTrain;           //Wenn ein Zug gerade neu in die Liste zuege aus @Main aufgenommen wurde ist dieser Wert auf true
+    private Label stellwerksUebersichtLabel;
 
     //Setzten der Daten
     public Zug(int zugId, String zugName){
@@ -32,6 +37,10 @@ public class Zug {
 
         this.newTrain = true;
         this.needUpdate = true;
+
+        stellwerksUebersichtLabel = new Label(zugName);
+        stellwerksUebersichtLabel.setStyle("-fx-text-fill: #fff;");
+        stellwerksUebersichtLabel.setFont(Font.font(Einstellungen.schriftgroesse));
     }
 
     //get-set Zugname
@@ -176,5 +185,13 @@ public class Zug {
                 ", needUpdate=" + needUpdate +
                 ", newTrain=" + newTrain +
                 '}';
+    }
+
+    public Label getStellwerksUebersichtLabel() {
+        return stellwerksUebersichtLabel;
+    }
+
+    public void setStellwerksUebersichtLabel(Label stellwerksUebersichtLabel) {
+        this.stellwerksUebersichtLabel = stellwerksUebersichtLabel;
     }
 }
