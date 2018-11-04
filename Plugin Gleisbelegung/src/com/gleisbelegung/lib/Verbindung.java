@@ -152,7 +152,7 @@ public class Verbindung {
         for (XML xmlZug : zugliste.getInternXML()) {
             try {
                 boolean exists = false;
-                for (Zug z : stellwerk.zuege) {
+                for (Zug z : stellwerk.getZuege()) {
                     try {
                         if (!xmlZug.get("zid").equals("") && Integer.parseInt(xmlZug.get("zid")) == z.getZugId()) {
                             exists = true;
@@ -166,7 +166,7 @@ public class Verbindung {
 
                 if (!exists && !xmlZug.get("zid").equals("") && !xmlZug.get("name").equals("")) {
                     //System.out.println("INFORMATION: " + zugliste.get(i).get(0).get(1)[1] + " wurde hinzugefügt!");
-                    stellwerk.zuege.add(new Zug(Integer.parseInt(xmlZug.get("zid")), xmlZug.get("name")));
+                    stellwerk.addZug(new Zug(Integer.parseInt(xmlZug.get("zid")), xmlZug.get("name")));
                 }
             } catch (Exception e) {
                 System.out.println("FEHLER: Zuglistenaktualisierungsfehler!");
@@ -176,9 +176,7 @@ public class Verbindung {
 
         ArrayList<Zug> removing = new ArrayList<>();
 
-        for (int j = 0; j < stellwerk.zuege.size(); j++) {
-            Zug z = stellwerk.zuege.get(j);
-
+        for (Zug z : stellwerk.getZuege()) {
             try {
                 boolean updateNeeded = false;
                 setSocketCode("<zugdetails zid='" + z.getZugId() + "'/>");
@@ -323,13 +321,9 @@ public class Verbindung {
                 e.printStackTrace();
             }
         }
+        stellwerk.removeZuege(removing);
 
-        for (Zug z : removing) {
-            //System.out.println("INFORMATION: " + z.getZugName() + " wurde entfernt.");
-            stellwerk.zuege.remove(z);
-        }
-
-        for (Zug z : stellwerk.zuege) {
+        for (Zug z : stellwerk.getZuege()) {
             try {
                 if (z != null && z.getFahrplan() != null) {
                     for (FahrplanHalt fh : z.getFahrplan()) {
@@ -378,7 +372,7 @@ public class Verbindung {
                 }
             }
 
-            for (Zug z : stellwerk.zuege) {
+            for (Zug z : stellwerk.getZuege()) {
                 if (z.getZugId() == Integer.parseInt(out)) {
                     return z;
                 }

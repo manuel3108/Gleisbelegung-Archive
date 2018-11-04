@@ -14,6 +14,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Stellwerk {
     private static String host;
@@ -28,7 +30,7 @@ public class Stellwerk {
     long letzteAktualisierung;
 
     private ArrayList<Bahnhof> bahnhoefe;
-    ArrayList<Zug> zuege;
+    private ArrayList<Zug> zuege;
 
     private static Verbindung v;
 
@@ -118,8 +120,20 @@ public class Stellwerk {
     public ArrayList<Bahnhof> getBahnhoefe() {
         return bahnhoefe;
     }
-    public ArrayList<Zug> getZuege() {
-        return zuege;
+    public List<Zug> getZuege() {
+    	synchronized(zuege) {
+    		return Collections.unmodifiableList(zuege);
+    	}
+    }
+    public void addZug(Zug zug) {
+    	synchronized(zuege) {
+    		zuege.add(zug);
+    	}
+    }
+    public void removeZuege(List<Zug> zuege) {
+    	synchronized(this.zuege) {
+    		this.zuege.removeAll(zuege);
+    	}
     }
     public long getSpielzeit() {
         return spielzeit;
