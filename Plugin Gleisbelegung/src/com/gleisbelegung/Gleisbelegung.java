@@ -337,8 +337,10 @@ public class Gleisbelegung {
 
             for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
                 for(Bahnsteig bahnsteig : bahnhof.getBahnsteige()){
-                    gp.getChildren().remove(bahnsteig.getSpalte().get(0).getLabel());
-                    bahnsteig.getSpalte().remove(0);
+                    if(gp != null && gp.getChildren() != null && bahnsteig != null && bahnsteig.getSpalte() != null && bahnsteig.getSpalte().get(0) != null && bahnsteig.getSpalte().get(0).getLabel() != null){
+                        gp.getChildren().remove(bahnsteig.getSpalte().get(0).getLabel());
+                        bahnsteig.getSpalte().remove(0);
+                    }
                 }
             }
         });
