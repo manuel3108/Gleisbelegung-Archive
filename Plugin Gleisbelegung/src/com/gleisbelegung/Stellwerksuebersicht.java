@@ -274,9 +274,11 @@ public class Stellwerksuebersicht {
     private void zeigeBahnhofsInformationen(Bahnhof b){
         ArrayList<FahrplanHalt> abfahrten = new ArrayList<>();
         for(Zug z : stellwerk.getZuege()){
-            for(FahrplanHalt fh : z.getFahrplan()){
-                if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZ().getVerspaetung() * 1000 * 60 > stellwerk.getSpielzeit()){
-                    abfahrten.add(fh);
+            if(z.getFahrplan() != null){ //z != null braucht nicht überprüft werden, da die durch die foreach bereits ausgeschlossen werden
+                for(FahrplanHalt fh : z.getFahrplan()){
+                    if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZ().getVerspaetung() * 1000 * 60 > stellwerk.getSpielzeit()){
+                        abfahrten.add(fh);
+                    }
                 }
             }
         }
