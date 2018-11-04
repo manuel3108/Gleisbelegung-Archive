@@ -536,7 +536,7 @@ public class Gleisbelegung {
         }
 
         LabelContainer lc = new LabelContainer(-1, null);
-        if(!letzterBahnsteig.getBahnhof().getAlternativName().equals("")) {
+        if(letzterBahnsteig != null && letzterBahnsteig.getBahnhof() != null && letzterBahnsteig.getBahnhof().getAlternativName() != null && !letzterBahnsteig.getBahnhof().getAlternativName().equals("")) {
             lc.getLabel().setText(letzterBahnsteig.getBahnhof().getAlternativName() + (!letzterBahnsteig.getBahnhof().getName().equals("") ? " (" + letzterBahnsteig.getBahnhof().getName() + ")" : ""));
         }
         else if(!letzterBahnsteig.getBahnhof().getName().equals("")) lc.getLabel().setText(letzterBahnsteig.getBahnhof().getName());
