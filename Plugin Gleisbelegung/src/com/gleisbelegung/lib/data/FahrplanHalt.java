@@ -41,7 +41,7 @@ public class FahrplanHalt {
     }
 
     //get zug
-    public Zug getZ() {
+    public Zug getZug() {
         return z;
     }
 

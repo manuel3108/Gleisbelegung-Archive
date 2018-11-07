@@ -276,7 +276,7 @@ public class Stellwerksuebersicht {
         for(Zug z : stellwerk.getZuege()){
             if(z.getFahrplan() != null){ //z != null braucht nicht überprüft werden, da die durch die foreach bereits ausgeschlossen werden
                 for(FahrplanHalt fh : z.getFahrplan()){
-                    if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZ().getVerspaetung() * 1000 * 60 > stellwerk.getSpielzeit()){
+                    if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZug().getVerspaetung() * 1000 * 60 > stellwerk.getSpielzeit()){
                         abfahrten.add(fh);
                     }
                 }
@@ -295,10 +295,10 @@ public class Stellwerksuebersicht {
             gezeichneteBahnhofsInformationen.add(l);
 
             for(int i = 0; i < abfahrten.size() && i < 5; i++){
-                Date dNow = new Date(abfahrten.get(i).getAbfahrt() + abfahrten.get(i).getZ().getVerspaetung() * 1000 * 60);
+                Date dNow = new Date(abfahrten.get(i).getAbfahrt() + abfahrten.get(i).getZug().getVerspaetung() * 1000 * 60);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZ().getZugName() + abfahrten.get(i).getZ().getVerspaetungToString());
+                l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZug().getZugName() + abfahrten.get(i).getZug().getVerspaetungToString());
                 l.setStyle("-fx-text-fill: #fff;");
                 l.setFont(Font.font(Einstellungen.schriftgroesse));
                 l.setTranslateX(b.getPos().x);

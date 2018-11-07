@@ -85,6 +85,13 @@ public class Stellwerk {
         v.aktualisiereSimZeit();
     }
 
+    public List<Bahnsteig> getBahnsteige(){
+        List<Bahnsteig> bahnsteige = new ArrayList<Bahnsteig>();
+        for(Bahnhof b : bahnhoefe){
+            bahnsteige.addAll(b.getBahnsteige());
+        }
+        return bahnsteige;
+    }
     public int getAnzahlBahnsteige(){
         int counter = 0;
         for(Bahnhof b : bahnhoefe){

@@ -40,10 +40,12 @@ public class Gleisbelegung {
 
     private Pane content;
     private Stellwerk stellwerk;
+    private TimeTable timeTable;
 
     public Gleisbelegung(Stellwerk stellwerk){
         this.stellwerk = stellwerk;
         labelTime = new ArrayList<>();
+        timeTable = new TimeTable(stellwerk);
 
         firstLabel = new Label("Bahnhofsname");
         firstLabel.setFont(Font.font(Einstellungen.schriftgroesse-5));
@@ -309,7 +311,7 @@ public class Gleisbelegung {
         for (Zug z : stellwerk.getZuege()) {
             try {
                 if (z.isNeedUpdate() && z.getFahrplan(0) != null && z.getFahrplan(0).getVorgaenger() != null) {
-                    z.getFahrplan(0).getVorgaenger().getZ().setNeedUpdate(true);
+                    z.getFahrplan(0).getVorgaenger().getZug().setNeedUpdate(true);
                 }
             } catch (Exception e) {
                 System.out.println("Fehler koennen passieren :(");
@@ -318,8 +320,13 @@ public class Gleisbelegung {
         }
         for (Zug z : stellwerk.getZuege()) {
             try {
+                if(z.isNewTrain()){
+                    timeTable.addTrain(z);
+                }
+
                 if (z.isNeedUpdate()) {
                     drawTrain(z);
+                    timeTable.updateTrain(z);
                     z.setNeedUpdate(false);
                     z.setNewTrain(false);
                 }
