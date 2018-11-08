@@ -343,15 +343,15 @@ public class LabelContainer extends Plugin {
             Fenster.informations.getChildren().addAll(trainName, vonBis);
 
             for(int i = 0; i < z.getFahrplan().size(); i++){
-                long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
+                long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
+                long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten()*1000*60;
+                if(z.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                     lAbfahrt = lAnkunft + 4*1000*60;
                 }
                 if (z.getFahrplan(i).getFlaggedTrain() != null && z.getFahrplan(i).getFlaggedTrain().getFahrplan(0) != null) {
-                    lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0).getAbfahrt() + z.getFahrplan(i).getFlaggedTrain().getVerspaetung() * 1000 * 60;
+                    lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0).getAbfahrt() + z.getFahrplan(i).getFlaggedTrain().getVerspaetungInMinuten() * 1000 * 60;
                 } else if (z.getFahrplan(i).getVorgaenger() != null && z.getFahrplan(i).getVorgaenger().getZug() != null) {
-                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetung() * 1000 * 60;
+                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetungInMinuten() * 1000 * 60;
                 }
 
                 String durchfahrt = "";

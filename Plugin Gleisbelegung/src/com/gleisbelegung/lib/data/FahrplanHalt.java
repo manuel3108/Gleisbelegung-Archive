@@ -38,6 +38,8 @@ public class FahrplanHalt {
         flaggedTrain = null;
 
         crossing = flags.contains("D") || flags.equals("D");
+
+        //TODO isNeedUpdate in Fahrplanhalt auslagern
     }
 
     //get zug

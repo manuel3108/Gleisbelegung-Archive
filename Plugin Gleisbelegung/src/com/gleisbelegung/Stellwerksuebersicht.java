@@ -231,8 +231,8 @@ public class Stellwerksuebersicht {
                 Bahnhof b1 = z.getFahrplan(0).getBahnsteig().getBahnhof();
                 Bahnhof b2 = z.getFahrplan(1).getBahnsteig().getBahnhof();
 
-                long abfahrtsZeit = (z.getFahrplan(0).getAbfahrt() + z.getVerspaetung() * 1000 * 60 - stellwerk.getSpielzeit())/1000;
-                long ankunftsZeit = (z.getFahrplan(1).getAnkuft() + z.getVerspaetung() * 1000 * 60 - stellwerk.getSpielzeit())/1000;
+                long abfahrtsZeit = (z.getFahrplan(0).getAbfahrt() + z.getVerspaetungInMinuten() * 1000 * 60 - stellwerk.getSpielzeit())/1000;
+                long ankunftsZeit = (z.getFahrplan(1).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60 - stellwerk.getSpielzeit())/1000;
 
                 if(abfahrtsZeit < 0 && ankunftsZeit > 0){
                     double aufenthalt = (double) ((z.getFahrplan(1).getAnkuft()/1000) - (z.getFahrplan(0).getAbfahrt()/1000));
@@ -276,7 +276,7 @@ public class Stellwerksuebersicht {
         for(Zug z : stellwerk.getZuege()){
             if(z.getFahrplan() != null){ //z != null braucht nicht überprüft werden, da die durch die foreach bereits ausgeschlossen werden
                 for(FahrplanHalt fh : z.getFahrplan()){
-                    if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZug().getVerspaetung() * 1000 * 60 > stellwerk.getSpielzeit()){
+                    if(fh.getBahnsteig().getBahnhof().getId() == b.getId() && fh.getAbfahrt() + fh.getZug().getVerspaetungInMinuten() * 1000 * 60 > stellwerk.getSpielzeit()){
                         abfahrten.add(fh);
                     }
                 }
@@ -295,7 +295,7 @@ public class Stellwerksuebersicht {
             gezeichneteBahnhofsInformationen.add(l);
 
             for(int i = 0; i < abfahrten.size() && i < 5; i++){
-                Date dNow = new Date(abfahrten.get(i).getAbfahrt() + abfahrten.get(i).getZug().getVerspaetung() * 1000 * 60);
+                Date dNow = new Date(abfahrten.get(i).getAbfahrt() + abfahrten.get(i).getZug().getVerspaetungInMinuten() * 1000 * 60);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                 l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZug().getZugName() + abfahrten.get(i).getZug().getVerspaetungToString());

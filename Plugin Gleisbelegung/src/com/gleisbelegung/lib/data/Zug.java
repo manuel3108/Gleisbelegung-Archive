@@ -60,8 +60,11 @@ public class Zug {
     }
 
     //get-set Verspätung
-    public int getVerspaetung() {
+    public int getVerspaetungInMinuten() {
         return verspaetung;
+    }
+    public long getVerspaetungInMiliSekunden(){
+        return  verspaetung*1000*60;
     }
     public void setVerspaetung(int verspaetung) {
         this.verspaetung = verspaetung;

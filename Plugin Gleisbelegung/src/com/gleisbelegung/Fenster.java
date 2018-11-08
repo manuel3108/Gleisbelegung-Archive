@@ -203,9 +203,9 @@ public class Fenster{
                     if(z.getFahrplan(i).getFlaggedTrain() != null){
                         Zug flagged = z.getFahrplan(i).getFlaggedTrain();
 
-                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                        long lAbfahrt = flagged.getFahrplan(0).getAbfahrt() + flagged.getVerspaetung()*1000*60;
-                        if(flagged.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
+                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
+                        long lAbfahrt = flagged.getFahrplan(0).getAbfahrt() + flagged.getVerspaetungInMinuten()*1000*60;
+                        if(flagged.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                             lAbfahrt = lAnkunft + 4*1000*60;
                         }
 
@@ -226,13 +226,13 @@ public class Fenster{
 
                         informations.getChildren().add(l);
                     } else{
-                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                        long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                        if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
+                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
+                        long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten()*1000*60;
+                        if(z.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                             lAbfahrt = lAnkunft + 4*1000*60;
                         }
                         if (z.getFahrplan(i).getVorgaenger() != null)
-                            lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetung() * 1000 * 60;
+                            lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetungInMinuten() * 1000 * 60;
                         Date anunft = new Date(lAnkunft);
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");

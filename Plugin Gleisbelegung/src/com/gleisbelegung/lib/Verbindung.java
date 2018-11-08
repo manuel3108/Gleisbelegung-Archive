@@ -186,7 +186,7 @@ public class Verbindung {
                 if (zugdetails == null || !zugdetails.getKey().equals("zugdetails")) {
                     // Fehler
                     if (zugdetails.getKey().equals("status")) {
-                      System.out.println("INFORMATION: " + z.getZugName() + " hat status 402 \"zid unbekannt\" " + z.getVerspaetung() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
+                      System.out.println("INFORMATION: " + z.getZugName() + " hat status 402 \"zid unbekannt\" " + z.getVerspaetungInMinuten() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
                       removing.add(z);
                     }
                     continue;
@@ -194,7 +194,7 @@ public class Verbindung {
                     String verspaetungString = zugdetails.get("verspaetung");
                     if (verspaetungString != null) {
                         int verspaetung = Integer.parseInt(verspaetungString);
-                        if (verspaetung != z.getVerspaetung()) {
+                        if (verspaetung != z.getVerspaetungInMinuten()) {
                             z.setVerspaetung(verspaetung);
                             updateNeeded = true;
                         }
@@ -248,7 +248,7 @@ public class Verbindung {
                 }
 
                 if (counter != 7 && counter != 5) {
-                    System.out.println("INFORMATION: " + z.getZugName() + " es wurden nicht alle Daten gesetzt " + z.getVerspaetung() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
+                    System.out.println("INFORMATION: " + z.getZugName() + " es wurden nicht alle Daten gesetzt " + z.getVerspaetungInMinuten() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
                 } else if (counter == 5) {
                     removing.add(z);
                 }

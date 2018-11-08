@@ -248,11 +248,11 @@ public class Gleisbelegung {
                                         Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
                                         if (z.getFahrplan(i).getVorgaenger() == null) {
-                                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
-                                            long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung() * 1000 * 60;
-                                            if (eFlag.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()) {
+                                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60;
+                                            long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetungInMinuten() * 1000 * 60;
+                                            if (eFlag.getVerspaetungInMinuten() < 0 && !z.getFahrplan(i).isCrossing()) {
                                                 abfahrt = eFlag.getFahrplan(0).getAbfahrt();
-                                            } else if (z.getVerspaetung() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
+                                            } else if (z.getVerspaetungInMinuten() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
                                                 abfahrt = ankunft + 4 * 1000 * 60;
                                             }
 
@@ -273,11 +273,11 @@ public class Gleisbelegung {
                                         }
                                     } else {
                                         if (z.getFahrplan(i).getVorgaenger() == null) {
-                                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
-                                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung() * 1000 * 60;
-                                            if (z.getVerspaetung() < 0 && !z.getFahrplan(i).isCrossing()) {
+                                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60;
+                                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten() * 1000 * 60;
+                                            if (z.getVerspaetungInMinuten() < 0 && !z.getFahrplan(i).isCrossing()) {
                                                 abfahrt = z.getFahrplan(i).getAbfahrt();
-                                            } else if (z.getVerspaetung() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
+                                            } else if (z.getVerspaetungInMinuten() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
                                                 abfahrt = ankunft + 4 * 1000 * 60;
                                             }
 
@@ -412,16 +412,16 @@ public class Gleisbelegung {
                             Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
 
                             if (z.getFahrplan() != null && z.getFahrplan(i) != null && eFlag != null && eFlag.getFahrplan() != null && eFlag.getFahrplan(0) != null) {
-                                long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
-                                long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetung() * 1000 * 60;
+                                long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60;
+                                long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetungInMinuten() * 1000 * 60;
 
                                 if (ankunft <= time && abfahrt >= time) {
                                     z.setNeedUpdate(true);
                                 }
                             }
                         } else if (z.getFahrplan() != null && z.getFahrplan(i) != null) {
-                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung() * 1000 * 60;
-                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung() * 1000 * 60;
+                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60;
+                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten() * 1000 * 60;
 
                             if (ankunft <= time && abfahrt >= time) {
                                 z.setNeedUpdate(true);
