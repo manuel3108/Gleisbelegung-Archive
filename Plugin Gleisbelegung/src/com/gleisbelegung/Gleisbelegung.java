@@ -35,7 +35,6 @@ public class Gleisbelegung {
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
     private int labelIndexCounter;                      //Zählt die Textfelder auf der y-Achse mit um eine Identifikation zu ermöglichen
-    private ArrayList<LabelContainer> labelTime;
     private ArrayList<Bahnsteig> sortierteGleise;
 
     private Pane content;
@@ -44,7 +43,6 @@ public class Gleisbelegung {
 
     public Gleisbelegung(Stellwerk stellwerk){
         this.stellwerk = stellwerk;
-        labelTime = new ArrayList<>();
         timeTable = new TimeTable(stellwerk);
 
         firstLabel = new Label("Bahnhofsname");
@@ -133,17 +131,6 @@ public class Gleisbelegung {
 
         content = new Pane(spBahnhof, spPlatform, spContent, spTime, scrollBarWidth, scrollBarHeight, firstLabel);
 
-        for (int i = 0; i < Einstellungen.vorschau; i++) {
-            labelTime.add(i, new LabelContainer(i, null));
-
-            Date dNow = new Date(stellwerk.getSpielzeit() + i*1000*60);
-            SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
-            labelTime.get(i).updateLabel(ft.format(dNow), false);
-
-            int temp = i;
-            Platform.runLater(() -> gpTime.add(labelTime.get(temp).getLabel(), 0, temp));
-        }
-
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
                 LabelContainer lc = new LabelContainer(i,null);
@@ -167,7 +154,7 @@ public class Gleisbelegung {
         }
 
 
-        for(Bahnhof b : stellwerk.getBahnhoefe()){
+        /*for(Bahnhof b : stellwerk.getBahnhoefe()){
             for(Bahnsteig ba : b.getBahnsteige()){
                 for(int i = 0; i < Einstellungen.vorschau; i++){
                     LabelContainer lc = new LabelContainer(i, ba);
@@ -191,7 +178,7 @@ public class Gleisbelegung {
                 Label l = b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().getLabel();
                 l.setStyle(l.getStyle() + " -fx-border-width: 0 5 5 0;");
             }
-        }
+        }*/
 
         sortiereGleise();
     }
@@ -234,76 +221,45 @@ public class Gleisbelegung {
         t.start();*/
     }
 
-    private void drawTrain(Zug z){
-        z.removeFromGrid();
-        try{
-            if(z.getFahrplan() != null){
-                for (int i = 0; i < z.getFahrplan().size(); i++) {
-                    if (z.getFahrplan(i) != null && z.getFahrplan(i).getVorgaenger() == null) {
-                        for (Bahnhof b : stellwerk.getBahnhoefe()) {
-                            for (int j = 0; j < b.getBahnsteige().size(); j++) {
-                                Bahnsteig g = b.getBahnsteig(j);
-                                if (g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getBahnsteig().getName().equals(g.getName())) {
-                                    if (z.getFahrplan(i).getFlaggedTrain() != null) {
-                                        Zug eFlag = z.getFahrplan(i).getFlaggedTrain();
+    private void zeichneTabelle(){
+        /*Platform.runLater(() -> {
+            content.getChildren().clear();
+        });*/
 
-                                        if (z.getFahrplan(i).getVorgaenger() == null) {
-                                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60;
-                                            long abfahrt = eFlag.getFahrplan(0).getAbfahrt() + eFlag.getVerspaetungInMinuten() * 1000 * 60;
-                                            if (eFlag.getVerspaetungInMinuten() < 0 && !z.getFahrplan(i).isCrossing()) {
-                                                abfahrt = eFlag.getFahrplan(0).getAbfahrt();
-                                            } else if (z.getVerspaetungInMinuten() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
-                                                abfahrt = ankunft + 4 * 1000 * 60;
-                                            }
+        int rowCounter = 0;
 
-                                            for (int k = 0; k < Einstellungen.vorschau; k++) {
-                                                if (g.getSpalte() != null && k < g.getSpalte().size() && b.getBahnsteig(j).getSpalte().get(k) != null) {
-                                                    LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
-                                                    if (ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000 * 60) {
+        for(TimeTableRow ttr : timeTable.rows){
+            LabelContainer lc = new LabelContainer(-1, null);
 
-                                                        z.getFahrplan(i).addDrawnTo(lc);
+            final int temp = rowCounter;
+            Platform.runLater(() -> {
+                lc.getLabel().setText(""+ttr.time);
+                lc.getLabel().setStyle("-fx-text-fill: #fff");
+                lc.getLabel().setTranslateX(0);
+                lc.getLabel().setTranslateY(temp*20 + 2*20);
+                content.getChildren().add(lc.getLabel());
+            });
 
-                                                        if (z.getFahrplan(i).isCrossing()) {
-                                                            Platform.runLater(() -> lc.getLabel().setText(lc.getLabel().getText() + " D"));
-                                                            System.out.println(z.getZugName() + " Durchfahrt");
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        if (z.getFahrplan(i).getVorgaenger() == null) {
-                                            long ankunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten() * 1000 * 60;
-                                            long abfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten() * 1000 * 60;
-                                            if (z.getVerspaetungInMinuten() < 0 && !z.getFahrplan(i).isCrossing()) {
-                                                abfahrt = z.getFahrplan(i).getAbfahrt();
-                                            } else if (z.getVerspaetungInMinuten() > 3 && (abfahrt - ankunft) / 1000 / 60 > 3) {
-                                                abfahrt = ankunft + 4 * 1000 * 60;
-                                            }
+            int colCounter = 0;
 
-                                            for (int k = 0; k < Einstellungen.vorschau; k++) {
-                                                if (g.getSpalte() != null && k < g.getSpalte().size() && b.getBahnsteig(j).getSpalte().get(k) != null) {
-                                                    LabelContainer lc = b.getBahnsteig(j).getSpalte().get(k);
-                                                    if (ankunft <= lc.getTime() && abfahrt >= lc.getTime() - 1000 * 60) {
-                                                        z.getFahrplan(i).addDrawnTo(lc);
+            for(TimeTableData ttd : ttr.fields){
+                if(ttd.zuege.size() > 0){
+                    LabelContainer lcTemp = new LabelContainer(-1, ttd.col.bahnsteig);
 
-                                                        if (z.getFahrplan(i).isCrossing()) {
-                                                            Platform.runLater(() -> lc.getLabel().setFont(Font.font("", FontPosture.ITALIC, Einstellungen.schriftgroesse - 5)));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                    final int tempCol = colCounter;
+                    Platform.runLater(() -> {
+                        lcTemp.addTrain(ttd.zuege.get(0));
+                        lcTemp.getLabel().setTranslateX(tempCol*100 + 100);
+                        lcTemp.getLabel().setTranslateY(temp*20 + 2*20);
+                        content.getChildren().add(lcTemp.getLabel());
+                    });
 
-                            }
-                        }
-                    }
                 }
+
+                colCounter++;
             }
-        } catch(Exception e){
-            e.printStackTrace();
+
+            rowCounter++;
         }
     }
 
@@ -325,7 +281,7 @@ public class Gleisbelegung {
                 }
 
                 if (z.isNeedUpdate()) {
-                    drawTrain(z);
+                    //drawTrain(z);
                     timeTable.updateTrain(z);
                     z.setNeedUpdate(false);
                     z.setNewTrain(false);
@@ -335,10 +291,11 @@ public class Gleisbelegung {
                 e.printStackTrace();
             }
         }
+        zeichneTabelle();
     }
 
     public void aktualisiereTabelle(){
-        Platform.runLater(() -> {
+        /*Platform.runLater(() -> {
             gpTime.getChildren().remove(0);
             labelTime.remove(0);
 
@@ -400,7 +357,7 @@ public class Gleisbelegung {
         }
         labelIndexCounter++;
 
-        updateSomeTrains(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
+        updateSomeTrains(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);*/
     }
 
     private void updateSomeTrains(long time){
@@ -455,7 +412,7 @@ public class Gleisbelegung {
             for(Bahnsteig b : sortierteGleise){
                 gpPlatform.addColumn(x,b.getGleisLabel().getLabel());
                 b.setOrderId(x);
-                for(LabelContainer lc : b.getSpalte()){
+                /*for(LabelContainer lc : b.getSpalte()){
                     try {
                         gp.add(lc.getLabel(), x, y);
                     }catch (Exception e){
@@ -463,7 +420,7 @@ public class Gleisbelegung {
                         e.printStackTrace();
                     }
                     y++;
-                }
+                }*/
                 x++;
                 y = 0;
             }
@@ -490,10 +447,10 @@ public class Gleisbelegung {
                     bahnsteig.getGleisLabel().getAussehen().raender.setze(0, 1, 5, 0);
                     bahnsteig.getGleisLabel().getLabel().setStyle(bahnsteig.getGleisLabel().getAussehen().toCSSStyle());
                 }
-                for(LabelContainer lc : bahnsteig.getSpalte()){
+                /*for(LabelContainer lc : bahnsteig.getSpalte()){
                     lc.setLetzterBahnsteig(false);
                     lc.updateLabel();
-                }
+                }*/
 
                 if(letzterBahnsteig != null && letzterBahnsteig.getBahnhof().getId() == bahnsteig.getBahnhof().getId()){
                     if(bahnsteig.isSichtbar()){
@@ -529,10 +486,10 @@ public class Gleisbelegung {
                     letzterBahnsteig.getGleisLabel().getAussehen().raender.setze(0, 5, 5, 0);
                     letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getAussehen().toCSSStyle());
 
-                    for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
+                    /*for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
                         labelContainer.setLetzterBahnsteig(true);
                         labelContainer.updateLabel();
-                    }
+                    }*/
 
                     aufeinanderfolgendeBahnsteige = 1;
                 }
@@ -570,10 +527,10 @@ public class Gleisbelegung {
         letzterBahnsteig.getGleisLabel().setLetzterBahnsteig(true);
         letzterBahnsteig.getGleisLabel().getAussehen().raender.setze(0, 5, 5, 0);
         letzterBahnsteig.getGleisLabel().getLabel().setStyle(letzterBahnsteig.getGleisLabel().getAussehen().toCSSStyle());
-        for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
+        /*for(LabelContainer labelContainer : letzterBahnsteig.getSpalte()){
             labelContainer.setLetzterBahnsteig(true);
             labelContainer.updateLabel();
-        }
+        }*/
     }
 
     public void zeigeOrderIds(){
@@ -651,7 +608,8 @@ public class Gleisbelegung {
     }
 
     public ArrayList<LabelContainer> getLabelTime(){
-        return labelTime;
+        //return labelTime;
+        return null;
     }
     public Label getFirstLabel() {
         return firstLabel;

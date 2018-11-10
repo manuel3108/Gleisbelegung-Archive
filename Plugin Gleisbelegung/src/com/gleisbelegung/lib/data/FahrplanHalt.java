@@ -51,6 +51,9 @@ public class FahrplanHalt {
     public long getAnkuft() {
         return ankuft;
     }
+    public long getTatsaechlicheAnkunf(){
+        return  ankuft;
+    }
     public void setAnkuft(long ankuft) {
         this.ankuft = ankuft;
     }
@@ -58,6 +61,9 @@ public class FahrplanHalt {
     //get-set Abfahrt
     public long getAbfahrt() {
         return abfahrt;
+    }
+    public long getTatsaechlicheAbfahrt(){
+        return  abfahrt;
     }
     public void setAbfahrt(long abfahrt) {
         this.abfahrt = abfahrt;

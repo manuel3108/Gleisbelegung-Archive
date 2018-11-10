@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TimeTable {
-    private List<TimeTableColumn> cols; //Spalten
-    private List<TimeTableRow> rows;    //Reihen
+    List<TimeTableColumn> cols; //Spalten
+    List<TimeTableRow> rows;    //Reihen
     private Stellwerk stellwerk;
 
     public TimeTable(Stellwerk stellwerk){
@@ -24,15 +24,12 @@ public class TimeTable {
         }
 
         //erste Zeile erstellen, um Inhalt zu haben
-        TimeTableRow ttr = new TimeTableRow(stellwerk.getSpielzeit());
-        ttr.cols.addAll(cols);
+        TimeTableRow ttr = new TimeTableRow(stellwerk.getSpielzeit(), cols);
         rows.add(ttr);
     }
 
 
     public void addTrain(Zug z){
-        System.out.println("new train");
-
         for(FahrplanHalt fh : z.getFahrplan()){
             addFahrplanHalt(fh);
         }
@@ -40,12 +37,19 @@ public class TimeTable {
 
     public void addFahrplanHalt(FahrplanHalt fh){
         //TODO Ein Zug wird geändert, hier kann die Kollisionsabfrage und Benachrichtigung erfolgen
-        System.out.println("new FH");
 
         TimeTableRow lastRow = rows.get(rows.size() - 1);
         while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
-            lastRow = new TimeTableRow(lastRow.time + 1000*60);
+            lastRow = new TimeTableRow(lastRow.time + 1000*60, cols);
             rows.add(lastRow);
+
+            if(lastRow.time >= fh.getTatsaechlicheAnkunf() && lastRow.time <= fh.getTatsaechlicheAbfahrt()){
+                for(TimeTableData ttd : lastRow.fields){
+                    if(fh.getBahnsteig().getId() == ttd.col.bahnsteig.getId()){
+                        ttd.zuege.add(fh.getZug());
+                    }
+                }
+            }
         }
     }
 
@@ -73,11 +77,17 @@ class TimeTableColumn{
 class TimeTableRow{
     long time;
     List<TimeTableColumn> cols;
+    List<TimeTableData> fields;
 
-    TimeTableRow(long time){
-        cols = new ArrayList<TimeTableColumn>();
+    TimeTableRow(long time, List<TimeTableColumn> cols){
+        this.cols = cols;
         this.time = time;
+        fields = new ArrayList<>();
 
+        for(TimeTableColumn ttc : cols){
+            TimeTableData ttd = new TimeTableData(ttc, this);
+            fields.add(ttd);
+        }
     }
 }
 
@@ -86,7 +96,9 @@ class TimeTableData{
     TimeTableRow row;
     TimeTableColumn col;
 
-    TimeTableData(){
+    TimeTableData(TimeTableColumn col, TimeTableRow row){
+        this.col = col;
+        this.row = row;
         zuege = new ArrayList<Zug>();
     }
 }

@@ -558,11 +558,11 @@ public class Fenster{
             }
         }
 
-        for (LabelContainer lc : gleisbelegung.getLabelTime()) {
+        /*for (LabelContainer lc : gleisbelegung.getLabelTime()) {
             lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
             lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
             lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
-        }
+        }*/
 
         for (Bahnhof b : stellwerk.getBahnhoefe()) {
             for(Bahnsteig ba : b.getBahnsteige()){
@@ -575,7 +575,7 @@ public class Fenster{
                     ba.getGleisLabel().getLabel().setMinWidth(0);
                 }
 
-                for(LabelContainer lc : ba.getSpalte()){
+                /*for(LabelContainer lc : ba.getSpalte()){
                     lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
                     if(ba.isSichtbar()){
                         lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
@@ -584,7 +584,7 @@ public class Fenster{
                         lc.getLabel().setMaxWidth(0);
                         lc.getLabel().setMinWidth(0);
                     }
-                }
+                }*/
             }
         }
 

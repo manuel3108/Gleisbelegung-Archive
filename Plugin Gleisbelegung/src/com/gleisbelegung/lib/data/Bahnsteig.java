@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 
 public class Bahnsteig extends Plugin {
-    private ArrayList<LabelContainer> spalte;
     private LabelContainer gleisLabel;
     private String name;
     private BooleanProperty sichtbar;
@@ -34,15 +33,7 @@ public class Bahnsteig extends Plugin {
         this.orderId = orderId;
         id = orderId;
 
-        spalte = new ArrayList<>();
         hervorgehoben = false;
-    }
-
-    public ArrayList<LabelContainer> getSpalte() {
-        return spalte;
-    }
-    public void setSpalte(ArrayList<LabelContainer> spalte) {
-        this.spalte = spalte;
     }
 
     public String getName() {
@@ -79,7 +70,7 @@ public class Bahnsteig extends Plugin {
     }
 
     public void setLabelContainerToWith(int width){
-        for(LabelContainer lc : spalte){
+        /*for(LabelContainer lc : spalte){
             Platform.runLater(() -> {
                 lc.getLabel().setMaxWidth(width);
                 lc.getLabel().setPrefWidth(width);
@@ -91,11 +82,11 @@ public class Bahnsteig extends Plugin {
             gleisLabel.getLabel().setMaxWidth(width);
             gleisLabel.getLabel().setPrefWidth(width);
             gleisLabel.getLabel().setMinWidth(width);
-        });
+        });*/
     }
 
     public void hebeHervor(){
-        if(hervorgehoben) {
+        /*if(hervorgehoben) {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #303030");
             for(LabelContainer lc : spalte){
                 lc.setHervorhebungDurchGleis(false);
@@ -110,7 +101,7 @@ public class Bahnsteig extends Plugin {
             }
 
             hervorgehoben = true;
-        }
+        }*/
     }
     public boolean getHebeHervor(){
         return hervorgehoben;
@@ -177,7 +168,6 @@ public class Bahnsteig extends Plugin {
     @Override
     public String toString() {
         return "Bahnsteig{" +
-                "spalte=" + spalte +
                 ", gleisLabel=" + gleisLabel +
                 ", gleisName='" + name + '\'' +
                 ", sichtbar=" + sichtbar +
