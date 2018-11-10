@@ -112,8 +112,14 @@ public class Stellwerksuebersicht {
         for(Bahnhof b : stellwerk.getBahnhoefe()){
             String text;
 
-            if(b.getName().equals("")) text = stellwerk.getStellwerksname();
-            else text = b.getName();
+            if(b.getAlternativName().equals("")){
+                if(b.getName().equals("")) text = stellwerk.getStellwerksname();
+                else text = b.getName();
+            } else {
+                if(b.getName().equals("")) text = b.getAlternativName() + " (" + stellwerk.getStellwerksname() + ")";
+                else text = b.getAlternativName() + " (" + b.getName() + ")";
+            }
+
 
             Text temp = new Text(text);
             temp.setFont(Font.font(Einstellungen.schriftgroesse));
@@ -332,5 +338,28 @@ public class Stellwerksuebersicht {
 
     public Pane getContent() {
         return content;
+    }
+
+    public void aktualisiereBahnhofsNamen(){
+        int counter = 0;
+        for(Label l : bahnhofsLabel){
+            Bahnhof b = stellwerk.getBahnhoefe().get(counter);
+            String text = "";
+
+            if(b.getAlternativName().equals("")){
+                if(b.getName().equals("")) text = stellwerk.getStellwerksname();
+                else text = b.getName();
+            } else {
+                if(b.getName().equals("")) text = b.getAlternativName() + " (" + stellwerk.getStellwerksname() + ")";
+                else text = b.getAlternativName() + " (" + b.getName() + ")";
+            }
+
+            final String tempText = text;
+            Platform.runLater(() -> {
+                l.setText(tempText);
+            });
+
+            counter++;
+        }
     }
 }

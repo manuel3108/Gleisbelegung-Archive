@@ -123,6 +123,7 @@ public class Bahnhof {
             stage.close();
             Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
             Einstellungen.fenster.gleisbelegung.sortiereGleise();
+            Einstellungen.fenster.stellwerksuebersicht.aktualisiereBahnhofsNamen();
         });
 
         Pane p = new Pane(name, tname,l,tf,b);
