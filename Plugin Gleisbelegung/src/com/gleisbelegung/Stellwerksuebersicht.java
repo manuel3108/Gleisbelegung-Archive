@@ -8,6 +8,7 @@ import com.sun.javafx.geom.Vec2d;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
@@ -72,6 +73,11 @@ public class Stellwerksuebersicht {
                 b.getPos().y = b.getPos().y + counter * 50;
             }
             l.setOnMouseEntered(mouse -> zeigeBahnhofsInformationen(b));
+            l.setOnMouseClicked(mouse -> {
+                if (mouse.getButton() == MouseButton.SECONDARY) {
+                    b.einstellungen(b.getBahnhofTeile(0));
+                }
+            });
             l.setOnMouseExited(mouse -> entferneBahnhofsInformationen());
             bahnhofsLabel.add(l);
 

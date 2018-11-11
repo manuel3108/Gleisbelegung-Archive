@@ -157,6 +157,11 @@ public class Bahnhof {
       return Collections.unmodifiableList(bahnhofTeile);
     }
   }
+    public BahnhofTeil getBahnhofTeile(int index) {
+        synchronized (bahnhofTeile) {
+            return bahnhofTeile.get(index);
+        }
+    }
 
   public void addBahnhofLabel(LabelContainer bahnhofLabel, List<Bahnsteig> bahnsteige) {
     BahnhofTeil bt = new BahnhofTeil(bahnhofLabel, bahnsteige);
@@ -178,7 +183,7 @@ public class Bahnhof {
     return alternativName;
   }
 
-  private void einstellungen(BahnhofTeil bt) {
+  public void einstellungen(BahnhofTeil bt) {
     Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
     Stage stage = new Stage();
 
