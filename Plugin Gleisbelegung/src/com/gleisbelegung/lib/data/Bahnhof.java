@@ -199,7 +199,7 @@ public class Bahnhof {
         l.setTranslateX(25);
         l.setTranslateY(95);
 
-        TextField tf = new TextField(String.valueOf(bahnsteige.get(0).getOrderId() + 1));
+        TextField tf = new TextField(String.valueOf(bahnsteige.entrySet().iterator().next().getValue().getOrderId() + 1));
         tf.setFont(Font.font(Einstellungen.schriftgroesse - 3));
         tf.setTranslateX(25);
         tf.setTranslateY(130);
