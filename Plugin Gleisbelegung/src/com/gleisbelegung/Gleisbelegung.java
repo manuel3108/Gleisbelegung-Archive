@@ -107,6 +107,10 @@ public class Gleisbelegung {
         spTime.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spTime.setStyle("-fx-background: #303030; -fx-padding: 0;");
         spTime.setTranslateY(50);
+        spTime.vvalueProperty().addListener((ov, old_val, new_val) -> {
+            spContent.setVvalue(spTime.getVvalue());
+            scrollBarHeight.adjustValue(spTime.getVvalue());
+        });
 
         gpPlatform = new GridPane();
         gpPlatform.setHgap(0);
@@ -152,33 +156,6 @@ public class Gleisbelegung {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
-        /*for(Bahnhof b : stellwerk.getBahnhoefe()){
-            for(Bahnsteig ba : b.getBahnsteige()){
-                for(int i = 0; i < Einstellungen.vorschau; i++){
-                    LabelContainer lc = new LabelContainer(i, ba);
-                    lc.updateLabel("", stellwerk.getSpielzeit() + i*1000*60);
-                    ba.getSpalte().add(lc);
-
-                    final int tempI = i;
-                    Platform.runLater(() -> {
-                        gp.add(lc.getLabel(), ba.getId(), tempI);
-                    });
-                }
-            }
-        }
-        labelIndexCounter = Einstellungen.vorschau;
-
-        for(Bahnhof b : stellwerk.getBahnhoefe()){
-            for(LabelContainer lc : b.getBahnsteige().get(b.getBahnsteige().size()-1).getSpalte()){
-                lc.setLetzterBahnsteig(true);
-
-                b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().setLetzterBahnsteig(true);
-                Label l = b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().getLabel();
-                l.setStyle(l.getStyle() + " -fx-border-width: 0 5 5 0;");
-            }
-        }*/
 
         sortiereGleise();
     }
@@ -229,32 +206,33 @@ public class Gleisbelegung {
         int rowCounter = 0;
 
         for(TimeTableRow ttr : timeTable.rows){
-            LabelContainer lc = new LabelContainer(-1, null);
+            LabelContainer lc = new LabelContainer(rowCounter, null);
 
             final int temp = rowCounter;
             Platform.runLater(() -> {
-                lc.getLabel().setText(""+ttr.time);
-                lc.getLabel().setStyle("-fx-text-fill: #fff");
-                lc.getLabel().setTranslateX(0);
-                lc.getLabel().setTranslateY(temp*20 + 2*20);
-                content.getChildren().add(lc.getLabel());
+                lc.setTimeLabel(true, ttr.time);
+                gpTime.add(lc.getLabel(), 0, temp);
             });
 
             int colCounter = 0;
 
             for(TimeTableData ttd : ttr.fields){
+                LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.col.bahnsteig);
+                lcTemp.updateLabel("", ttd.row.time);
+
                 if(ttd.zuege.size() > 0){
-                    LabelContainer lcTemp = new LabelContainer(-1, ttd.col.bahnsteig);
-
-                    final int tempCol = colCounter;
-                    Platform.runLater(() -> {
-                        lcTemp.addTrain(ttd.zuege.get(0));
-                        lcTemp.getLabel().setTranslateX(tempCol*100 + 100);
-                        lcTemp.getLabel().setTranslateY(temp*20 + 2*20);
-                        content.getChildren().add(lcTemp.getLabel());
-                    });
-
+                    for(Zug z : ttd.zuege){
+                        lcTemp.addTrain(z);
+                    }
                 }
+
+                final int tempCol = colCounter;
+                Platform.runLater(() -> {
+//                    lcTemp.getLabel().setTranslateX(tempCol*100);
+//                    lcTemp.getLabel().setTranslateY(temp*20);
+//                    gp.getChildren().add(lcTemp.getLabel());
+                    gp.add(lcTemp.getLabel(), tempCol, temp);
+                });
 
                 colCounter++;
             }
@@ -291,73 +269,13 @@ public class Gleisbelegung {
                 e.printStackTrace();
             }
         }
-        zeichneTabelle();
+
+        if(gp.getChildren().size() == 0) zeichneTabelle();
+        else aktualisiereTabelle();
     }
 
     public void aktualisiereTabelle(){
-        /*Platform.runLater(() -> {
-            gpTime.getChildren().remove(0);
-            labelTime.remove(0);
 
-            for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                for(Bahnsteig bahnsteig : bahnhof.getBahnsteige()){
-                    if(gp != null && gp.getChildren() != null && bahnsteig != null && bahnsteig.getSpalte() != null && bahnsteig.getSpalte().get(0) != null && bahnsteig.getSpalte().get(0).getLabel() != null){
-                        gp.getChildren().remove(bahnsteig.getSpalte().get(0).getLabel());
-                        bahnsteig.getSpalte().remove(0);
-                    }
-                }
-            }
-        });
-
-
-        Date dNow = new Date(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
-        SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
-
-        LabelContainer lc = new LabelContainer(labelIndexCounter,null);
-        lc.updateLabel(ft.format(dNow), false);
-        Platform.runLater(() -> {
-            gpTime.add(lc.getLabel(), 0, labelIndexCounter+1);
-            labelTime.add(labelTime.size(), lc);
-        });
-
-
-        ArrayList<Bahnsteig> sortierteGleise = new ArrayList<>();
-        for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-            sortierteGleise.addAll(bahnhof.getBahnsteige());
-        }
-        sortierteGleise.sort(Comparator.comparing(Bahnsteig::getOrderId));
-
-        ArrayList<LabelContainer> labelContainer = new ArrayList<>();
-        int counter = 0;
-        for(Bahnsteig b : sortierteGleise){
-            LabelContainer laco = new LabelContainer(labelIndexCounter, b);
-
-            labelContainer.add(laco);
-
-            laco.updateLabel("", stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);
-            b.getSpalte().add(laco);
-
-            final int tempI = labelIndexCounter+2;
-            final int tempCounter = counter;
-            Platform.runLater(() -> {
-                gp.add(laco.getLabel(), tempCounter, tempI);
-            });
-
-            if(b.isSichtbar()){
-                laco.getLabel().setPrefWidth(Einstellungen.spaltenbreite);
-            } else{
-                laco.getLabel().setMaxWidth(0);
-                laco.getLabel().setPrefWidth(0);
-                laco.getLabel().setMinWidth(0);
-            }
-
-            if(b.getHebeHervor()) laco.setHervorhebungDurchGleis(true);
-
-            counter++;
-        }
-        labelIndexCounter++;
-
-        updateSomeTrains(stellwerk.getSpielzeit() + Einstellungen.vorschau*1000*60 - 2000);*/
     }
 
     private void updateSomeTrains(long time){
