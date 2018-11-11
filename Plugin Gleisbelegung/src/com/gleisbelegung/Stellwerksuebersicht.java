@@ -271,7 +271,11 @@ public class Stellwerksuebersicht {
 
                     if(!content.getChildren().contains(l)){
                         Platform.runLater(() -> {
-                            content.getChildren().add(l);
+                          synchronized(content) {
+                            if(!content.getChildren().contains(l)) {
+                              content.getChildren().add(l);
+                            }
+                          }
                         });
                     }
                 } else if(content.getChildren().contains(z.getStellwerksUebersichtLabel())){
