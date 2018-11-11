@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -143,7 +145,7 @@ public class Gleisbelegung {
         }
 
         for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-            for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
+            for (int i = 0; i < bahnhof.getAnzahlBahnsteige(); i++) {
                 LabelContainer lc = new LabelContainer(i,null);
                 lc.updateLabel(bahnhof.getBahnsteig(i).getName(), true);
                 lc.getAussehen().textFarbe = "#fff";
@@ -182,11 +184,11 @@ public class Gleisbelegung {
         labelIndexCounter = Einstellungen.vorschau;
 
         for(Bahnhof b : stellwerk.getBahnhoefe()){
-            for(LabelContainer lc : b.getBahnsteige().get(b.getBahnsteige().size()-1).getSpalte()){
+            for(LabelContainer lc : b.getLastBahnsteig().getSpalte()){
                 lc.setLetzterBahnsteig(true);
 
-                b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().setLetzterBahnsteig(true);
-                Label l = b.getBahnsteige().get(b.getBahnsteige().size()-1).getGleisLabel().getLabel();
+                b.getLastBahnsteig().getGleisLabel().setLetzterBahnsteig(true);
+                Label l = b.getLastBahnsteig().getGleisLabel().getLabel();
                 l.setStyle(l.getStyle() + " -fx-border-width: 0 5 5 0;");
             }
         }
@@ -239,7 +241,7 @@ public class Gleisbelegung {
                 for (int i = 0; i < z.getFahrplan().size(); i++) {
                     if (z.getFahrplan(i) != null && z.getFahrplan(i).getVorgaenger() == null) {
                         for (Bahnhof b : stellwerk.getBahnhoefe()) {
-                            for (int j = 0; j < b.getBahnsteige().size(); j++) {
+                            for (int j = 0; j < b.getAnzahlBahnsteige(); j++) {
                                 Bahnsteig g = b.getBahnsteig(j);
                                 if (g != null && z.getFahrplan(i) != null && z.getFahrplan(i).getBahnsteig().getName().equals(g.getName())) {
                                     if (z.getFahrplan(i).getFlaggedTrain() != null) {
@@ -433,11 +435,12 @@ public class Gleisbelegung {
     public void sortiereGleise(){
         Platform.runLater(() -> {
             sortierteGleise = new ArrayList<>();
+            SortedMap<Integer, Bahnsteig> gleisMap = new TreeMap<>();
             for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                sortierteGleise.addAll(bahnhof.getBahnsteige());
+                gleisMap.putAll(bahnhof.getBahnsteigOrderMap());
             }
 
-            sortierteGleise.sort(Comparator.comparing(Bahnsteig::getOrderId));
+            sortierteGleise.addAll(gleisMap.values());
 
             gpPlatform.getChildren().clear();
             gp.getChildren().clear();
@@ -473,7 +476,7 @@ public class Gleisbelegung {
 
         gpBahnhof.getChildren().clear();
         for(Bahnhof b : stellwerk.getBahnhoefe()){
-            b.getBahnhofTeile().clear();
+            b.clearBahnhofTeile();
         }
 
         for(Bahnsteig bahnsteig : sortierteGleise){

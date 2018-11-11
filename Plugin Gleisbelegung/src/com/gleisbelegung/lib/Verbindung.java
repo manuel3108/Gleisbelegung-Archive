@@ -387,8 +387,9 @@ public class Verbindung {
 
     private Bahnsteig sucheBahnsteig(String name) {
         for (Bahnhof bahnhof : stellwerk.getBahnhoefe()) {
-            for (Bahnsteig bahnsteig : bahnhof.getBahnsteige()) {
-                if (bahnsteig.getName().equals(name)) return bahnsteig;
+            Bahnsteig bst = bahnhof.getBahnsteigByName(name);
+            if (bst != null) {
+              return bst;
             }
         }
         return null;

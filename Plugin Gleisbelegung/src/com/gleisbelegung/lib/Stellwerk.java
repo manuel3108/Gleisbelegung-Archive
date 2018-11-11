@@ -64,11 +64,11 @@ public class Stellwerk {
             }
             bahnhofsName[i] = bahnsteige[i].replaceAll("\\P{L}+", "");
             if(letzterBahnhofsName.equals(bahnhofsName[i]) && bahnhoefe.size() > 0){
-                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
+                bahnhoefe.get(bahnhoefe.size()-1).addBahnsteig(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
             } else {
                 letzterBahnhofsName = bahnhofsName[i];
                 bahnhoefe.add(new Bahnhof(bahnhoefe.size(), letzterBahnhofsName));
-                bahnhoefe.get(bahnhoefe.size()-1).getBahnsteige().add(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
+                bahnhoefe.get(bahnhoefe.size()-1).addBahnsteig(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
             }
         }
     }
@@ -115,7 +115,7 @@ public class Stellwerk {
     }
     public List<Zug> getZuege() {
     	synchronized(zuege) {
-    		return Collections.unmodifiableList(zuege);
+    		return Collections.unmodifiableList(new ArrayList<Zug>(zuege));
     	}
     }
     public void addZug(Zug zug) {
