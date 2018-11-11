@@ -15,8 +15,11 @@ import javafx.scene.text.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import javafx.scene.shape.Line;
 
@@ -40,7 +43,7 @@ public class Stellwerksuebersicht {
         gc.setFont(Font.font(Einstellungen.schriftgroesse));*/
 
         for(Bahnhof b : stellwerk.getBahnhoefe()){
-            if(b.getBahnhofVerbindungen() != null) b.getBahnhofVerbindungen().clear();
+            if(b.getBahnhofVerbindungen() != null) b.clearBahnhofVerbindungen();
 
             String text = "";
             if(b.getName().equals("")) text = stellwerk.getStellwerksname();
@@ -179,10 +182,13 @@ public class Stellwerksuebersicht {
     }
 
     private void updateLinie(Bahnhof b){
-        ArrayList<Bahnhof> verbindungsBahnhoefe = b.getVerbindungsBahnhoefe();
+        Set<Bahnhof> verbindungsBahnhoefe = b.getVerbindungsBahnhoefe();
 
         for(Bahnhof vb : verbindungsBahnhoefe){
             Line linie = b.getLinie(vb);
+            if (linie == null) {
+              continue;
+            }
             Vec2d linienPosB1 = new Vec2d();
             Vec2d linienPosB2 = new Vec2d();
 
@@ -265,7 +271,11 @@ public class Stellwerksuebersicht {
 
                     if(!content.getChildren().contains(l)){
                         Platform.runLater(() -> {
-                            content.getChildren().add(l);
+                          synchronized(content) {
+                            if(!content.getChildren().contains(l)) {
+                              content.getChildren().add(l);
+                            }
+                          }
                         });
                     }
                 } else if(content.getChildren().contains(z.getStellwerksUebersichtLabel())){

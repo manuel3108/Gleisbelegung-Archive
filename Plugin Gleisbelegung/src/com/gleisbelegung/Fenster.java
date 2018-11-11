@@ -450,7 +450,7 @@ public class Fenster{
             gleise.getChildren().add(cbBahnhof[counterBhf]);
             counterBhf++;
             //dann alle Gleise in die mittlere und rechte Spalte schreiben
-            for (int i = 0; i < bahnhof.getBahnsteige().size(); i++) {
+            for (int i = 0; i < bahnhof.getAnzahlBahnsteige(); i++) {
                 cbGleis[counterGleis] = new CheckBox(bahnhof.getBahnsteig(i).getName());
                 cbGleis[counterGleis].setTranslateX(tempX);
                 cbGleis[counterGleis].setTranslateY(tempY);
