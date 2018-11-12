@@ -29,7 +29,7 @@ public class TimeTable {
     }
 
 
-    public void addTrain(Zug z){
+    public void addZug(Zug z){
         for(FahrplanHalt fh : z.getFahrplan()){
             addFahrplanHalt(fh);
         }
@@ -53,13 +53,24 @@ public class TimeTable {
         }
     }
 
-    public void removeTrain(Zug z){
+    public void updateZug(Zug z){
+        for(FahrplanHalt fh : z.getFahrplan()){
+            updateFahrplanhalt(fh);
+        }
+    }
+
+    public void updateFahrplanhalt(FahrplanHalt fh){
 
     }
 
-    public void updateTrain(Zug z){
-        removeTrain(z);
-        addTrain(z);
+    public void removeZug(Zug z){
+        for(FahrplanHalt fh : z.getFahrplan()){
+            removeFahrplanhalt(fh);
+        }
+    }
+
+    public void removeFahrplanhalt(FahrplanHalt fh){
+        //kein Ahnung
     }
 }
 
