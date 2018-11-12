@@ -21,8 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -38,7 +42,7 @@ public class Gleisbelegung {
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
     private int labelIndexCounter;                      //Zählt die Textfelder auf der y-Achse mit um eine Identifikation zu ermöglichen
     private ArrayList<LabelContainer> labelTime;
-    private ArrayList<Bahnsteig> sortierteGleise;
+    private List<Bahnsteig> sortierteGleise;
 
     private Pane content;
     private Stellwerk stellwerk;
@@ -434,13 +438,19 @@ public class Gleisbelegung {
 
     public void sortiereGleise(){
         Platform.runLater(() -> {
-            sortierteGleise = new ArrayList<>();
-            SortedMap<Integer, Bahnsteig> gleisMap = new TreeMap<>();
-            for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                gleisMap.putAll(bahnhof.getBahnsteigOrderMap());
+            List<Bahnsteig> sortierteGleise = new ArrayList<>();
+            SortedMap<Integer, Set<Bahnsteig>> gleisMap = new TreeMap<>();
+            for (Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+            	bahnhof.getBahnsteigOrderMap(gleisMap);
             }
 
-            sortierteGleise.addAll(gleisMap.values());
+            gleisMap.values().forEach(new Consumer<Set<Bahnsteig>>() {
+				@Override
+				public void accept(Set<Bahnsteig> t) {
+					sortierteGleise.addAll(t);
+				}
+            });
+            this.sortierteGleise = sortierteGleise;
 
             gpPlatform.getChildren().clear();
             gp.getChildren().clear();

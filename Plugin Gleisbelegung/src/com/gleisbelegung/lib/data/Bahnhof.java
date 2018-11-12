@@ -332,15 +332,17 @@ public class Bahnhof {
 
     }
 
-    public SortedMap<Integer, Bahnsteig> getBahnsteigOrderMap() {
-        SortedMap<Integer, Bahnsteig> bahnsteigMap = new TreeMap<>();
+    public void getBahnsteigOrderMap(SortedMap<Integer, Set<Bahnsteig>> map) {
         synchronized (bahnsteige) {
             for (Bahnsteig bst : bahnsteige.values()) {
-                bahnsteigMap.put(Integer.valueOf(bst.getOrderId()), bst);
+            	Set<Bahnsteig> set = map.get(Integer.valueOf(bst.getOrderId()));
+            	if (set == null) {
+            		set = new HashSet<>();
+            		map.put(Integer.valueOf(bst.getOrderId()), set);
+            	}
+            	set.add(bst);
             }
         }
-
-        return bahnsteigMap;
     }
 
     public void clearBahnhofTeile() {
