@@ -242,7 +242,28 @@ public class Gleisbelegung {
     }
 
     public void update(){
+        boolean wasUpdate = false;
         for (Zug z : stellwerk.getZuege()) {
+            for(FahrplanHalt fh : z.getFahrplan()){
+                if(z.isNewTrain() || fh.isNeedUpdate()){
+                    z.setNewTrain(false);
+                    fh.setNeedUpdate(false);
+
+                    timeTable.addTrain(z);
+                    wasUpdate = true;
+                }
+            }
+        }
+
+        if(wasUpdate){
+            //TODO Das soll eigentlich nur vorläufig sein
+            Platform.runLater(() -> {
+                gp.getChildren().clear();
+                gpTime.getChildren().clear();
+                zeichneTabelle();
+            });
+        }
+        /*for (Zug z : stellwerk.getZuege()) {
             try {
                 if (z.isNeedUpdate() && z.getFahrplan(0) != null && z.getFahrplan(0).getVorgaenger() != null) {
                     z.getFahrplan(0).getVorgaenger().getZug().setNeedUpdate(true);
@@ -268,7 +289,7 @@ public class Gleisbelegung {
                 System.out.println("Fehler koennen passieren :(");
                 e.printStackTrace();
             }
-        }
+        }*/
 
         if(gp.getChildren().size() == 0) zeichneTabelle();
         else aktualisiereTabelle();
@@ -279,7 +300,7 @@ public class Gleisbelegung {
     }
 
     private void updateSomeTrains(long time){
-        for(Zug z : stellwerk.getZuege()){
+        /*for(Zug z : stellwerk.getZuege()){
             try{
                 if (z.getFahrplan() != null && z.getFahrplan(0) != null) {
                     for (int i = 0; i < z.getFahrplan().size(); i++) {
@@ -309,7 +330,7 @@ public class Gleisbelegung {
                 e.printStackTrace();
                 System.out.println("ZUG: " + z.getZugName() + ": Darstellungsfehler!");
             }
-        }
+        }*/
     }
 
     public void sortiereGleise(){

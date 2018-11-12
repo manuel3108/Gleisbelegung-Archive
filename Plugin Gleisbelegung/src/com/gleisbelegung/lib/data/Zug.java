@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Zug {
     private int zugId;                  //einmalige Zugidentifikationsnummer
@@ -25,8 +26,7 @@ public class Zug {
     private String von;                 //Einfahrt des Zuges in das Stellwerk
     private String nach;                //Ausfahrt des Zuges aus dem Stellwerk
     private boolean sichtbar;           //Ist der Zug aktuell im Stellwerksichbar
-    private ArrayList<FahrplanHalt> fahrplan;    //Speichert alle Fahrplanhalt des Zuges aus der @FahrplanHalt-Klasse
-    private boolean needUpdate;         //Wenn der Zug ein Update benötigt, dann wird er in @Fenster.drawTrain() neu gezeichnet
+    private List<FahrplanHalt> fahrplan;    //Speichert alle Fahrplanhalt des Zuges aus der @FahrplanHalt-Klasse
     private boolean newTrain;           //Wenn ein Zug gerade neu in die Liste zuege aus @Main aufgenommen wurde ist dieser Wert auf true
     private Label stellwerksUebersichtLabel;
 
@@ -36,7 +36,8 @@ public class Zug {
         this.zugName = zugName;
 
         this.newTrain = true;
-        this.needUpdate = true;
+
+        fahrplan = new ArrayList<FahrplanHalt>();
 
         stellwerksUebersichtLabel = new Label(zugName);
         stellwerksUebersichtLabel.setStyle("-fx-text-fill: #fff;");
@@ -119,7 +120,7 @@ public class Zug {
     }
 
     //get-set FahrplanHalt
-    public ArrayList<FahrplanHalt> getFahrplan() {
+    public List<FahrplanHalt> getFahrplan() {
         return fahrplan;
     }
     public FahrplanHalt getFahrplan(int index) {
@@ -131,14 +132,6 @@ public class Zug {
     }
     public void setFahrplan(ArrayList<FahrplanHalt> fahrplan) {
         this.fahrplan = fahrplan;
-    }
-
-    //get-set needUpdate
-    public boolean isNeedUpdate() {
-        return needUpdate;
-    }
-    public void setNeedUpdate(boolean needsUpdate) {
-        this.needUpdate = needsUpdate;
     }
 
     //get-set newTrain
@@ -185,7 +178,6 @@ public class Zug {
                 ", von='" + von + '\'' +
                 ", nach='" + nach + '\'' +
                 ", sichtbar=" + sichtbar +
-                ", needUpdate=" + needUpdate +
                 ", newTrain=" + newTrain +
                 '}';
     }
@@ -196,5 +188,11 @@ public class Zug {
 
     public void setStellwerksUebersichtLabel(Label stellwerksUebersichtLabel) {
         this.stellwerksUebersichtLabel = stellwerksUebersichtLabel;
+    }
+
+    public void setNeedUpdate(boolean value){
+        for(FahrplanHalt fh : fahrplan){
+            fh.setNeedUpdate(value);
+        }
     }
 }
