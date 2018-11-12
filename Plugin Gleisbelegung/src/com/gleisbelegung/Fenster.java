@@ -16,28 +16,16 @@ import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.media.AudioClip;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 
 public class Fenster{
@@ -215,9 +203,9 @@ public class Fenster{
                     if(z.getFahrplan(i).getFlaggedTrain() != null){
                         Zug flagged = z.getFahrplan(i).getFlaggedTrain();
 
-                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                        long lAbfahrt = flagged.getFahrplan(0).getAbfahrt() + flagged.getVerspaetung()*1000*60;
-                        if(flagged.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
+                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
+                        long lAbfahrt = flagged.getFahrplan(0).getAbfahrt() + flagged.getVerspaetungInMinuten()*1000*60;
+                        if(flagged.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                             lAbfahrt = lAnkunft + 4*1000*60;
                         }
 
@@ -238,13 +226,13 @@ public class Fenster{
 
                         informations.getChildren().add(l);
                     } else{
-                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                        long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                        if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
+                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
+                        long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten()*1000*60;
+                        if(z.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                             lAbfahrt = lAnkunft + 4*1000*60;
                         }
                         if (z.getFahrplan(i).getVorgaenger() != null)
-                            lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZ().getVerspaetung() * 1000 * 60;
+                            lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetungInMinuten() * 1000 * 60;
                         Date anunft = new Date(lAnkunft);
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
@@ -570,11 +558,11 @@ public class Fenster{
             }
         }
 
-        for (LabelContainer lc : gleisbelegung.getLabelTime()) {
+        /*for (LabelContainer lc : gleisbelegung.getLabelTime()) {
             lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
             lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
             lc.getLabel().setMinWidth(Einstellungen.spaltenbreite);
-        }
+        }*/
 
         for (Bahnhof b : stellwerk.getBahnhoefe()) {
             for(Bahnsteig ba : b.getBahnsteige()){
@@ -587,7 +575,7 @@ public class Fenster{
                     ba.getGleisLabel().getLabel().setMinWidth(0);
                 }
 
-                for(LabelContainer lc : ba.getSpalte()){
+                /*for(LabelContainer lc : ba.getSpalte()){
                     lc.getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
                     if(ba.isSichtbar()){
                         lc.getLabel().setMaxWidth(Einstellungen.spaltenbreite);
@@ -596,7 +584,7 @@ public class Fenster{
                         lc.getLabel().setMaxWidth(0);
                         lc.getLabel().setMinWidth(0);
                     }
-                }
+                }*/
             }
         }
 
