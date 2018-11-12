@@ -31,6 +31,7 @@ public class LabelContainer extends Plugin {
     private boolean letzterBahnsteig;
     private Aussehen aussehen;
     private boolean hervorhebungDurchGleis;
+    private boolean timeLabel;
 
     public LabelContainer(int labelIndex, Bahnsteig bahnsteig){
         this.bahnsteig = bahnsteig;
@@ -38,6 +39,7 @@ public class LabelContainer extends Plugin {
         trains = new ArrayList<>();
         aussehen = new Aussehen();
         hervorhebungDurchGleis = false;
+        timeLabel = false;
 
         l = new Label();
         l.setFont(Font.font(Einstellungen.schriftgroesse-5));
@@ -113,79 +115,87 @@ public class LabelContainer extends Plugin {
     }
 
     public void updateLabel(){
-        if(trains.size() == 0){
-            Platform.runLater(() -> {
-                l.setText("");
-                l.setTooltip(null);
-                if(hervorhebungDurchGleis){
-                    aussehen.hintergrundFarbe = "#181818";
-                    aussehen.textFarbe = "#fff";
-                    prepareBorder();
-                } else if (labelIndex % 2 == 0) {
-                    aussehen.hintergrundFarbe = "transparent";
-                    aussehen.textFarbe = "#fff";
-                    prepareBorder();
-                } else {
-                    aussehen.hintergrundFarbe = "#292929";
-                    aussehen.textFarbe = "#fff";
-                    prepareBorder();
-                }
-
-                if(letzterBahnsteig){
-                    aussehen.raender.setze(0, 5 ,1, 0);
-                }
-
-                l.setStyle(aussehen.toCSSStyle());
-            });
-        } else if(trains.size() == 1){
-            Zug train = trains.get(0);
-            Platform.runLater(() -> {
-                l.setText(train.getZugName() + train.getVerspaetungToString());
-                l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
-                aussehen.hintergrundFarbe = prepareTrainStyle(train.getZugName());
+        if(timeLabel){
+            prepareBorder();
+            if (labelIndex % 2 != 0) {
+                aussehen.hintergrundFarbe = "#292929";
                 aussehen.textFarbe = "#fff";
-                prepareBorder();
-
-                if(letzterBahnsteig){
-                    aussehen.raender.setze(0, 5 ,1, 0);
-                }
-
-                l.setStyle(aussehen.toCSSStyle());
-            });
-        } else if (trains.size() == 2 && trains.get(1).getFahrplan(0).getVorgaenger() != null) {  //TODO sinn dieser Alternative, identisch zu oben?
-            Zug train = trains.get(1);
-            Platform.runLater(() -> {
-                l.setText(train.getZugName() + train.getVerspaetungToString());
-                l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
-                aussehen.hintergrundFarbe = prepareTrainStyle(train.getZugName());
-                aussehen.textFarbe = "#fff";
-                prepareBorder();
-                l.setStyle(aussehen.toCSSStyle());
-            });
+            }
         } else {
-            Platform.runLater(() -> {
-                if(trains != null && trains.size() > 0){
-                    String text = "";
-
-                    for (Zug z : trains) {
-                        text += z.getZugName() + z.getVerspaetungToString() + ", "; //TODO kann laut Log null werden
+            if(trains.size() == 0){
+                Platform.runLater(() -> {
+                    l.setText("");
+                    l.setTooltip(null);
+                    if(hervorhebungDurchGleis){
+                        aussehen.hintergrundFarbe = "#181818";
+                        aussehen.textFarbe = "#fff";
+                        prepareBorder();
+                    } else if (labelIndex % 2 == 0) {
+                        aussehen.hintergrundFarbe = "transparent";
+                        aussehen.textFarbe = "#fff";
+                        prepareBorder();
+                    } else {
+                        aussehen.hintergrundFarbe = "#292929";
+                        aussehen.textFarbe = "#fff";
+                        prepareBorder();
                     }
-                    text = text.substring(0, text.length() - 2);
 
-                    final String temp = text;
-                    l.setText(temp);
-                    l.setTooltip(new Tooltip(temp));
-                    aussehen.hintergrundFarbe = "red";
+                    if(letzterBahnsteig){
+                        aussehen.raender.setze(0, 5 ,1, 0);
+                    }
+
+                    l.setStyle(aussehen.toCSSStyle());
+                });
+            } else if(trains.size() == 1){
+                Zug train = trains.get(0);
+                Platform.runLater(() -> {
+                    l.setText(train.getZugName() + train.getVerspaetungToString());
+                    l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
+                    aussehen.hintergrundFarbe = prepareTrainStyle(train.getZugName());
                     aussehen.textFarbe = "#fff";
                     prepareBorder();
 
                     if(letzterBahnsteig){
-                        aussehen.raender.setze(0, 5, 1, 0);
+                        aussehen.raender.setze(0, 5 ,1, 0);
                     }
 
                     l.setStyle(aussehen.toCSSStyle());
-                }
-            });
+                });
+            } else if (trains.size() == 2 && trains.get(1).getFahrplan(0).getVorgaenger() != null) {  //TODO sinn dieser Alternative, identisch zu oben?
+                Zug train = trains.get(1);
+                Platform.runLater(() -> {
+                    l.setText(train.getZugName() + train.getVerspaetungToString());
+                    l.setTooltip(new Tooltip(train.getZugName() + train.getVerspaetungToString()));
+                    aussehen.hintergrundFarbe = prepareTrainStyle(train.getZugName());
+                    aussehen.textFarbe = "#fff";
+                    prepareBorder();
+                    l.setStyle(aussehen.toCSSStyle());
+                });
+            } else {
+                Platform.runLater(() -> {
+                    if(trains != null && trains.size() > 0){
+                        String text = "";
+
+                        for (Zug z : trains) {
+                            text += z.getZugName() + z.getVerspaetungToString() + ", "; //TODO kann laut Log null werden
+                        }
+                        text = text.substring(0, text.length() - 2);
+
+                        final String temp = text;
+                        l.setText(temp);
+                        l.setTooltip(new Tooltip(temp));
+                        aussehen.hintergrundFarbe = "red";
+                        aussehen.textFarbe = "#fff";
+                        prepareBorder();
+
+                        if(letzterBahnsteig){
+                            aussehen.raender.setze(0, 5, 1, 0);
+                        }
+
+                        l.setStyle(aussehen.toCSSStyle());
+                    }
+                });
+            }
         }
     }
     public void updateLabel(String text, boolean isBahnsteig){
@@ -249,6 +259,10 @@ public class LabelContainer extends Plugin {
         Date dNow = new Date(time);
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
         String localTime = ft.format(dNow);
+
+        if(timeLabel){
+            l.setText(localTime);
+        }
 
         if(localTime.endsWith("00")){
             aussehen.raender.farbeRechts = "#505050";
@@ -343,15 +357,15 @@ public class LabelContainer extends Plugin {
             Fenster.informations.getChildren().addAll(trainName, vonBis);
 
             for(int i = 0; i < z.getFahrplan().size(); i++){
-                long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetung()*1000*60;
-                long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetung()*1000*60;
-                if(z.getVerspaetung() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
+                long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
+                long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten()*1000*60;
+                if(z.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
                     lAbfahrt = lAnkunft + 4*1000*60;
                 }
                 if (z.getFahrplan(i).getFlaggedTrain() != null && z.getFahrplan(i).getFlaggedTrain().getFahrplan(0) != null) {
-                    lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0).getAbfahrt() + z.getFahrplan(i).getFlaggedTrain().getVerspaetung() * 1000 * 60;
-                } else if (z.getFahrplan(i).getVorgaenger() != null && z.getFahrplan(i).getVorgaenger().getZ() != null) {
-                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZ().getVerspaetung() * 1000 * 60;
+                    lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0).getAbfahrt() + z.getFahrplan(i).getFlaggedTrain().getVerspaetungInMinuten() * 1000 * 60;
+                } else if (z.getFahrplan(i).getVorgaenger() != null && z.getFahrplan(i).getVorgaenger().getZug() != null) {
+                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetungInMinuten() * 1000 * 60;
                 }
 
                 String durchfahrt = "";
@@ -432,6 +446,21 @@ public class LabelContainer extends Plugin {
 
     public Aussehen getAussehen() {
         return aussehen;
+    }
+
+    public boolean isTimeLabel() {
+        return timeLabel;
+    }
+    public void setTimeLabel(boolean timeLabel, long time) {
+        this.timeLabel = timeLabel;
+        this.time = time;
+
+        updateLabel();
+
+        aussehen.raender.rechts = 5;
+        aussehen.textFarbe = "#fff";
+
+        l.setStyle(aussehen.toCSSStyle());
     }
 }
 

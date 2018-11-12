@@ -23,6 +23,7 @@ public class FahrplanHalt {
     private boolean crossing;                       //Hat der Zug hier eine Durchfahrt
     private FahrplanHalt vorgaenger;                          //Hat der Zug einen vorgaenger, wenn ja, dann hier der Flügelt- oder Wechselhalt gespeichert
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
+    private boolean needUpdate;
 
     //Speichert gegebene Seite
     public FahrplanHalt(long abfahrt, Bahnsteig gleis, String flags, Bahnsteig plangleis, long ankuft, Zug z){
@@ -38,16 +39,22 @@ public class FahrplanHalt {
         flaggedTrain = null;
 
         crossing = flags.contains("D") || flags.equals("D");
+        needUpdate = true;
+
+        //TODO isNeedUpdate in Fahrplanhalt auslagern
     }
 
     //get zug
-    public Zug getZ() {
+    public Zug getZug() {
         return z;
     }
 
     //get-set Ankunft
     public long getAnkuft() {
         return ankuft;
+    }
+    public long getTatsaechlicheAnkunf(){
+        return  ankuft;
     }
     public void setAnkuft(long ankuft) {
         this.ankuft = ankuft;
@@ -56,6 +63,9 @@ public class FahrplanHalt {
     //get-set Abfahrt
     public long getAbfahrt() {
         return abfahrt;
+    }
+    public long getTatsaechlicheAbfahrt(){
+        return  abfahrt;
     }
     public void setAbfahrt(long abfahrt) {
         this.abfahrt = abfahrt;
@@ -153,6 +163,13 @@ public class FahrplanHalt {
 
     public void setVorgaenger(FahrplanHalt vorgaenger) {
         this.vorgaenger = vorgaenger;
+    }
+
+    public boolean isNeedUpdate() {
+        return needUpdate;
+    }
+    public void setNeedUpdate(boolean needUpdate) {
+        this.needUpdate = needUpdate;
     }
 
     @Override

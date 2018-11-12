@@ -159,7 +159,6 @@ public class Verbindung {
                             break;
                         }
                     } catch (Exception e) {
-                        System.out.println("GITHUB #20: " + xmlZug.get("zid") + xmlZug.get("name"));
                         e.printStackTrace();
                     }
                 }
@@ -178,7 +177,6 @@ public class Verbindung {
 
         for (Zug z : stellwerk.getZuege()) {
             try {
-                boolean updateNeeded = false;
                 setSocketCode("<zugdetails zid='" + z.getZugId() + "'/>");
                 XML zugdetails = xml.read();
                 int counter = 0;
@@ -186,17 +184,17 @@ public class Verbindung {
                 if (zugdetails == null || !zugdetails.getKey().equals("zugdetails")) {
                     // Fehler
                     if (zugdetails.getKey().equals("status")) {
-                      System.out.println("INFORMATION: " + z.getZugName() + " hat status 402 \"zid unbekannt\" " + z.getVerspaetung() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
-                      removing.add(z);
+                        System.out.println("INFORMATION: " + z.getZugName() + " hat status 402 \"zid unbekannt\" " + z.getVerspaetungInMinuten() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
+                        removing.add(z);
                     }
                     continue;
                 } else {
                     String verspaetungString = zugdetails.get("verspaetung");
                     if (verspaetungString != null) {
                         int verspaetung = Integer.parseInt(verspaetungString);
-                        if (verspaetung != z.getVerspaetung()) {
+                        if (verspaetung != z.getVerspaetungInMinuten()) {
                             z.setVerspaetung(verspaetung);
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
@@ -204,7 +202,7 @@ public class Verbindung {
                     if (gleis != null) {
                         if (z.getBahnsteig() == null || !gleis.equals(z.getBahnsteig().getName())) {
                             z.setBahnsteig(sucheBahnsteig(gleis));
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
@@ -213,42 +211,42 @@ public class Verbindung {
                         boolean amgleis = Boolean.parseBoolean(amgleisString);
                         if (amgleis != z.getAmGleis()) {
                             z.setAmGleis(amgleis);
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
                     if (zugdetails.get("von") != null) {
                         if (!zugdetails.get("von").equals(z.getVon())) {
                             z.setVon(zugdetails.get("von"));
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
                     if (zugdetails.get("nach") != null) {
                         if (!zugdetails.get("nach").equals(z.getNach())) {
                             z.setNach(zugdetails.get("nach"));
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
-                    if(zugdetails.get("plangleis") != null){
-                        if(z.getPlangleis() == null || !zugdetails.get("plangleis").equals(z.getPlangleis().getName())){
+                    if (zugdetails.get("plangleis") != null) {
+                        if (z.getPlangleis() == null || !zugdetails.get("plangleis").equals(z.getPlangleis().getName())) {
                             z.setPlangleis(sucheBahnsteig(zugdetails.get("plangleis")));
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
-                    if(zugdetails.get("sichtbar") != null){
-                        if(Boolean.parseBoolean(zugdetails.get("sichtbar")) != z.getSichtbar()){
+                    if (zugdetails.get("sichtbar") != null) {
+                        if (Boolean.parseBoolean(zugdetails.get("sichtbar")) != z.getSichtbar()) {
                             z.setSichtbar(Boolean.parseBoolean(zugdetails.get("sichtbar")));
-                            updateNeeded = true;
+                            z.setNeedUpdate(true);
                         }
                         counter++;
                     }
                 }
 
                 if (counter != 7 && counter != 5) {
-                    System.out.println("INFORMATION: " + z.getZugName() + " es wurden nicht alle Daten gesetzt " + z.getVerspaetung() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
+                    System.out.println("INFORMATION: " + z.getZugName() + " es wurden nicht alle Daten gesetzt " + z.getVerspaetungInMinuten() + " " + z.getBahnsteig().getName() + " " + z.getAmGleis() + " " + z.getVon() + " " + z.getNach() + " " + z.getPlangleis().getName() + " " + z.getSichtbar());
                 } else if (counter == 5) {
                     removing.add(z);
                 }
@@ -265,17 +263,17 @@ public class Verbindung {
                         try {
                             XML zugfahrplanEintrag = fahrplanIterator.next();
                             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-                            try{
+                            try {
                                 long time = dateFormat.parse(zugfahrplanEintrag.get("an")).getTime();
                                 zugfahrplanEintrag.set("an", String.valueOf(time));
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 zugfahrplanEintrag.set("an", "0");
                             }
 
-                            try{
+                            try {
                                 long time = dateFormat.parse(zugfahrplanEintrag.get("ab")).getTime();
                                 zugfahrplanEintrag.set("ab", String.valueOf(time));
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 zugfahrplanEintrag.set("ab", "0");
                             }
                             fahrplan.add(new FahrplanHalt(Long.parseLong(zugfahrplanEintrag.get("ab")), sucheBahnsteig(zugfahrplanEintrag.get("name")), zugfahrplanEintrag.get("flags"), sucheBahnsteig(zugfahrplanEintrag.get("plan")), Long.parseLong(zugfahrplanEintrag.get("an")), z));
@@ -284,36 +282,34 @@ public class Verbindung {
                         }
                     }
 
-                    if (!updateNeeded) {
-                        if (z.getFahrplan() != null && z.getFahrplan().size() != fahrplan.size()) {
-                            updateNeeded = true;
-                        } else if (z.getFahrplan() != null) {
-                            for (int i = 0; i < z.getFahrplan().size(); i++) {
+                    if(z.isNewTrain()){
+                        z.setFahrplan(fahrplan);
+                    } else if (z.getFahrplan() != null && z.getFahrplan().size() != fahrplan.size()) {
+                        z.setNeedUpdate(true);
+                    } else if (z.getFahrplan() != null) {
+                        for (int i = 0; i < z.getFahrplan().size(); i++) {
                             if (z.getFahrplan(i) != null && fahrplan.get(i) != null) {
-                                    if (z.getFahrplan(i).getAnkuft() != fahrplan.get(i).getAnkuft()) {
-                                        updateNeeded = true;
-                                    } else if (z.getFahrplan(i).getAbfahrt() != fahrplan.get(i).getAbfahrt()) {
-                                        updateNeeded = true;
-                                    } else if (!z.getFahrplan(i).getBahnsteig().getName().equals(fahrplan.get(i).getBahnsteig().getName())) {
-                                        updateNeeded = true;
-                                    } else if (!z.getFahrplan(i).getPlanBahnsteig().getName().equals(fahrplan.get(i).getPlanBahnsteig().getName())) {
-                                        updateNeeded = true;
-                                    } else if (!z.getFahrplan(i).getFlags().equals(fahrplan.get(i).getFlags())) {
-                                        updateNeeded = true;
-                                    }
-                                } else {
-                                    updateNeeded = true;
+                                FahrplanHalt fh = z.getFahrplan(i);
+                                if (fh.getAnkuft() != fahrplan.get(i).getAnkuft()) {
+                                    fh.setNeedUpdate(true);
+                                    fh.setAnkuft(fahrplan.get(i).getAnkuft());
+                                } else if (fh.getAbfahrt() != fahrplan.get(i).getAbfahrt()) {
+                                    fh.setNeedUpdate(true);
+                                    fh.setAbfahrt(fahrplan.get(i).getAbfahrt());
+                                } else if (!fh.getBahnsteig().getName().equals(fahrplan.get(i).getBahnsteig().getName())) {
+                                    fh.setNeedUpdate(true);
+                                    fh.setBahnsteig(fahrplan.get(i).getBahnsteig());
+                                } else if (!fh.getPlanBahnsteig().getName().equals(fahrplan.get(i).getPlanBahnsteig().getName())) {
+                                    fh.setNeedUpdate(true);
+                                    fh.setPlanBahnsteig(fahrplan.get(i).getPlanBahnsteig());
+                                } else if (!fh.getFlags().equals(fahrplan.get(i).getFlags())) {
+                                    fh.setNeedUpdate(true);
+                                    fh.setFlags(fahrplan.get(i).getFlags());
                                 }
+                            } else {
+                                z.getFahrplan(i).setNeedUpdate(true);
                             }
                         }
-                    }
-
-                    if (updateNeeded) {
-                        if (!z.isNewTrain()) {
-                            z.removeFromGrid();
-                        }
-                        z.setFahrplan(fahrplan);
-                        z.setNeedUpdate(true);
                     }
                 }
             } catch (Exception e) {
@@ -330,10 +326,10 @@ public class Verbindung {
                         try {
                             if (fh != null && fh.getFlags() != null && !fh.getFlags().equals("")) {
                                 Zug flagged = getFlaggedTrain(fh.getFlags());
-                                if(flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null){
+                                if (flagged != null && flagged.getFahrplan() != null && flagged.getFahrplan(0) != null) {
                                     fh.setFlaggedTrain(flagged);
                                     flagged.getFahrplan(0).setVorgaenger(fh);
-                                } else{
+                                } else {
                                     fh.setFlaggedTrain(null);
                                 }
                             }
@@ -395,7 +391,7 @@ public class Verbindung {
         return null;
     }
 
-    public Socket getSocket(){
+    public Socket getSocket() {
         return socket;
     }
 
