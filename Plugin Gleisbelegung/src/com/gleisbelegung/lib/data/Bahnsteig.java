@@ -16,8 +16,10 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.SortedSet;
 
-public class Bahnsteig extends Plugin {
+public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
     private ArrayList<LabelContainer> spalte;
     private LabelContainer gleisLabel;
     private String name;
@@ -26,6 +28,7 @@ public class Bahnsteig extends Plugin {
     private int orderId;
     private int id;
     private Bahnhof bahnhof;
+    private boolean sorting = false;
 
     public Bahnsteig(Bahnhof b, String name, int orderId){
         this.bahnhof = b;
@@ -131,6 +134,36 @@ public class Bahnsteig extends Plugin {
         return bahnhof;
     }
 
+    // Sorting active on this bahnsteig
+    void setSortActive() {
+      this.sorting = true;
+    }
+
+    void resetSortActive() {
+      this.sorting = false;
+    }
+
+    @Override
+    public int compareTo(final Bahnsteig o) {
+        if (this == o) {
+          return 0;
+        }
+        int cmp;
+        cmp = this.getOrderId() - o.getOrderId();
+        if (cmp != 0) {
+          return cmp;
+        }
+
+        // code should never apply below
+        cmp = this.getId() - this.getOrderId();
+        if (cmp != 0) {
+          return cmp;
+        }
+        cmp = o.getOrderId() - o.getId();
+        return cmp;
+      }
+
+
     private void aendereReihenfolge(){
         Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
 
@@ -152,10 +185,15 @@ public class Bahnsteig extends Plugin {
         b.setTranslateX(25);
         b.setTranslateY(120);
         b.setOnAction(e -> {
-            orderId = Integer.parseInt(tf.getText())-1;
+            Bahnsteig.this.setOrderId(Integer.parseInt(tf.getText()) - 1);
+            Bahnsteig.this.setSortActive();
             stage.close();
             Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
-            Einstellungen.fenster.gleisbelegung.sortiereGleise();
+            Einstellungen.fenster.gleisbelegung.sortiereGleise(new Runnable() {
+              public void run() {
+                Bahnsteig.this.resetSortActive();
+              }
+            });
         });
 
         Pane p = new Pane(l,tf,b);
@@ -186,4 +224,15 @@ public class Bahnsteig extends Plugin {
                 ", id=" + id +
                 '}';
     }
+
+  public boolean getSortingActive() {
+    return this.sorting;
+  }
+
+  public static void applySorting(SortedSet<Bahnsteig> bahnsteige) {
+      for(Bahnsteig bahnsteig : bahnsteige) {
+        bahnsteig.setSortActive();
+        bahnsteig.aendereReihenfolge();
+      }
+  }
 }

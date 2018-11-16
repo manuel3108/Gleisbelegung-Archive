@@ -17,15 +17,14 @@ import javafx.scene.shape.Line;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class Bahnhof {
     /**
@@ -211,14 +210,48 @@ public class Bahnhof {
         b.setTranslateY(190);
         b.setOnAction(e -> {
             int order = Integer.parseInt(tf.getText()) - 1;
-            for (Bahnsteig ba : bt) {
-                ba.setOrderId(order);
-                alternativName = tname.getText();
+
+            List<Bahnsteig> newBahnsteigOrder = new ArrayList<>();
+            final SortedSet<Bahnsteig> bahnsteigeThis = new TreeSet<>();
+            Bahnhof.this.getBahnsteigOrderSet(bahnsteigeThis);
+            boolean nachZiel = false;
+            for (Bahnhof bhf : Einstellungen.fenster.getStellwerk().getBahnhoefe()) {
+                if (bhf == Bahnhof.this) {
+                  continue;
+                }
+                final SortedSet<Bahnsteig> set = new TreeSet<>();
+                bhf.getBahnsteigOrderSet(set);
+                Iterator<Bahnsteig> iter = set.iterator();
+                while (!nachZiel && iter.hasNext() && newBahnsteigOrder.size() < order) {
+                  newBahnsteigOrder.add(iter.next());
+                }
+                if (!nachZiel && newBahnsteigOrder.size() == order) {
+                  // Zielposition erreicht, alle Bahnsteige dieses Bahnhofs einsortiern
+                  for (Bahnsteig bst : bahnsteigeThis) {
+                    bst.setOrderId(order++);
+                    newBahnsteigOrder.add(bst);
+                  }
+                  nachZiel = true;
+                }
+                Bahnsteig bst = null;
+                while(iter.hasNext()) {
+                  bst = iter.next();
+                  if (nachZiel && bst.getOrderId() == order) {
+                    // fertig
+                    break;
+                  }
+                  bst.setOrderId(order++);
+                  newBahnsteigOrder.add(bst);
+                }
+                if (nachZiel && bst != null && bst.getOrderId() == order) {
+                  // fertig
+                  break;
+                }
             }
 
             stage.close();
             Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
-            Einstellungen.fenster.gleisbelegung.sortiereGleise();
+            Einstellungen.fenster.gleisbelegung.sortiereGleise(null);
             Einstellungen.fenster.stellwerksuebersicht.aktualisiereBahnhofsNamen();
         });
 
@@ -333,16 +366,9 @@ public class Bahnhof {
 
     }
 
-    public void getBahnsteigOrderMap(SortedMap<Integer, Set<Bahnsteig>> map) {
+    public void getBahnsteigOrderSet(Set<Bahnsteig> set) {
         synchronized (bahnsteige) {
-            for (Bahnsteig bst : bahnsteige.values()) {
-            	Set<Bahnsteig> set = map.get(Integer.valueOf(bst.getOrderId()));
-            	if (set == null) {
-            		set = new HashSet<>();
-            		map.put(Integer.valueOf(bst.getOrderId()), set);
-            	}
-            	set.add(bst);
-            }
+          set.addAll(bahnsteige.values());
         }
     }
 

@@ -194,7 +194,7 @@ public class Gleisbelegung {
             }
         }
 
-        sortiereGleise();
+        sortiereGleise(null);
     }
 
     public void scrollPaneTo(double x, double y, FahrplanHalt fh){
@@ -437,36 +437,14 @@ public class Gleisbelegung {
         }
     }
 
-    public void sortiereGleise(){
+    public void sortiereGleise(Runnable callback){
         Platform.runLater(() -> {
-            SortedSet<Bahnsteig> gleisSet = new TreeSet<>(new Comparator<Bahnsteig>() {
-
-              @Override
-              public int compare(Bahnsteig o1, Bahnsteig o2) {
-                if (o1 == o2) {
-                  return 0;
-                }
-                int cmp;
-                cmp = o1.getOrderId() - o2.getOrderId();
-                if (cmp != 0) {
-                  return cmp;
-                }
-                cmp = o1.getId() - o2.getId();
-                if (cmp != 0) {
-                  return cmp;
-                }
-                cmp = o1.getBahnhof().getId() - o2.getBahnhof().getId();
-                if (cmp != 0) {
-                  return cmp;
-                }
-                // wir haben ein Problem
-
-                return 0;
-              }
-
-            });
+            SortedSet<Bahnsteig> gleisSet = new TreeSet<>();
             for (Bahnhof bahnhof : stellwerk.getBahnhoefe()){
             	bahnhof.getBahnsteigOrderSet(gleisSet);
+            }
+            if (null != callback) {
+              callback.run();
             }
             this.sortierteGleise.clear();
             this.sortierteGleise.addAll(gleisSet);

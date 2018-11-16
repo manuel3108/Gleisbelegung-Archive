@@ -325,6 +325,10 @@ public class Fenster{
         stellwerksuebersicht.update();
     }
 
+    public Stellwerk getStellwerk() {
+      return this.stellwerk;
+    }
+
     private void updateUi(){
         Einstellungen.maximiert = primaryStage.isMaximized();
         stageHeight = primaryStage.getHeight();
