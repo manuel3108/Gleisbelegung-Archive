@@ -379,7 +379,11 @@ public class Gleisbelegung {
             final int tempI = labelIndexCounter+2;
             final int tempCounter = counter;
             Platform.runLater(() -> {
+              if (gp.getChildren().contains(laco.getLabel())) {
+                System.err.println("Uplicate insert");
+              } else {
                 gp.add(laco.getLabel(), tempCounter, tempI);
+              }
             });
 
             if(b.isSichtbar()){
