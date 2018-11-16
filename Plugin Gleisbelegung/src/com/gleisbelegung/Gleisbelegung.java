@@ -22,11 +22,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -42,7 +39,7 @@ public class Gleisbelegung {
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
     private int labelIndexCounter;                      //Zählt die Textfelder auf der y-Achse mit um eine Identifikation zu ermöglichen
     private ArrayList<LabelContainer> labelTime;
-    private List<Bahnsteig> sortierteGleise;
+    private List<Bahnsteig> sortierteGleise = new ArrayList<>();
 
     private Pane content;
     private Stellwerk stellwerk;
@@ -438,19 +435,37 @@ public class Gleisbelegung {
 
     public void sortiereGleise(){
         Platform.runLater(() -> {
-            List<Bahnsteig> sortierteGleise = new ArrayList<>();
-            SortedMap<Integer, Set<Bahnsteig>> gleisMap = new TreeMap<>();
-            for (Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-            	bahnhof.getBahnsteigOrderMap(gleisMap);
-            }
+            SortedSet<Bahnsteig> gleisSet = new TreeSet<>(new Comparator<Bahnsteig>() {
 
-            gleisMap.values().forEach(new Consumer<Set<Bahnsteig>>() {
-				@Override
-				public void accept(Set<Bahnsteig> t) {
-					sortierteGleise.addAll(t);
-				}
+              @Override
+              public int compare(Bahnsteig o1, Bahnsteig o2) {
+                if (o1 == o2) {
+                  return 0;
+                }
+                int cmp;
+                cmp = o1.getOrderId() - o2.getOrderId();
+                if (cmp != 0) {
+                  return cmp;
+                }
+                cmp = o1.getId() - o2.getId();
+                if (cmp != 0) {
+                  return cmp;
+                }
+                cmp = o1.getBahnhof().getId() - o2.getBahnhof().getId();
+                if (cmp != 0) {
+                  return cmp;
+                }
+                // wir haben ein Problem
+
+                return 0;
+              }
+
             });
-            this.sortierteGleise = sortierteGleise;
+            for (Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+            	bahnhof.getBahnsteigOrderSet(gleisSet);
+            }
+            this.sortierteGleise.clear();
+            this.sortierteGleise.addAll(gleisSet);
 
             gpPlatform.getChildren().clear();
             gp.getChildren().clear();
