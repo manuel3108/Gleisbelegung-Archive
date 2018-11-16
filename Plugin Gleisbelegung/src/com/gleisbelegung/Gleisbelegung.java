@@ -481,6 +481,7 @@ public class Gleisbelegung {
                 gpPlatform.addColumn(x,b.getGleisLabel().getLabel());
                 b.setOrderId(x);
                 for(LabelContainer lc : b.getSpalte()){
+                  // TOFIX: ConcurrentModification for lc
                     try {
                         gp.add(lc.getLabel(), x, y);
                     }catch (Exception e){
