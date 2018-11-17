@@ -17,8 +17,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -33,7 +36,7 @@ public class Gleisbelegung {
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
     private int labelIndexCounter;                      //Zählt die Textfelder auf der y-Achse mit um eine Identifikation zu ermöglichen
-    private ArrayList<Bahnsteig> sortierteGleise;
+    private List<Bahnsteig> sortierteGleise = new ArrayList<>();
 
     private Pane content;
     private Stellwerk stellwerk;
@@ -155,7 +158,7 @@ public class Gleisbelegung {
             e.printStackTrace();
         }
 
-        sortiereGleise();
+        sortiereGleise(null);
     }
 
     public void scrollPaneTo(double x, double y, FahrplanHalt fh){
@@ -269,15 +272,17 @@ public class Gleisbelegung {
         else if(wasUpdate) aktualisiereTabelle();
     }
 
-    public void sortiereGleise(){
+    public void sortiereGleise(Runnable callback){
         Platform.runLater(() -> {
-            sortierteGleise = new ArrayList<>();
-            SortedMap<Integer, Bahnsteig> gleisMap = new TreeMap<>();
-            for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                gleisMap.putAll(bahnhof.getBahnsteigOrderMap());
+            SortedSet<Bahnsteig> gleisSet = new TreeSet<>();
+            for (Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+            	bahnhof.getBahnsteigOrderSet(gleisSet);
             }
-
-            sortierteGleise.addAll(gleisMap.values());
+            if (null != callback) {
+              callback.run();
+            }
+            this.sortierteGleise.clear();
+            this.sortierteGleise.addAll(gleisSet);
 
             gpPlatform.getChildren().clear();
             gp.getChildren().clear();
@@ -289,6 +294,7 @@ public class Gleisbelegung {
                 gpPlatform.addColumn(x,b.getGleisLabel().getLabel());
                 b.setOrderId(x);
                 /*for(LabelContainer lc : b.getSpalte()){
+                  // TOFIX: ConcurrentModification for lc
                     try {
                         gp.add(lc.getLabel(), x, y);
                     }catch (Exception e){
