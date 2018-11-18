@@ -79,7 +79,7 @@ public class Fenster{
         einstellungen.setFont(Font.font(Einstellungen.schriftgroesse - 2));
         einstellungen.setOnAction(e -> { try{ settings(); }catch(Exception ex) { ex.printStackTrace(); } });
 
-        sichtwechsel = new Button("Stellwerksübersicht (BETA)");
+        sichtwechsel = new Button("Stellwerksübersicht");
         sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse - 2));
 
         refresh.setText("Neustart");
@@ -132,7 +132,7 @@ public class Fenster{
                 bp.setCenter(stellwerksuebersicht.getContent());
             } else if(Einstellungen.sicht == 2){
                 Einstellungen.sicht = 1;
-                sichtwechsel.setText("Stellwerksübersicht (BETA)");
+                sichtwechsel.setText("Stellwerksübersicht");
                 bp.setCenter(gleisbelegung.getContent());
             }
         });

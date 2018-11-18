@@ -17,8 +17,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -35,7 +33,6 @@ public class Gleisbelegung {
     private ScrollBar scrollBarWidth;                   //Scroll-Balken um die Tabelle bewegen zu können
     private ScrollBar scrollBarHeight;                  //Scroll-Balken um die Tabelle bewegen zu können
     private Label firstLabel;                           //neues Label oben links mit Bahnhofs-Namen
-    private int labelIndexCounter;                      //Zählt die Textfelder auf der y-Achse mit um eine Identifikation zu ermöglichen
     private List<Bahnsteig> sortierteGleise = new ArrayList<>();
 
     private Pane content;
@@ -222,8 +219,8 @@ public class Gleisbelegung {
                 lcTemp.updateLabel("", ttd.row.time);
 
                 if(ttd.zuege.size() > 0){
-                    for(Zug z : ttd.zuege){
-                        lcTemp.addTrain(z);
+                    for(FahrplanHalt fh : ttd.zuege){
+                        lcTemp.addTrain(fh.getZug());
                     }
                 }
 
@@ -243,6 +240,8 @@ public class Gleisbelegung {
     }
 
     public void aktualisiereTabelle(){
+        timeTable.entferneVergangenheit();
+
         //TODO Das soll eigentlich nur vorläufig sein
         Platform.runLater(() -> {
             gp.getChildren().clear();
@@ -256,14 +255,13 @@ public class Gleisbelegung {
         for (Zug z : stellwerk.getZuege()) {
             for(FahrplanHalt fh : z.getFahrplan()){
                 if(z.isNewTrain() || fh.isNeedUpdate()){
-                    z.setNewTrain(false);
-                    fh.setNeedUpdate(false);
-
                     wasUpdate = true;
-                    System.out.println("UPDATE " + z);
 
                     if(z.isNewTrain()) timeTable.addZug(z);
                     else timeTable.updateFahrplanhalt(fh);
+
+                    z.setNewTrain(false);
+                    fh.setNeedUpdate(false);
                 }
             }
         }

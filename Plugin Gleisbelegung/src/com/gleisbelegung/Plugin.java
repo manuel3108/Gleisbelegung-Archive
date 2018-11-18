@@ -311,6 +311,7 @@ public class Plugin extends Application implements Runnable{
 
                 update = false;
                 refresh.setDisable(true);
+                refresh.setText("Warten...");
                 Thread.sleep(2000);
                 startLoading(null);
             } catch (InterruptedException e) {

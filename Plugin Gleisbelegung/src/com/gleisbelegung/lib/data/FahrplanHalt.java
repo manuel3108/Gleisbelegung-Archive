@@ -24,6 +24,8 @@ public class FahrplanHalt {
     private FahrplanHalt vorgaenger;                          //Hat der Zug einen vorgaenger, wenn ja, dann hier der Flügelt- oder Wechselhalt gespeichert
     private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
     private boolean needUpdate;
+    private static long idCounter = 0;
+    private long id;
 
     //Speichert gegebene Seite
     public FahrplanHalt(long abfahrt, Bahnsteig gleis, String flags, Bahnsteig plangleis, long ankuft, Zug z){
@@ -41,7 +43,8 @@ public class FahrplanHalt {
         crossing = flags.contains("D") || flags.equals("D");
         needUpdate = true;
 
-        //TODO isNeedUpdate in Fahrplanhalt auslagern
+        id = idCounter;
+        idCounter++;
     }
 
     //get zug
@@ -185,5 +188,13 @@ public class FahrplanHalt {
                 ", crossing=" + crossing +
                 ", flaggedTrain=" + flaggedTrain +
                 '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }
