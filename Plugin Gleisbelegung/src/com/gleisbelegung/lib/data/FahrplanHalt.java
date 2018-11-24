@@ -56,7 +56,10 @@ public class FahrplanHalt {
     public long getAnkuft() {
         return ankuft;
     }
-    public long getTatsaechlicheAnkunf(){
+    public long getTatsaechlicheAnkunft(){
+        if(ankuft == 0 && vorgaenger != null){
+            return vorgaenger.getTatsaechlicheAnkunft();
+        }
         return  ankuft;
     }
     public void setAnkuft(long ankuft) {
@@ -68,7 +71,10 @@ public class FahrplanHalt {
         return abfahrt;
     }
     public long getTatsaechlicheAbfahrt(){
-        return  abfahrt;
+        if(abfahrt == 0 && flaggedTrain != null){
+            return flaggedTrain.getFahrplan(0).getTatsaechlicheAbfahrt();
+        }
+        return abfahrt;
     }
     public void setAbfahrt(long abfahrt) {
         this.abfahrt = abfahrt;

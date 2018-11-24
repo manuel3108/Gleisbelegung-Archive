@@ -29,6 +29,7 @@ public class Zug {
     private List<FahrplanHalt> fahrplan;    //Speichert alle Fahrplanhalt des Zuges aus der @FahrplanHalt-Klasse
     private boolean newTrain;           //Wenn ein Zug gerade neu in die Liste zuege aus @Main aufgenommen wurde ist dieser Wert auf true
     private Label stellwerksUebersichtLabel;
+    private boolean schwerwiegendesUpdate;
 
     //Setzten der Daten
     public Zug(int zugId, String zugName){
@@ -42,6 +43,7 @@ public class Zug {
         stellwerksUebersichtLabel = new Label(zugName);
         stellwerksUebersichtLabel.setStyle("-fx-text-fill: #fff;");
         stellwerksUebersichtLabel.setFont(Font.font(Einstellungen.schriftgroesse));
+        schwerwiegendesUpdate = false;
     }
 
     //get-set Zugname
@@ -191,8 +193,16 @@ public class Zug {
     }
 
     public void setNeedUpdate(boolean value){
+        schwerwiegendesUpdate = true;
         for(FahrplanHalt fh : fahrplan){
             fh.setNeedUpdate(value);
         }
+    }
+
+    public boolean isSchwerwiegendesUpdate() {
+        return schwerwiegendesUpdate;
+    }
+    public void setSchwerwiegendesUpdate(boolean schwerwiegendesUpdate) {
+        this.schwerwiegendesUpdate = schwerwiegendesUpdate;
     }
 }

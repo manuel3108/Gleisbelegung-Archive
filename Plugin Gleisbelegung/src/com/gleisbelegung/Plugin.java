@@ -13,12 +13,15 @@ Hier befindet sich auch die Hauptschleife des Plugins.
 import com.gleisbelegung.lib.Stellwerk;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -76,16 +79,7 @@ public class Plugin extends Application implements Runnable{
             lHost.applyCss();
             lHost.layout();
 
-            tfHost.setText("Warten...");
-            tfHost.setStyle("-fx-text-fill: black;");
-            tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
-            tfHost.setTranslateX(120);
-            tfHost.setTranslateY(80);
-            tfHost.setMinWidth(150);
-            tfHost.setMaxWidth(150);
-            tfHost.applyCss();
-            tfHost.layout();
-            tfHost.setDisable(true);
+
             //p.widthProperty().addListener((observable, oldValue, newValue) -> tfHost.setTranslateX(newValue.doubleValue()/2 - 75));
 
             Button btLoad = new Button("Verbinden");
@@ -97,6 +91,22 @@ public class Plugin extends Application implements Runnable{
             btLoad.applyCss();
             btLoad.layout();
             btLoad.setDisable(true);
+
+            tfHost.setText("Warten...");
+            tfHost.setStyle("-fx-text-fill: black;");
+            tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
+            tfHost.setTranslateX(120);
+            tfHost.setTranslateY(80);
+            tfHost.setMinWidth(150);
+            tfHost.setMaxWidth(150);
+            tfHost.applyCss();
+            tfHost.layout();
+            tfHost.setDisable(true);
+            tfHost.setOnKeyPressed(ke -> {
+                if (ke.getCode().equals(KeyCode.ENTER)){
+                    btLoad.fire();
+                }
+            });
 
             firstSP.getChildren().addAll(lHint, lHost, tfHost, btLoad);
             firstSP.applyCss();
@@ -190,6 +200,9 @@ public class Plugin extends Application implements Runnable{
 
                     btLoad.setOnAction(e -> {
                         host = tfHost.getText();
+                        tfHost.setDisable(true);
+                        btLoad.setDisable(true);
+                        btLoad.setText("Laden...");
                         Platform.runLater(() -> startLoading(tempSocket));
                     });
                 });
@@ -311,8 +324,13 @@ public class Plugin extends Application implements Runnable{
 
                 update = false;
                 refresh.setDisable(true);
-                refresh.setText("Warten...");
+                Platform.runLater(() -> {
+                    refresh.setText("Warten...");
+                });
                 Thread.sleep(2000);
+                Platform.runLater(() -> {
+                    refresh.setText("Laden...");
+                });
                 startLoading(null);
             } catch (InterruptedException e) {
                 e.printStackTrace();

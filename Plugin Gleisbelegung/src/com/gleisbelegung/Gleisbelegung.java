@@ -16,10 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -219,9 +216,15 @@ public class Gleisbelegung {
                 lcTemp.updateLabel("", ttd.row.time);
 
                 if(ttd.zuege.size() > 0){
-                    for(FahrplanHalt fh : ttd.zuege){
-                        lcTemp.addTrain(fh.getZug());
+                    try{
+                        for(FahrplanHalt fh : ttd.zuege){
+                            lcTemp.addTrain(fh.getZug());
+                        }
+                    } catch (Exception ex){
+                        ex.printStackTrace();
+                        System.out.println("SCHEISSE");
                     }
+
                 }
 
                 final int tempCol = colCounter;
@@ -253,15 +256,22 @@ public class Gleisbelegung {
     public void update(){
         boolean wasUpdate = false;
         for (Zug z : stellwerk.getZuege()) {
-            for(FahrplanHalt fh : z.getFahrplan()){
-                if(z.isNewTrain() || fh.isNeedUpdate()){
-                    wasUpdate = true;
+            if(z.getZugName().equals("LT 84355")){
+                System.out.println("zug");
+            }
 
-                    if(z.isNewTrain()) timeTable.addZug(z);
-                    else timeTable.updateFahrplanhalt(fh);
-
-                    z.setNewTrain(false);
-                    fh.setNeedUpdate(false);
+            if(z.isNewTrain()) {
+                timeTable.addZug(z);
+                wasUpdate = true;
+            } else if(z.isSchwerwiegendesUpdate()) {
+                timeTable.updateZug(z);
+                wasUpdate = true;
+            } else {
+                for(FahrplanHalt fh : z.getFahrplan()){
+                    if(fh.isNeedUpdate()){
+                        wasUpdate = true;
+                        timeTable.updateFahrplanhalt(fh);
+                    }
                 }
             }
         }

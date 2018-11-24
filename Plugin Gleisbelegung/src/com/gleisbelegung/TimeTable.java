@@ -11,6 +11,7 @@ import java.util.List;
 public class TimeTable {
     List<TimeTableColumn> cols; //Spalten
     List<TimeTableRow> rows;    //Reihen
+    List<TimeTableData> refresh;
     private Stellwerk stellwerk;
 
     public TimeTable(Stellwerk stellwerk){
@@ -18,6 +19,7 @@ public class TimeTable {
 
         cols = new ArrayList<TimeTableColumn>();
         rows = new ArrayList<TimeTableRow>();
+        refresh = new ArrayList<TimeTableData>();
 
         for(Bahnsteig b : stellwerk.getBahnsteige()){
             cols.add(new TimeTableColumn(b, rows));
@@ -33,6 +35,8 @@ public class TimeTable {
         for(FahrplanHalt fh : z.getFahrplan()){
             addFahrplanHalt(fh);
         }
+        z.setSchwerwiegendesUpdate(false);
+        z.setNewTrain(false);
     }
 
     public void addFahrplanHalt(FahrplanHalt fh){
@@ -40,27 +44,29 @@ public class TimeTable {
 
         int counter = 0;
         for(TimeTableRow ttr : rows) {
-            if(ttr.time >= fh.getTatsaechlicheAnkunf() && ttr.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
+            if(ttr.time >= fh.getTatsaechlicheAnkunft() && ttr.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                 for(TimeTableData ttd : ttr.fields){
                     if(fh.getBahnsteig().getId() == ttd.col.bahnsteig.getId()){
                         ttd.zuege.add(fh);
+                        if(!refresh.contains(ttd)) refresh.add(ttd);
                         counter++;
                     }
                 }
             }
         }
 
-        int haltInMinuten = (int)((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunf())/(1000*60));
+        int haltInMinuten = (int)((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunft())/(1000*60));
         if(haltInMinuten > counter){
             TimeTableRow lastRow = rows.get(rows.size() - 1);
             while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
                 lastRow = new TimeTableRow(lastRow.time + 1000*60, cols);
                 rows.add(lastRow);
 
-                if(lastRow.time >= fh.getTatsaechlicheAnkunf() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
+                if(lastRow.time >= fh.getTatsaechlicheAnkunft() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                     for(TimeTableData ttd : lastRow.fields){
                         if(fh.getBahnsteig().getId() == ttd.col.bahnsteig.getId()){
                             ttd.zuege.add(fh);
+                            if(!refresh.contains(ttd)) refresh.add(ttd);
                         }
                     }
                 }
@@ -79,6 +85,7 @@ public class TimeTable {
     public void updateFahrplanhalt(FahrplanHalt fh){
         removeFahrplanhalt(fh);
         addFahrplanHalt(fh);
+        fh.setNeedUpdate(false);
     }
 
     public void removeZug(Zug z){
