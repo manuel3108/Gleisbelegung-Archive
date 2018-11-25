@@ -6,6 +6,7 @@ import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,9 +68,9 @@ public class TimeTable {
 	}
 	
 	
-    List<TimeTableColumn> cols; //Spalten
-    List<TimeTableRow> rows;    //Reihen
-    List<TimeTableData> refresh;
+    private List<TimeTableColumn> cols; //Spalten
+    private List<TimeTableRow> rows;    //Reihen
+    private List<TimeTableData> refresh;
     private Stellwerk stellwerk;
 
     public TimeTable(Stellwerk stellwerk){
@@ -118,13 +119,17 @@ public class TimeTable {
             TimeTableRow lastRow = rows.get(rows.size() - 1);
             while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
                 lastRow = new TimeTableRow(lastRow.time + 1000*60);
-                rows.add(lastRow);
+                synchronized(rows) {
+                	rows.add(lastRow);
+                }
 
                 if(lastRow.time >= fh.getTatsaechlicheAnkunft() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                     for(TimeTableData ttd : lastRow.fields){
                         if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
                             ttd.getZuege().add(fh);
-                            if(!refresh.contains(ttd)) refresh.add(ttd);
+                            if(!refresh.contains(ttd)) {
+                            	refresh.add(ttd);
+                            }
                         }
                     }
                 }
@@ -178,12 +183,18 @@ public class TimeTable {
         }
 
         for(TimeTableRow ttr : remove){
-            rows.remove(ttr);
+        	synchronized(this.rows) {
+        		rows.remove(ttr);
+        	}
         }
     }
 
 
 	public Iterator<TimeTableRow> rowIterator() {
+		List<TimeTableRow> rows;
+		synchronized(this.rows) {
+			rows = Collections.unmodifiableList(this.rows);
+		}
 		return rows.iterator();
 	}
 }
