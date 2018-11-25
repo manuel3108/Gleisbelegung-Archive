@@ -6,12 +6,71 @@ import com.gleisbelegung.lib.data.FahrplanHalt;
 import com.gleisbelegung.lib.data.Zug;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class TimeTable {
-    List<TimeTableColumn> cols; //Spalten
-    List<TimeTableRow> rows;    //Reihen
-    List<TimeTableData> refresh;
+
+	class TimeTableColumn{
+	    private Bahnsteig bahnsteig;
+	
+	    TimeTableColumn(Bahnsteig b){
+	        this.bahnsteig = b;
+	    }
+	    
+		public Bahnsteig getBahnsteig() {
+			return bahnsteig;
+		}
+	}
+	
+	class TimeTableRow {
+	    long time;
+	    private List<TimeTableData> fields;
+	
+	    TimeTableRow(long time) {
+	        this.time = time;
+	        fields = new ArrayList<>();
+	
+	        for (TimeTableColumn ttc : cols){
+	            TimeTableData ttd = new TimeTableData(ttc, this);
+	            fields.add(ttd);
+	        }
+	    }
+
+		public Iterator<TimeTableData> dataIterator() {
+			return fields.iterator();
+		}
+	}
+	
+	class TimeTableData {
+	    private List<FahrplanHalt> zuege;
+	    private TimeTableRow row;
+	    private TimeTableColumn col;
+	
+	    TimeTableData(TimeTableColumn col, TimeTableRow row) {
+	        this.col = col;
+	        this.row = row;
+	        this.zuege =  new ArrayList<FahrplanHalt>();
+	    }
+
+		public TimeTableColumn getCol() {
+			return col;
+		}
+
+		public TimeTableRow getRow() {
+			return row;
+		}
+
+		public List<FahrplanHalt> getZuege() {
+			return zuege;
+		}
+	}
+	
+	
+    private List<TimeTableColumn> cols; //Spalten
+    private List<TimeTableRow> rows;    //Reihen
+    private List<TimeTableData> refresh;
     private Stellwerk stellwerk;
 
     public TimeTable(Stellwerk stellwerk){
@@ -22,11 +81,11 @@ public class TimeTable {
         refresh = new ArrayList<TimeTableData>();
 
         for(Bahnsteig b : stellwerk.getBahnsteige()){
-            cols.add(new TimeTableColumn(b, rows));
+            cols.add(new TimeTableColumn(b));
         }
 
         //erste Zeile erstellen, um Inhalt zu haben
-        TimeTableRow ttr = new TimeTableRow(stellwerk.getSpielzeit(), cols);
+        TimeTableRow ttr = new TimeTableRow(stellwerk.getSpielzeit());
         rows.add(ttr);
     }
 
@@ -46,8 +105,8 @@ public class TimeTable {
         for(TimeTableRow ttr : rows) {
             if(ttr.time >= fh.getTatsaechlicheAnkunft() && ttr.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                 for(TimeTableData ttd : ttr.fields){
-                    if(fh.getBahnsteig().getId() == ttd.col.bahnsteig.getId()){
-                        ttd.zuege.add(fh);
+                    if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
+                        ttd.getZuege().add(fh);
                         if(!refresh.contains(ttd)) refresh.add(ttd);
                         counter++;
                     }
@@ -59,14 +118,18 @@ public class TimeTable {
         if(haltInMinuten > counter){
             TimeTableRow lastRow = rows.get(rows.size() - 1);
             while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
-                lastRow = new TimeTableRow(lastRow.time + 1000*60, cols);
-                rows.add(lastRow);
+                lastRow = new TimeTableRow(lastRow.time + 1000*60);
+                synchronized(rows) {
+                	rows.add(lastRow);
+                }
 
                 if(lastRow.time >= fh.getTatsaechlicheAnkunft() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                     for(TimeTableData ttd : lastRow.fields){
-                        if(fh.getBahnsteig().getId() == ttd.col.bahnsteig.getId()){
-                            ttd.zuege.add(fh);
-                            if(!refresh.contains(ttd)) refresh.add(ttd);
+                        if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
+                            ttd.getZuege().add(fh);
+                            if(!refresh.contains(ttd)) {
+                            	refresh.add(ttd);
+                            }
                         }
                     }
                 }
@@ -98,14 +161,14 @@ public class TimeTable {
         for(TimeTableRow ttr : rows){
             for(TimeTableData ttd : ttr.fields){
                 int counter = -1;
-                for (int i = 0; i < ttd.zuege.size(); i++) {
-                    FahrplanHalt fh = ttd.zuege.get(i);
+                for (int i = 0; i < ttd.getZuege().size(); i++) {
+                    FahrplanHalt fh = ttd.getZuege().get(i);
                     if(fh.getId() == remove.getId()){
                         counter = i;
                     }
                 }
 
-                if(counter >= 0) ttd.zuege.remove(counter);
+                if(counter >= 0) ttd.getZuege().remove(counter);
             }
         }
     }
@@ -120,47 +183,19 @@ public class TimeTable {
         }
 
         for(TimeTableRow ttr : remove){
-            rows.remove(ttr);
+        	synchronized(this.rows) {
+        		rows.remove(ttr);
+        	}
         }
     }
+
+
+	public Iterator<TimeTableRow> rowIterator() {
+		List<TimeTableRow> rows;
+		synchronized(this.rows) {
+			rows = Collections.unmodifiableList(this.rows);
+		}
+		return rows.iterator();
+	}
 }
 
-
-class TimeTableColumn{
-    Bahnsteig bahnsteig;
-    List<TimeTableRow> rows;
-
-    TimeTableColumn(Bahnsteig b, List<TimeTableRow> rows){
-        this.rows = rows;
-        bahnsteig = b;
-    }
-}
-
-class TimeTableRow{
-    long time;
-    List<TimeTableColumn> cols;
-    List<TimeTableData> fields;
-
-    TimeTableRow(long time, List<TimeTableColumn> cols){
-        this.cols = cols;
-        this.time = time;
-        fields = new ArrayList<>();
-
-        for(TimeTableColumn ttc : cols){
-            TimeTableData ttd = new TimeTableData(ttc, this);
-            fields.add(ttd);
-        }
-    }
-}
-
-class TimeTableData{
-    List<FahrplanHalt> zuege;
-    TimeTableRow row;
-    TimeTableColumn col;
-
-    TimeTableData(TimeTableColumn col, TimeTableRow row){
-        this.col = col;
-        this.row = row;
-        zuege = new ArrayList<FahrplanHalt>();
-    }
-}

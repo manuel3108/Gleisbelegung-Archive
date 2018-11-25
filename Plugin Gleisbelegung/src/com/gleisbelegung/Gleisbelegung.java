@@ -200,7 +200,8 @@ public class Gleisbelegung {
 
         int rowCounter = 0;
 
-        for(TimeTableRow ttr : timeTable.rows){
+        for(Iterator<TimeTable.TimeTableRow> iterRow = timeTable.rowIterator(); iterRow.hasNext(); ){
+        	TimeTable.TimeTableRow ttr = iterRow.next();
             LabelContainer lc = new LabelContainer(rowCounter, null);
 
             final int temp = rowCounter;
@@ -211,13 +212,14 @@ public class Gleisbelegung {
 
             int colCounter = 0;
 
-            for(TimeTableData ttd : ttr.fields){
-                LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.col.bahnsteig);
-                lcTemp.updateLabel("", ttd.row.time);
+            for(Iterator<TimeTable.TimeTableData> iterData = ttr.dataIterator(); iterData.hasNext(); ){
+            	TimeTable.TimeTableData ttd = iterData.next();
+                LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.getCol().getBahnsteig());
+                lcTemp.updateLabel("", ttd.getRow().time);
 
-                if(ttd.zuege.size() > 0){
+                if(ttd.getZuege().size() > 0){
                     try{
-                        for(FahrplanHalt fh : ttd.zuege){
+                        for(FahrplanHalt fh : ttd.getZuege()){
                             lcTemp.addTrain(fh.getZug());
                         }
                     } catch (Exception ex){
