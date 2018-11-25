@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class TimeTable {
 
@@ -157,7 +158,7 @@ public class TimeTable {
         }
     }
 
-    public void removeFahrplanhalt(FahrplanHalt remove){
+    public void removeFahrplanhalt(FahrplanHalt remove) {
         for(TimeTableRow ttr : rows){
             for(TimeTableData ttd : ttr.fields){
                 int counter = -1;
@@ -173,20 +174,17 @@ public class TimeTable {
         }
     }
 
-    public void entferneVergangenheit(){
-        List<TimeTableRow> remove = new ArrayList<TimeTableRow>();
-
-        for(TimeTableRow ttr : rows){
-            if(ttr.time < stellwerk.getSpielzeit()){
-                remove.add(ttr);
-            }
-        }
-
-        for(TimeTableRow ttr : remove){
-        	synchronized(this.rows) {
-        		rows.remove(ttr);
-        	}
-        }
+    public void entferneVergangenheit() {
+    	synchronized(rows) {
+	        rows.removeIf(new Predicate<TimeTableRow>() {
+	
+				@Override
+				public boolean test(TimeTableRow ttr) {
+					return ttr.time < stellwerk.getSpielzeit();
+				}
+	        	
+	        });
+    	}
     }
 
 
