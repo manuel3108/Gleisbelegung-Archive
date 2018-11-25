@@ -9,6 +9,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TimeTable {
+
+	class TimeTableColumn{
+	    Bahnsteig bahnsteig;
+	    List<TimeTableRow> rows;
+	
+	    TimeTableColumn(Bahnsteig b, List<TimeTableRow> rows){
+	        this.rows = rows;
+	        bahnsteig = b;
+	    }
+	}
+	
+	class TimeTableRow{
+	    long time;
+	    List<TimeTableColumn> cols;
+	    List<TimeTableData> fields;
+	
+	    TimeTableRow(long time, List<TimeTableColumn> cols){
+	        this.cols = cols;
+	        this.time = time;
+	        fields = new ArrayList<>();
+	
+	        for(TimeTableColumn ttc : cols){
+	            TimeTableData ttd = new TimeTableData(ttc, this);
+	            fields.add(ttd);
+	        }
+	    }
+	}
+	
+	class TimeTableData{
+	    List<FahrplanHalt> zuege;
+	    TimeTableRow row;
+	    TimeTableColumn col;
+	
+	    TimeTableData(TimeTableColumn col, TimeTableRow row){
+	        this.col = col;
+	        this.row = row;
+	        zuege = new ArrayList<FahrplanHalt>();
+	    }
+	}
+	
+	
     List<TimeTableColumn> cols; //Spalten
     List<TimeTableRow> rows;    //Reihen
     List<TimeTableData> refresh;
@@ -125,42 +166,3 @@ public class TimeTable {
     }
 }
 
-
-class TimeTableColumn{
-    Bahnsteig bahnsteig;
-    List<TimeTableRow> rows;
-
-    TimeTableColumn(Bahnsteig b, List<TimeTableRow> rows){
-        this.rows = rows;
-        bahnsteig = b;
-    }
-}
-
-class TimeTableRow{
-    long time;
-    List<TimeTableColumn> cols;
-    List<TimeTableData> fields;
-
-    TimeTableRow(long time, List<TimeTableColumn> cols){
-        this.cols = cols;
-        this.time = time;
-        fields = new ArrayList<>();
-
-        for(TimeTableColumn ttc : cols){
-            TimeTableData ttd = new TimeTableData(ttc, this);
-            fields.add(ttd);
-        }
-    }
-}
-
-class TimeTableData{
-    List<FahrplanHalt> zuege;
-    TimeTableRow row;
-    TimeTableColumn col;
-
-    TimeTableData(TimeTableColumn col, TimeTableRow row){
-        this.col = col;
-        this.row = row;
-        zuege = new ArrayList<FahrplanHalt>();
-    }
-}
