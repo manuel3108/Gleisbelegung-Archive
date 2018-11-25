@@ -184,6 +184,10 @@ public class Bahnhof {
         return alternativName;
     }
 
+    public void setAlternativName(String alternativName) {
+        this.alternativName = alternativName;
+    }
+
     public void einstellungen(BahnhofTeil bt) {
         Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
         Stage stage = new Stage();
@@ -254,6 +258,8 @@ public class Bahnhof {
                   break;
                 }
             }
+
+            alternativName = tname.getText();
 
             stage.close();
             Einstellungen.fenster.gleisbelegung.versteckeOrderIds();

@@ -105,13 +105,14 @@ public class Einstellungen {
             if(datei.exists() || datei.createNewFile()){
                 BufferedWriter bw = new BufferedWriter(new FileWriter(datei));
                 bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                bw.write("<gleisbelegung version=\"1\">\n");
+                bw.write("<gleisbelegung version=\"2\">\n");
 
                 for(Bahnhof b : stellwerk.getBahnhoefe()){
                     bw.write("\t<bahnhof>\n");
                     bw.write("\t\t<id>" + b.getId() + "</id>\n");
                     bw.write("\t\t<x>" + b.getPos().x + "</x>\n"); //notwendig für 1.6
                     bw.write("\t\t<y>" + b.getPos().y + "</y>\n"); //notwendig für 1.6
+                    bw.write("\t\t<alternativName>" + b.getAlternativName() + "</alternativName>\n");
                     for(Bahnsteig ba : b.getBahnsteige()){
                         bw.write("\t\t<bahnsteig>\n");
                         bw.write("\t\t\t<id>" + ba.getId() + "</id>\n");
@@ -144,35 +145,13 @@ public class Einstellungen {
 
             Element e = (Element) doc.getElementsByTagName("gleisbelegung").item(0);
             int xmlVersion = Integer.parseInt(e.getAttribute("version"));
+            NodeList bahnhoefe = doc.getElementsByTagName("bahnhof");
+
             if(xmlVersion == 1){
-                NodeList bahnhoefe = doc.getElementsByTagName("bahnhof");
-
-                int bahnhofCounter = 0;
-                for(Bahnhof b : stellwerk.getBahnhoefe()){
-                    Node bahnhofNode = bahnhoefe.item(bahnhofCounter);
-                    if(bahnhofNode.getNodeType() == Node.ELEMENT_NODE){
-                        Element bahnhof = (Element) bahnhofNode;
-                        double x = Double.parseDouble(bahnhof.getElementsByTagName("x").item(0).getTextContent());
-                        double y = Double.parseDouble(bahnhof.getElementsByTagName("y").item(0).getTextContent());
-                        b.setPos(new Vec2d(x, y));
-
-                        NodeList bahnsteige = bahnhof.getElementsByTagName("bahnsteig");
-
-                        int bahnsteigCounter = 0;
-                        for(Bahnsteig ba : b.getBahnsteige()){
-                            Node bahnsteigNode = bahnsteige.item(bahnsteigCounter);
-
-                            if (bahnsteigNode.getNodeType() == Node.ELEMENT_NODE) {
-                                Element bahnsteig = (Element) bahnsteigNode;
-
-                                ba.setOrderId(Integer.parseInt(bahnsteig.getElementsByTagName("orderId").item(0).getTextContent()));
-                                ba.setSichtbar(Boolean.parseBoolean(bahnsteig.getElementsByTagName("sichtbar").item(0).getTextContent()));
-                            }
-                            bahnsteigCounter++;
-                        }
-                    }
-                    bahnhofCounter++;
-                }
+                leseStellwerksEinstellungenVersionEins(bahnhoefe, stellwerk);
+            } else if(xmlVersion == 2){
+                leseStellwerksEinstellungenVersionEins(bahnhoefe, stellwerk);
+                leseStellwerksEinstellungenVersionZwei(bahnhoefe, stellwerk);
             } else{
                 System.out.println("Einstellungsdatei niicht mehr auf dem neusten Stand. Einstellungen können erst nach einm Klick auf Speichern erneut gelesen werden.");
             }
@@ -185,6 +164,48 @@ public class Einstellungen {
             //Tritt auf, wenn neue Attribute gelesen werden, diese aber noch nicht in der Einstellungsdatei existieren
             //e.printStackTrace();
             return false;
+        }
+    }
+
+    private void leseStellwerksEinstellungenVersionEins(NodeList bahnhoefe, Stellwerk stellwerk){
+        int bahnhofCounter = 0;
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            Node bahnhofNode = bahnhoefe.item(bahnhofCounter);
+            if(bahnhofNode.getNodeType() == Node.ELEMENT_NODE){
+                Element bahnhof = (Element) bahnhofNode;
+                double x = Double.parseDouble(bahnhof.getElementsByTagName("x").item(0).getTextContent());
+                double y = Double.parseDouble(bahnhof.getElementsByTagName("y").item(0).getTextContent());
+                b.setPos(new Vec2d(x, y));
+
+                NodeList bahnsteige = bahnhof.getElementsByTagName("bahnsteig");
+
+                int bahnsteigCounter = 0;
+                for(Bahnsteig ba : b.getBahnsteige()){
+                    Node bahnsteigNode = bahnsteige.item(bahnsteigCounter);
+
+                    if (bahnsteigNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element bahnsteig = (Element) bahnsteigNode;
+
+                        ba.setOrderId(Integer.parseInt(bahnsteig.getElementsByTagName("orderId").item(0).getTextContent()));
+                        ba.setSichtbar(Boolean.parseBoolean(bahnsteig.getElementsByTagName("sichtbar").item(0).getTextContent()));
+                    }
+                    bahnsteigCounter++;
+                }
+            }
+            bahnhofCounter++;
+        }
+    }
+
+    private void leseStellwerksEinstellungenVersionZwei(NodeList bahnhoefe, Stellwerk stellwerk){
+        int bahnhofCounter = 0;
+        for(Bahnhof b : stellwerk.getBahnhoefe()){
+            Node bahnhofNode = bahnhoefe.item(bahnhofCounter);
+            if(bahnhofNode.getNodeType() == Node.ELEMENT_NODE){
+                Element bahnhof = (Element) bahnhofNode;
+
+                b.setAlternativName(bahnhof.getElementsByTagName("alternativName").item(0).getTextContent());
+            }
+            bahnhofCounter++;
         }
     }
 }
