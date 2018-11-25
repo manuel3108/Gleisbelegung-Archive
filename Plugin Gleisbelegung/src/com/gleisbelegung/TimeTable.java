@@ -18,10 +18,6 @@ public class TimeTable {
 	        this.bahnsteig = b;
 	    }
 	    
-	    public List<TimeTableRow> getRows() {
-	    	return TimeTable.this.rows;
-	    }
-
 		public Bahnsteig getBahnsteig() {
 			return bahnsteig;
 		}
@@ -39,10 +35,6 @@ public class TimeTable {
 	            TimeTableData ttd = new TimeTableData(ttc, this);
 	            fields.add(ttd);
 	        }
-	    }
-	    
-	    public List<TimeTableColumn> getCols() {
-	    	return TimeTable.this.cols;
 	    }
 
 		public Iterator<TimeTableData> dataIterator() {
