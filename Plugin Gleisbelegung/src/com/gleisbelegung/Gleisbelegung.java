@@ -218,13 +218,8 @@ public class Gleisbelegung {
                 lcTemp.updateLabel("", ttd.getRow().time);
 
                 if(ttd.getZuege().size() > 0){
-                    try{
-                        for(FahrplanHalt fh : ttd.getZuege()){
-                            lcTemp.addTrain(fh.getZug());
-                        }
-                    } catch (Exception ex){
-                        ex.printStackTrace();
-                        System.out.println("SCHEISSE");
+                    for(FahrplanHalt fh : ttd.getZuege()){
+                        lcTemp.addTrain(fh.getZug());
                     }
 
                 }
@@ -245,14 +240,42 @@ public class Gleisbelegung {
     }
 
     public void aktualisiereTabelle(){
-        timeTable.entferneVergangenheit();
+
+        Iterator<TimeTable.TimeTableData> iterator = timeTable.getRefresh().iterator();
+
+        while(iterator.hasNext()){
+            TimeTable.TimeTableData ttd = iterator.next();
+
+            System.out.println("AKTUALISIERE: " + ttd.getRow().time + " und " + ttd.getCol().getBahnsteig().getName());
+            int indexRow = timeTable.getRows().indexOf(ttd.getRow());
+            int indexCol = stellwerk.getBahnsteige().indexOf(ttd.getCol().getBahnsteig());
+
+            Platform.runLater(() -> {
+                //Das macht was funktioniert aber noch nicht
+                //gp.getChildren().remove(indexRow*stellwerk.getAnzahlBahnsteige() + indexCol);
+            });
+
+            iterator.remove();
+        }
+        timeTable.getRefresh().clear();
 
         //TODO Das soll eigentlich nur vorläufig sein
-        Platform.runLater(() -> {
-            gp.getChildren().clear();
-            gpTime.getChildren().clear();
-            zeichneTabelle();
-        });
+//        Platform.runLater(() -> {
+//            gp.getChildren().clear();
+//            gpTime.getChildren().clear();
+//            zeichneTabelle();
+//        });
+    }
+
+    public void entferneVergangenheit(){
+        timeTable.entferneVergangenheit();
+
+        if(gp.getChildren().size() - stellwerk.getAnzahlBahnsteige() > 0){
+            Platform.runLater(() -> {
+                gpTime.getChildren().remove(0);
+                gp.getChildren().remove(0, stellwerk.getAnzahlBahnsteige());
+            });
+        }
     }
 
     public void update(){

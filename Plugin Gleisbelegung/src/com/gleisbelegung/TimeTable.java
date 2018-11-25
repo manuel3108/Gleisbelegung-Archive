@@ -177,12 +177,11 @@ public class TimeTable {
     public void entferneVergangenheit() {
     	synchronized(rows) {
 	        rows.removeIf(new Predicate<TimeTableRow>() {
-	
 				@Override
 				public boolean test(TimeTableRow ttr) {
 					return ttr.time < stellwerk.getSpielzeit();
 				}
-	        	
+
 	        });
     	}
     }
@@ -195,5 +194,16 @@ public class TimeTable {
 		}
 		return rows.iterator();
 	}
+
+	public List<TimeTableData> getRefresh(){
+        return refresh;
+    }
+    private void setToRefresh(TimeTableData ttd, int row, int col){
+        refresh.add(ttd);
+    }
+
+    public List<TimeTableRow> getRows(){
+        return rows;
+    }
 }
 

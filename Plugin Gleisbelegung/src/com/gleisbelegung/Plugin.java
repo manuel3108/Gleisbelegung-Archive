@@ -553,7 +553,7 @@ public class Plugin extends Application implements Runnable{
                 if (stellwerk.getSpielzeit() % (1000 * 60) >= 0 && stellwerk.getSpielzeit() % (1000 * 60) <= 1000) {
                     Runnable r = () -> {
                         try {
-                            f.gleisbelegung.aktualisiereTabelle();
+                            f.gleisbelegung.entferneVergangenheit();
                             System.out.println("INFORMATION: Du benutzt das Plugin seit " + ((System.currentTimeMillis() - stellwerk.getStartzeit()) / (1000 * 60)) + " Minute(n)!");
                         } catch (Exception e) {
                             e.printStackTrace();
