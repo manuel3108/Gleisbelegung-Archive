@@ -88,6 +88,8 @@ public class Stellwerksuebersicht {
             counter++;
         }
 
+        aktualisiereBahnhofsNamen();
+
         content = new Pane();
         content.setStyle("-fx-background-color: #303030");
         content.setOnDragDetected(mouse -> {
