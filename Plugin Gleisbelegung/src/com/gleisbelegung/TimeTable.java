@@ -116,7 +116,7 @@ public class TimeTable {
         }
 
         int haltInMinuten = (int)((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunft())/(1000*60));
-        if(haltInMinuten > counter){
+        if(haltInMinuten > counter && rows.size() > 0){
             TimeTableRow lastRow = rows.get(rows.size() - 1);
             while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
                 lastRow = new TimeTableRow(lastRow.time + 1000*60);
