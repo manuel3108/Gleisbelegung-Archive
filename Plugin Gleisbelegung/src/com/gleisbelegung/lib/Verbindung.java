@@ -98,10 +98,24 @@ public class Verbindung {
         String[] bahnsteige = new String[bahnsteigeXML.size()];
         Iterator<XML> bahnsteigIterator = bahnsteigeXML.iterator();
         for (int i = 0; i < bahnsteige.length; i++) {
-            bahnsteige[i] = bahnsteigIterator.next().get("name");
+            XML b = bahnsteigIterator.next();
+            bahnsteige[i] = b.get("name");
         }
         stellwerk.erstelleBahnhoefe(bahnsteige);
 
+        bahnsteigIterator = bahnsteigeXML.iterator();
+        for (Bahnsteig bahnsteig : stellwerk.getBahnsteige()) {
+            XML b = bahnsteigIterator.next();
+
+            List<Bahnsteig> nachbarn = new ArrayList<Bahnsteig>();
+            for(XML nachbarXml : b.getInternXML()){
+                Bahnsteig nachbar = sucheBahnsteig(nachbarXml.get("name"));
+                if(nachbar != null){
+                    nachbarn.add(nachbar);
+                }
+            }
+            bahnsteig.setNachbarn(nachbarn);
+        }
         /*if (setSocketCode("<wege />") != 1) { //auf der SIM-Seite noch nicht implementiert
             System.out.println(-10, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-10);

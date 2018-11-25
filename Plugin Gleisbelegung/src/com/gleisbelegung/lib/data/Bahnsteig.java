@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.SortedSet;
 
 public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
@@ -28,6 +29,7 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
     private int id;
     private Bahnhof bahnhof;
     private boolean sorting = false;
+    private List<Bahnsteig> nachbarn;
 
     public Bahnsteig(Bahnhof b, String name, int orderId){
         this.bahnhof = b;
@@ -37,6 +39,8 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
         id = orderId;
 
         hervorgehoben = false;
+
+        nachbarn = new ArrayList<Bahnsteig>();
     }
 
     public String getName() {
@@ -215,14 +219,22 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
                 '}';
     }
 
-  public boolean getSortingActive() {
+    public boolean getSortingActive() {
     return this.sorting;
   }
 
-  public static void applySorting(SortedSet<Bahnsteig> bahnsteige) {
+    public static void applySorting(SortedSet<Bahnsteig> bahnsteige) {
       for(Bahnsteig bahnsteig : bahnsteige) {
         bahnsteig.setSortActive();
         bahnsteig.aendereReihenfolge();
       }
   }
+
+    public List<Bahnsteig> getNachbarn() {
+        return nachbarn;
+    }
+
+    public void setNachbarn(List<Bahnsteig> nachbarn) {
+        this.nachbarn = nachbarn;
+    }
 }
