@@ -17,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -217,12 +218,16 @@ public class Gleisbelegung {
                 LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.getCol().getBahnsteig());
                 lcTemp.updateLabel("", ttd.getRow().time);
 
+                ttd.setLabelContainer(lcTemp);
+
                 if(ttd.getZuege().size() > 0){
                     for(FahrplanHalt fh : ttd.getZuege()){
                         lcTemp.addTrain(fh.getZug());
                     }
 
                 }
+
+                timeTable.getRefresh().remove(ttd);
 
                 final int tempCol = colCounter;
                 Platform.runLater(() -> {
@@ -251,20 +256,14 @@ public class Gleisbelegung {
             int indexCol = stellwerk.getBahnsteige().indexOf(ttd.getCol().getBahnsteig());
 
             Platform.runLater(() -> {
-                //Das macht was funktioniert aber noch nicht
-                //gp.getChildren().remove(indexRow*stellwerk.getAnzahlBahnsteige() + indexCol);
+                if(ttd.getLabelContainer() != null){
+                    ttd.getLabelContainer().setTrains(ttd.getZuege());
+                }
             });
 
             iterator.remove();
         }
         timeTable.getRefresh().clear();
-
-        //TODO Das soll eigentlich nur vorläufig sein
-//        Platform.runLater(() -> {
-//            gp.getChildren().clear();
-//            gpTime.getChildren().clear();
-//            zeichneTabelle();
-//        });
     }
 
     public void entferneVergangenheit(){

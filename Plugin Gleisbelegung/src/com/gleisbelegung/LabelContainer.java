@@ -21,6 +21,7 @@ import javafx.scene.text.Font;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class LabelContainer extends Plugin {
     private Label l;                                //Textfeld um Text schreiben zu können
@@ -319,6 +320,13 @@ public class LabelContainer extends Plugin {
 
     public ArrayList<Zug> getTrains(){
         return trains;
+    }
+    public void setTrains(List<FahrplanHalt> halte){
+        trains.clear();
+        for(FahrplanHalt fh : halte){
+            trains.add(fh.getZug());
+        }
+        updateLabel();
     }
 
     public Bahnsteig getBahnsteig() {

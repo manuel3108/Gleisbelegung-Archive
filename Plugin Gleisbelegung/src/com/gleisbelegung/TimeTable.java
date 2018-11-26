@@ -48,11 +48,13 @@ public class TimeTable {
 	    private List<FahrplanHalt> zuege;
 	    private TimeTableRow row;
 	    private TimeTableColumn col;
+	    private LabelContainer labelContainer;
 	
 	    TimeTableData(TimeTableColumn col, TimeTableRow row) {
 	        this.col = col;
 	        this.row = row;
 	        this.zuege =  new ArrayList<FahrplanHalt>();
+	        labelContainer = null;
 	    }
 
 		public TimeTableColumn getCol() {
@@ -66,7 +68,15 @@ public class TimeTable {
 		public List<FahrplanHalt> getZuege() {
 			return zuege;
 		}
-	}
+
+        public LabelContainer getLabelContainer() {
+            return labelContainer;
+        }
+
+        public void setLabelContainer(LabelContainer labelContainer) {
+            this.labelContainer = labelContainer;
+        }
+    }
 	
 	
     private List<TimeTableColumn> cols; //Spalten
@@ -100,7 +110,7 @@ public class TimeTable {
     }
 
     public void addFahrplanHalt(FahrplanHalt fh){
-        //TODO Ein Zug wird geändert, hier kann die Kollisionsabfrage und Benachrichtigung erfolgen
+        //TODO Ein Fahrplanhalt wird geändert, hier kann die Kollisionsabfrage und Benachrichtigung erfolgen
 
         int counter = 0;
         for(TimeTableRow ttr : rows) {
@@ -128,9 +138,7 @@ public class TimeTable {
                     for(TimeTableData ttd : lastRow.fields){
                         if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
                             ttd.getZuege().add(fh);
-                            if(!refresh.contains(ttd)) {
-                            	refresh.add(ttd);
-                            }
+                            if(!refresh.contains(ttd)) refresh.add(ttd);
                         }
                     }
                 }
