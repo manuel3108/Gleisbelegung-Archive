@@ -82,7 +82,7 @@ public class Stellwerksuebersicht {
             bahnhofsLabel.add(l);
 
             Platform.runLater(() -> {
-                content.getChildren().add(l);
+                if(content != null) content.getChildren().add(l);
             });
 
             counter++;
