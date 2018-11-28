@@ -251,10 +251,6 @@ public class Gleisbelegung {
         while(iterator.hasNext()){
             TimeTable.TimeTableData ttd = iterator.next();
 
-            System.out.println("AKTUALISIERE: " + ttd.getRow().time + " und " + ttd.getCol().getBahnsteig().getName());
-            int indexRow = timeTable.getRows().indexOf(ttd.getRow());
-            int indexCol = stellwerk.getBahnsteige().indexOf(ttd.getCol().getBahnsteig());
-
             Platform.runLater(() -> {
                 if(ttd.getLabelContainer() != null){
                     ttd.getLabelContainer().setTrains(ttd.getZuege());

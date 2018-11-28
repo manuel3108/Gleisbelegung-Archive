@@ -76,6 +76,19 @@ public class TimeTable {
         public void setLabelContainer(LabelContainer labelContainer) {
             this.labelContainer = labelContainer;
         }
+
+        public void addZug(FahrplanHalt fh){
+	        boolean add = true;
+	        if(fh.getFlaggedTrain() != null){
+	            if(fh.getFlaggedTrain().getFahrplan().size() >= 1){
+	                if(zuege.contains(fh.getFlaggedTrain().getFahrplan(0))){
+	                    add = false;
+                    }
+                }
+            }
+
+            if(add) zuege.add(fh);
+        }
     }
 	
 	
@@ -117,7 +130,7 @@ public class TimeTable {
             if(ttr.time >= fh.getTatsaechlicheAnkunft() && ttr.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                 for(TimeTableData ttd : ttr.fields){
                     if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
-                        ttd.getZuege().add(fh);
+                        ttd.addZug(fh);
                         if(!refresh.contains(ttd)) refresh.add(ttd);
                         counter++;
                     }
@@ -137,7 +150,7 @@ public class TimeTable {
                 if(lastRow.time >= fh.getTatsaechlicheAnkunft() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
                     for(TimeTableData ttd : lastRow.fields){
                         if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
-                            ttd.getZuege().add(fh);
+                            ttd.addZug(fh);
                             if(!refresh.contains(ttd)) refresh.add(ttd);
                         }
                     }
