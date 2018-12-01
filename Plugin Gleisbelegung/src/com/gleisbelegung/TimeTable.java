@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 
 public class TimeTable {
 
-	class TimeTableColumn{
+    class TimeTableColumn{
 	    private Bahnsteig bahnsteig;
 	
 	    TimeTableColumn(Bahnsteig b){
@@ -28,6 +28,7 @@ public class TimeTable {
 	class TimeTableRow {
 	    long time;
 	    private List<TimeTableData> fields;
+	    private boolean isNewRow;
 	
 	    TimeTableRow(long time) {
 	        this.time = time;
@@ -37,12 +38,21 @@ public class TimeTable {
 	            TimeTableData ttd = new TimeTableData(ttc, this);
 	            fields.add(ttd);
 	        }
+
+	        isNewRow = true;
 	    }
 
 		public Iterator<TimeTableData> dataIterator() {
 			return fields.iterator();
 		}
-	}
+
+        public boolean isNewRow() {
+            return isNewRow;
+        }
+        public void setNewRow(boolean newRow) {
+            isNewRow = newRow;
+        }
+    }
 	
 	class TimeTableData {
 	    private List<FahrplanHalt> zuege;
@@ -155,8 +165,6 @@ public class TimeTable {
                         }
                     }
                 }
-
-
             }
         }
     }
@@ -191,6 +199,7 @@ public class TimeTable {
                 }
 
                 if(counter >= 0) ttd.getZuege().remove(counter);
+                refresh.add(ttd);
             }
         }
     }

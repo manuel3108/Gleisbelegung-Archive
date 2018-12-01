@@ -15,9 +15,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -36,10 +34,13 @@ public class Gleisbelegung {
     private Pane content;
     private Stellwerk stellwerk;
     private TimeTable timeTable;
+    private int rowCounter;
 
     public Gleisbelegung(Stellwerk stellwerk){
         this.stellwerk = stellwerk;
         timeTable = new TimeTable(stellwerk);
+
+        rowCounter = 0;
 
         firstLabel = new Label("Bahnhofsname");
         firstLabel.setFont(Font.font(Einstellungen.schriftgroesse-5));
@@ -118,6 +119,10 @@ public class Gleisbelegung {
         spPlatform.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spPlatform.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spPlatform.setTranslateY(10);
+        spPlatform.vvalueProperty().addListener((ov, old_val, new_val) -> {
+            spContent.setHvalue(spPlatform.getHvalue());
+            spBahnhof.setHvalue(spPlatform.getHvalue());
+        });
 
         gpBahnhof = new GridPane();
         gpBahnhof.setHgap(0);
@@ -199,7 +204,7 @@ public class Gleisbelegung {
             content.getChildren().clear();
         });*/
 
-        int rowCounter = 0;
+        /*int rowCounter = 0;
 
         for(Iterator<TimeTable.TimeTableRow> iterRow = timeTable.rowIterator(); iterRow.hasNext(); ){
         	TimeTable.TimeTableRow ttr = iterRow.next();
@@ -241,13 +246,55 @@ public class Gleisbelegung {
             }
 
             rowCounter++;
+        }*/
+    }
+
+    private void fuegeReiheHinzu(TimeTable.TimeTableRow ttr){
+        ttr.setNewRow(false);
+
+        LabelContainer lc = new LabelContainer(rowCounter, null);
+        final int temp = rowCounter;
+        Platform.runLater(() -> {
+            lc.setTimeLabel(true, ttr.time);
+            gpTime.add(lc.getLabel(), 0, temp);
+        });
+
+        int colCounter = 0;
+        for(Iterator<TimeTable.TimeTableData> iterData = ttr.dataIterator(); iterData.hasNext(); ){
+            TimeTable.TimeTableData ttd = iterData.next();
+            LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.getCol().getBahnsteig());
+            lcTemp.updateLabel("", ttd.getRow().time);
+
+            ttd.setLabelContainer(lcTemp);
+
+            if(ttd.getZuege().size() > 0){
+                for(FahrplanHalt fh : ttd.getZuege()){
+                    lcTemp.addTrain(fh.getZug());
+                }
+
+            }
+
+            timeTable.getRefresh().remove(ttd);
+
+            final int tempCol = colCounter;
+            Platform.runLater(() -> {
+                gp.add(lcTemp.getLabel(), tempCol, temp);
+            });
+
+            colCounter++;
         }
+
+        rowCounter++;
     }
 
     public void aktualisiereTabelle(){
+        for(TimeTable.TimeTableRow ttr : timeTable.getRows()){
+            if(ttr.isNewRow()){
+                fuegeReiheHinzu(ttr);
+            }
+        }
 
-        Iterator<TimeTable.TimeTableData> iterator = timeTable.getRefresh().iterator();
-
+        Iterator<TimeTable.TimeTableData> iterator = new ArrayList<TimeTable.TimeTableData>(timeTable.getRefresh()).iterator();
         while(iterator.hasNext()){
             TimeTable.TimeTableData ttd = iterator.next();
 
@@ -256,8 +303,6 @@ public class Gleisbelegung {
                     ttd.getLabelContainer().setTrains(ttd.getZuege());
                 }
             });
-
-            iterator.remove();
         }
         timeTable.getRefresh().clear();
     }
@@ -276,10 +321,6 @@ public class Gleisbelegung {
     public void update(){
         boolean wasUpdate = false;
         for (Zug z : stellwerk.getZuege()) {
-            if(z.getZugName().equals("LT 84355")){
-                System.out.println("zug");
-            }
-
             if(z.isNewTrain()) {
                 timeTable.addZug(z);
                 wasUpdate = true;
@@ -296,8 +337,8 @@ public class Gleisbelegung {
             }
         }
 
-        if(gp.getChildren().size() == 0) zeichneTabelle();
-        else if(wasUpdate) aktualisiereTabelle();
+        //if(gp.getChildren().size() == 0) zeichneTabelle();
+        if(wasUpdate) aktualisiereTabelle();
     }
 
     public void sortiereGleise(Runnable callback){

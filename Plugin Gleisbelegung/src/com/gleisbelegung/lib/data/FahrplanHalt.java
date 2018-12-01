@@ -60,7 +60,8 @@ public class FahrplanHalt {
         if(ankuft == 0 && vorgaenger != null){
             return vorgaenger.getTatsaechlicheAnkunft();
         }
-        return  ankuft;
+
+        return ankuft + z.getVerspaetungInMiliSekunden();
     }
     public void setAnkuft(long ankuft) {
         this.ankuft = ankuft;
@@ -74,7 +75,14 @@ public class FahrplanHalt {
         if(abfahrt == 0 && flaggedTrain != null){
             return flaggedTrain.getFahrplan(0).getTatsaechlicheAbfahrt();
         }
-        return abfahrt;
+
+        if(z.getVerspaetungInMinuten() <= 0){
+            return abfahrt;
+        } else if(z.getVerspaetungInMinuten() <= 3){
+            return abfahrt + z.getVerspaetungInMiliSekunden();
+        } else {
+            return ankuft + z.getVerspaetungInMiliSekunden() + 2*60*1000;
+        }
     }
     public void setAbfahrt(long abfahrt) {
         this.abfahrt = abfahrt;
