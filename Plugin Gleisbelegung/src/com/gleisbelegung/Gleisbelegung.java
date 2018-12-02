@@ -15,6 +15,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+
+import java.sql.Time;
 import java.util.*;
 
 public class Gleisbelegung {
@@ -199,56 +201,6 @@ public class Gleisbelegung {
         t.start();*/
     }
 
-    private void zeichneTabelle(){
-        /*Platform.runLater(() -> {
-            content.getChildren().clear();
-        });*/
-
-        /*int rowCounter = 0;
-
-        for(Iterator<TimeTable.TimeTableRow> iterRow = timeTable.rowIterator(); iterRow.hasNext(); ){
-        	TimeTable.TimeTableRow ttr = iterRow.next();
-            LabelContainer lc = new LabelContainer(rowCounter, null);
-
-            final int temp = rowCounter;
-            Platform.runLater(() -> {
-                lc.setTimeLabel(true, ttr.time);
-                gpTime.add(lc.getLabel(), 0, temp);
-            });
-
-            int colCounter = 0;
-
-            for(Iterator<TimeTable.TimeTableData> iterData = ttr.dataIterator(); iterData.hasNext(); ){
-            	TimeTable.TimeTableData ttd = iterData.next();
-                LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.getCol().getBahnsteig());
-                lcTemp.updateLabel("", ttd.getRow().time);
-
-                ttd.setLabelContainer(lcTemp);
-
-                if(ttd.getZuege().size() > 0){
-                    for(FahrplanHalt fh : ttd.getZuege()){
-                        lcTemp.addTrain(fh.getZug());
-                    }
-
-                }
-
-                timeTable.getRefresh().remove(ttd);
-
-                final int tempCol = colCounter;
-                Platform.runLater(() -> {
-//                    lcTemp.getLabel().setTranslateX(tempCol*100);
-//                    lcTemp.getLabel().setTranslateY(temp*20);
-//                    gp.getChildren().add(lcTemp.getLabel());
-                    gp.add(lcTemp.getLabel(), tempCol, temp);
-                });
-
-                colCounter++;
-            }
-
-            rowCounter++;
-        }*/
-    }
-
     private void fuegeReiheHinzu(TimeTable.TimeTableRow ttr){
         ttr.setNewRow(false);
 
@@ -288,7 +240,7 @@ public class Gleisbelegung {
     }
 
     public void aktualisiereTabelle(){
-        for(TimeTable.TimeTableRow ttr : timeTable.getRows()){
+        for(TimeTable.TimeTableRow ttr : new ArrayList<TimeTable.TimeTableRow>(timeTable.getRows())){
             if(ttr.isNewRow()){
                 fuegeReiheHinzu(ttr);
             }
@@ -296,7 +248,7 @@ public class Gleisbelegung {
 
         Iterator<TimeTable.TimeTableData> iterator = new ArrayList<TimeTable.TimeTableData>(timeTable.getRefresh()).iterator();
         while(iterator.hasNext()){
-            TimeTable.TimeTableData ttd = iterator.next();
+            final TimeTable.TimeTableData ttd = iterator.next();
 
             Platform.runLater(() -> {
                 if(ttd.getLabelContainer() != null){
@@ -567,5 +519,9 @@ public class Gleisbelegung {
     }
     public Pane getContent() {
         return content;
+    }
+
+    public TimeTable getTimeTable(){
+        return timeTable;
     }
 }

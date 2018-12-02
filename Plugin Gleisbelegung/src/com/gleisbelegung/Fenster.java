@@ -272,7 +272,7 @@ public class Fenster{
                         LabelContainer lc = fh.getDrawnTo(0);
                         if(lc != null){
                             try{
-                                gleisbelegung.scrollPaneTo((double) lc.getBahnsteig().getOrderId() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) Einstellungen.vorschau, fh);
+                                gleisbelegung.scrollPaneTo((double) lc.getBahnsteig().getOrderId() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) gleisbelegung.getTimeTable().getRows().size(), fh);
                             } catch(Exception e){
                                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
                             }
@@ -360,14 +360,6 @@ public class Fenster{
         TextField tfai = new TextField(String.valueOf(Einstellungen.update));
         tfai.setTranslateX(300);
         tfai.setTranslateY(10);
-
-        Label v = new Label("Vorschau (in min):");
-        v.setFont(Font.font(18));
-        v.setTranslateY(40);
-        v.setTranslateX(10);
-        TextField tfv = new TextField(String.valueOf(Einstellungen.vorschau));
-        tfv.setTranslateX(300);
-        tfv.setTranslateY(40);
 
         Label sb = new Label("Spaltenbreite (in px):");
         sb.setFont(Font.font(18));
@@ -497,36 +489,26 @@ public class Fenster{
                 Einstellungen.informationenBreite = Integer.parseInt(tfzib.getText());
                 Einstellungen.informationenAnzeigen = cbezi.isSelected();
 
-                if(Einstellungen.vorschau != Integer.parseInt(tfv.getText())){
-                    Einstellungen.vorschau = Integer.parseInt(tfv.getText());
-
-                    einstellungen.setDisable(false);
-                    stage.close();
-                    Plugin.einstellungen.schreibeEinstellungen();
-
-                    refresh.fire();
-                } else{
-                    int counterOne = 0;
-                    for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-                        for (Bahnsteig b : bahnhof.getBahnsteige()) {
-                            if (cbGleis[counterOne].isSelected()) {
-                                b.setSichtbar(true);
-                                b.setLabelContainerToWith(Einstellungen.spaltenbreite);
-                            } else {
-                                b.setSichtbar(false);
-                                b.setLabelContainerToWith(0);
-                            }
-                            counterOne++;
+                int counterOne = 0;
+                for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+                    for (Bahnsteig b : bahnhof.getBahnsteige()) {
+                        if (cbGleis[counterOne].isSelected()) {
+                            b.setSichtbar(true);
+                            b.setLabelContainerToWith(Einstellungen.spaltenbreite);
+                        } else {
+                            b.setSichtbar(false);
+                            b.setLabelContainerToWith(0);
                         }
+                        counterOne++;
                     }
-
-                    einstellungen.setDisable(false);
-                    stage.close();
-
-                    updateSettings();
-                    updateUi();
-                    gleisbelegung.erzeugeBahnsteigLabel();
                 }
+
+                einstellungen.setDisable(false);
+                stage.close();
+
+                updateSettings();
+                updateUi();
+                gleisbelegung.erzeugeBahnsteigLabel();
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -535,7 +517,7 @@ public class Fenster{
         Pane p = new Pane();
         p.setPrefWidth(stageWidth);
         p.setPrefHeight(stageHeight);
-        p.getChildren().addAll(ai, tfai, v, tfv, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern);
+        p.getChildren().addAll(ai, tfai, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern);
         p.setStyle("-fx-background: #303030; -fx-padding: 0;");
 
         ScrollPane sp = new ScrollPane(p);

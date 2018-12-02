@@ -17,7 +17,6 @@ import java.io.*;
 
 public class Einstellungen {
     public static int update = 15;
-    public static int vorschau = 60;
     public static int spaltenbreite = 100;
     public static int schriftgroesse = 18;
     public static boolean informationenAnzeigen = true;
@@ -52,7 +51,6 @@ public class Einstellungen {
                 bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 bw.write("<einstellungen version=\"1\">\n");
                 bw.write("\t<update>" + update + "</update>\n");
-                bw.write("\t<vorschau>" + vorschau + "</vorschau>\n");
                 bw.write("\t<spaltenbreite>" + spaltenbreite + "</spaltenbreite>\n");
                 bw.write("\t<schriftgroesse>" + schriftgroesse + "</schriftgroesse>\n");
                 bw.write("\t<informationenAnzeigen>" + informationenAnzeigen + "</informationenAnzeigen>\n");
@@ -76,7 +74,6 @@ public class Einstellungen {
             int xmlVersion = Integer.parseInt(e.getAttribute("version"));
             if(xmlVersion == 1){
                 update = Integer.parseInt(e.getElementsByTagName("update").item(0).getTextContent());
-                vorschau = Integer.parseInt(e.getElementsByTagName("vorschau").item(0).getTextContent());
                 spaltenbreite = Integer.parseInt(e.getElementsByTagName("spaltenbreite").item(0).getTextContent());
                 schriftgroesse = Integer.parseInt(e.getElementsByTagName("schriftgroesse").item(0).getTextContent());
                 informationenAnzeigen = Boolean.parseBoolean(e.getElementsByTagName("informationenAnzeigen").item(0).getTextContent());
