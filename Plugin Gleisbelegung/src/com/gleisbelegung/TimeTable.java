@@ -199,7 +199,7 @@ public class TimeTable {
                 }
 
                 if(counter >= 0) ttd.getZuege().remove(counter);
-                refresh.add(ttd);
+                if(!refresh.contains(ttd)) refresh.add(ttd);
             }
         }
     }

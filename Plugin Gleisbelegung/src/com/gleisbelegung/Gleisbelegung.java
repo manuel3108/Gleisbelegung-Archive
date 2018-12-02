@@ -17,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Gleisbelegung {
@@ -271,6 +272,8 @@ public class Gleisbelegung {
     }
 
     public void update(){
+        //System.out.println(new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + " start");
+
         boolean wasUpdate = false;
         for (Zug z : stellwerk.getZuege()) {
             if(z.isNewTrain()) {
@@ -291,6 +294,8 @@ public class Gleisbelegung {
 
         //if(gp.getChildren().size() == 0) zeichneTabelle();
         if(wasUpdate) aktualisiereTabelle();
+
+        //System.out.println(new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + " ende");
     }
 
     public void sortiereGleise(Runnable callback){
