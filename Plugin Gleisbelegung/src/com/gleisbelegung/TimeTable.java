@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public class TimeTable {
@@ -97,7 +98,7 @@ public class TimeTable {
     private List<TimeTableData> refresh;
     private Stellwerk stellwerk;
 
-    public TimeTable(Stellwerk stellwerk){
+    public TimeTable(Stellwerk stellwerk) {
         this.stellwerk = stellwerk;
 
         cols = new ArrayList<TimeTableColumn>();
@@ -122,40 +123,40 @@ public class TimeTable {
         z.setNewTrain(false);
     }
 
-    public void addFahrplanHalt(FahrplanHalt fh){
+    public void addFahrplanHalt(FahrplanHalt fh) {
         //TODO Ein Fahrplanhalt wird geändert, hier kann die Kollisionsabfrage und Benachrichtigung erfolgen
 
         int counter = 0;
-        for(TimeTableRow ttr : rows) {
-            if(ttr.time >= fh.getTatsaechlicheAnkunft() && ttr.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
-                for(TimeTableData ttd : ttr.fields){
-                    if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
-                        ttd.addZug(fh);
-                        if(!refresh.contains(ttd)) refresh.add(ttd);
-                        counter++;
+        synchronized(this.rows) {
+        	for(TimeTableRow ttr : rows) {
+        		if(ttr.time >= fh.getTatsaechlicheAnkunft() && ttr.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
+        			for(TimeTableData ttd : ttr.fields){
+        				if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
+        					ttd.addZug(fh);
+        					if(!refresh.contains(ttd)) refresh.add(ttd);
+        					counter++;
+        				}
                     }
                 }
             }
         }
-
-        int haltInMinuten = (int)((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunft())/(1000*60));
-        if(haltInMinuten > counter && rows.size() > 0){
-            TimeTableRow lastRow = rows.get(rows.size() - 1);
-            while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
-                lastRow = new TimeTableRow(lastRow.time + 1000*60);
-                synchronized(rows) {
-                	rows.add(lastRow);
-                }
-
-                if(lastRow.time >= fh.getTatsaechlicheAnkunft() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
-                    for(TimeTableData ttd : lastRow.fields){
-                        if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
-                            ttd.addZug(fh);
-                            if(!refresh.contains(ttd)) refresh.add(ttd);
-                        }
-                    }
-                }
-
+        int haltInMinuten = (int) TimeUnit.MICROSECONDS.toMinutes((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunft()));
+        synchronized(rows) {
+        	if(haltInMinuten > counter && rows.size() > 0){
+        	
+            	TimeTableRow lastRow = rows.get(rows.size() - 1);
+            	while(fh.getAbfahrt() + fh.getZug().getVerspaetungInMiliSekunden() > lastRow.time){
+                	lastRow = new TimeTableRow(lastRow.time + 1000*60);
+            		rows.add(lastRow);
+                	if(lastRow.time >= fh.getTatsaechlicheAnkunft() && lastRow.time <= fh.getTatsaechlicheAbfahrt() + 1000*60){
+                    	for(TimeTableData ttd : lastRow.fields){
+                        	if(fh.getBahnsteig().getId() == ttd.col.getBahnsteig().getId()){
+                            	ttd.addZug(fh);
+                            	if(!refresh.contains(ttd)) refresh.add(ttd);
+                        	}
+                    	}
+                	}
+            	}
 
             }
         }
@@ -167,7 +168,7 @@ public class TimeTable {
         }
     }
 
-    public void updateFahrplanhalt(FahrplanHalt fh){
+    public void updateFahrplanhalt(FahrplanHalt fh) {
         removeFahrplanhalt(fh);
         addFahrplanHalt(fh);
         fh.setNeedUpdate(false);
@@ -211,7 +212,7 @@ public class TimeTable {
 	public Iterator<TimeTableRow> rowIterator() {
 		List<TimeTableRow> rows;
 		synchronized(this.rows) {
-			rows = Collections.unmodifiableList(this.rows);
+			rows = Collections.unmodifiableList(new ArrayList<>(this.rows));
 		}
 		return rows.iterator();
 	}

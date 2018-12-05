@@ -2,13 +2,20 @@ package com.gleisbelegung.lib;
 
 import com.gleisbelegung.lib.data.Bahnhof;
 import com.gleisbelegung.lib.data.Bahnsteig;
+import com.gleisbelegung.lib.data.Trainlist;
 import com.gleisbelegung.lib.data.Zug;
 
-import java.io.IOException;
+import de.heidelbach_net.util.XML;
+
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Stellwerk {
     private static String host;
@@ -22,39 +29,23 @@ public class Stellwerk {
     long spielzeit;
     long letzteAktualisierung;
 
-    private ArrayList<Bahnhof> bahnhoefe;
-    private ArrayList<Zug> zuege;
+    private final List<Bahnhof> bahnhoefe = new ArrayList<>();
+    private final Map<String, Bahnhof> bahnhofMap = new HashMap<>();
+    private final Map<String, Bahnsteig> bahnsteigMap = new HashMap<>();
+    private Trainlist zuege;
 
-    private static Verbindung v;
+    private Verbindung v;
 
-    public Stellwerk(String host, int port, String pluginName, String pluginBeschreibung, String autor, int version) throws IOException {
-        this.host = host;
-        this.port = port;
-
+    public Stellwerk(Verbindung v, String name, int anlagenId, int simbuild) {
         startzeit = System.currentTimeMillis();
-        bahnhoefe = new ArrayList<>();
-        zuege = new ArrayList<>();
-
-        v = new Verbindung(new Socket(host, port), this, pluginName, pluginBeschreibung, autor, version);
-        v.update();
+        this.v = v;
     }
-
-    public Stellwerk(Socket socket, String pluginName, String pluginBeschreibung, String autor, int version){
-        host = null;
-        port = 0;
-
-        startzeit = System.currentTimeMillis();
-        bahnhoefe = new ArrayList<>();
-        zuege = new ArrayList<>();
-
-        v = new Verbindung(socket, this, pluginName, pluginBeschreibung, autor, version);
-        v.update();
-    }
-
-    void erstelleBahnhoefe(String[] bahnsteige){
+    
+    void erstelleBahnhoefe(String[] bahnsteige) {
         String letzterBahnhofsName = "";
         String bahnsteigsName = "";
         String[] bahnhofsName = new String[bahnsteige.length];
+        Bahnhof lastB = null;
         for(int i = 0; i < bahnsteige.length; i++){
             if(Character.isLetter(bahnsteige[i].charAt(bahnsteige[i].length()-1)) && bahnsteige[i].matches(".*\\d+.*")){
                 bahnsteigsName = bahnsteige[i];
@@ -63,42 +54,36 @@ public class Stellwerk {
                 bahnsteigsName = bahnsteige[i];
             }
             bahnhofsName[i] = bahnsteige[i].replaceAll("\\P{L}+", "");
+            Bahnhof b;
             if(letzterBahnhofsName.equals(bahnhofsName[i]) && bahnhoefe.size() > 0){
-                bahnhoefe.get(bahnhoefe.size()-1).addBahnsteig(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
+                b = lastB;
             } else {
                 letzterBahnhofsName = bahnhofsName[i];
-                bahnhoefe.add(new Bahnhof(bahnhoefe.size(), letzterBahnhofsName));
-                bahnhoefe.get(bahnhoefe.size()-1).addBahnsteig(new Bahnsteig(bahnhoefe.get(bahnhoefe.size()-1), bahnsteigsName, i));
+                lastB = b = new Bahnhof(bahnhoefe.size(), letzterBahnhofsName);
+                bahnhoefe.add(b);
+                bahnhofMap.put(bahnhofsName[i], b);
             }
+            Bahnsteig bst = new Bahnsteig(b, bahnsteigsName, i);
+            b.addBahnsteig(bst);
+            bahnsteigMap.put(bahnsteigsName, bst);
         }
     }
 
-    public boolean aktualisiereDaten(){
-        if(!v.isAktualisiere()){
-            v.update();
-            return true;
-        }
-        return false;
+    public boolean aktualisiereDaten() {
+    	return v.update(this);
     }
 
     public void aktualisiereSimZeit(){
-        v.aktualisiereSimZeit();
+        this.spielzeit = v.aktualisiereSimZeit();
     }
 
-    public List<Bahnsteig> getBahnsteige(){
-        List<Bahnsteig> bahnsteige = new ArrayList<Bahnsteig>();
-        for(Bahnhof b : bahnhoefe){
-            bahnsteige.addAll(b.getBahnsteige());
-        }
-        return bahnsteige;
+    public Collection<Bahnsteig> getBahnsteige() {
+    	return bahnsteigMap.values();
     }
     public int getAnzahlBahnsteige(){
-        int counter = 0;
-        for(Bahnhof b : bahnhoefe){
-            counter += b.getAnzahlBahnsteige();
-        }
-        return counter;
+        return bahnsteigMap.size();
     }
+    
     public String getHost() {
         return host;
     }
@@ -117,24 +102,19 @@ public class Stellwerk {
     public int getSimbuild() {
         return simbuild;
     }
-    public ArrayList<Bahnhof> getBahnhoefe() {
-        return bahnhoefe;
+    public Collection<Bahnhof> getBahnhoefe() {
+        return bahnhofMap.values();
     }
-    public List<Zug> getZuege() {
-    	synchronized(zuege) {
-    		return Collections.unmodifiableList(new ArrayList<Zug>(zuege));
-    	}
+    
+    /**
+     * Create a copy of the internal train list. Changes to the returned list will not affect the original one. 
+     * 
+     * @return Copy of actual train list. 
+     */
+    public Collection<Zug> getZuege() {
+    	return this.zuege == null ? Collections.emptyList() : this.zuege.getZuege();
     }
-    public void addZug(Zug zug) {
-    	synchronized(zuege) {
-    		zuege.add(zug);
-    	}
-    }
-    public void removeZuege(List<Zug> zuege) {
-    	synchronized(this.zuege) {
-    		this.zuege.removeAll(zuege);
-    	}
-    }
+ 
     public long getSpielzeit() {
         return spielzeit;
     }
@@ -162,4 +142,24 @@ public class Stellwerk {
                 ", letzteAktualisierung=" + letzteAktualisierung +
                 '}';
     }
+
+	public Bahnsteig getBahnsteigByName(String string) {
+		return this.bahnsteigMap.get(string);
+	}
+
+	public void updateZugliste(XML read) {
+		if (null == this.zuege) {
+			this.zuege = Trainlist.parse(read);
+		} else {
+			this.zuege.update(read);
+		}
+	}
+
+	public void removeZug(Zug z) {
+		this.zuege.remove(z);
+	}
+
+	public Map<Integer, Zug> getZugMap() {
+		return this.zuege.toMap();
+	}
 }

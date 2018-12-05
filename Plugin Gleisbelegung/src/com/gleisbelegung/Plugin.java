@@ -11,6 +11,8 @@ Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
 import com.gleisbelegung.lib.Stellwerk;
+import com.gleisbelegung.lib.Verbindung;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -246,16 +248,21 @@ public class Plugin extends Application implements Runnable{
         return 0;
     }
 
-    private void startLoading(Socket socketGefunden){
+    private void startLoading(Socket socketGefunden) {
+    	
         Runnable r = () -> {
             refresh = new Button();
             refresh.setDisable(true);
             refresh.setOnAction(e -> neustart());
 
             try {
-                if(stellwerk != null && stellwerk.getSocket() != null) stellwerk = new Stellwerk(stellwerk.getSocket(), "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
-                else if(socketGefunden != null) stellwerk = new Stellwerk(socketGefunden, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
-                else stellwerk = new Stellwerk(host, 3691, "Gleisbelegung", "Darstellung der Gleisbelegung", "Manuel Serret", version);
+            	Verbindung v;
+            	if (null == socketGefunden) {
+            		v = new Verbindung(new Socket(host, 3691));
+            	} else {
+            		v = new Verbindung(socketGefunden);
+            	}
+            	stellwerk = v.initialisiere("Gleisbelegung", "Darstellung der Gleisbelegung", version, "Manuel Serret", 1);
 
                 einstellungen.leseStellwerksEinstellungen(stellwerk);
 

@@ -377,7 +377,7 @@ public class LabelContainer extends Plugin {
                 }
 
                 String durchfahrt = "";
-                if(z.getFahrplan(i).isCrossing()) durchfahrt = " Df.";
+                if(z.getFahrplan(i).getFlags().getD()) durchfahrt = " Df.";
 
                 Date anunft = new Date(lAnkunft);
                 Date abfahrt = new Date(lAbfahrt);

@@ -75,3 +75,4 @@ fabric.properties
 hs_err_pid*
 
 Plugin Gleisbelegung/.idea
+/bin/
