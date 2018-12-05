@@ -140,7 +140,7 @@ public class TimeTable {
                 }
             }
         }
-        int haltInMinuten = (int) TimeUnit.MICROSECONDS.toMinutes((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunft()));
+        int haltInMinuten = (int) TimeUnit.MILLISECONDS.toMinutes((fh.getTatsaechlicheAbfahrt() - fh.getTatsaechlicheAnkunft()));
         synchronized(rows) {
         	if(haltInMinuten > counter && rows.size() > 0){
         	
