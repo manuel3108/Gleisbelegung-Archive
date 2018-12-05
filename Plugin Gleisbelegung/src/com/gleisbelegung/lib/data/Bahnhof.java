@@ -9,81 +9,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import javafx.scene.shape.Line;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class Bahnhof {
-    /**
-     * Vebindung zwischen Bahnhof.this and BahnhofVerbindung.ziel
-     */
-    private class BahnhofVerbindung {
-        private double laenge; // dead variable
-        private Line linie;
-        private Vec2d linienPos;
-        private Bahnhof ziel;
-
-        public BahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie, Vec2d linienPos) {
-            this.laenge = laenge;
-            this.linie = linie;
-            this.linienPos = linienPos;
-            ziel = bahnhof;
-        }
-
-        public void setLinienPos(Vec2d linienPos) {
-            this.linienPos = linienPos;
-        }
-
-        public Vec2d getLinienPos() {
-            return linienPos;
-        }
-
-        public Bahnhof getStartBahnhof() {
-            return Bahnhof.this;
-        }
-
-        public Bahnhof getZielBahnhof() {
-            return ziel;
-        }
-    }
-
-    private class BahnhofTeil implements Iterable<Bahnsteig> {
-        private LabelContainer bahnhofsLabel;
-        private List<Bahnsteig> bahnsteige;
-
-        public BahnhofTeil(LabelContainer bahnhofsLabel, List<Bahnsteig> bahnsteige) {
-            this.bahnhofsLabel = bahnhofsLabel;
-            this.bahnsteige = bahnsteige;
-
-        }
-
-        void hervorheben() {
-            for (Bahnsteig b : bahnsteige) {
-                b.hebeHervor();
-            }
-        }
-
-        public int getBahnsteigSize() {
-            return bahnsteige.size();
-        }
-
-        public Iterator<Bahnsteig> iterator() {
-            return bahnsteige.iterator();
-        }
-    }
 
     private int id;
     private String name;
@@ -91,11 +24,11 @@ public class Bahnhof {
     private Map<String, Bahnsteig> bahnsteige = new HashMap<>();
     private List<Bahnsteig> bahnsteigListe = new ArrayList<>();
     private List<BahnhofTeil> bahnhofTeile = new ArrayList<>();
-    private Map<Integer, BahnhofVerbindung> bahnhofVerbindungen = new HashMap<>();
+    private Map<Integer, BahnhofVerbindung> bahnhofVerbindungen =
+            new HashMap<>();
     private boolean sichtbar;
     private Vec2d pos;
     private Bahnsteig lastBahnsteig;
-
     public Bahnhof(int id, String name) {
         this.id = id;
         this.name = name;
@@ -118,7 +51,8 @@ public class Bahnhof {
 
     public Collection<Bahnsteig> getBahnsteige() {
         synchronized (bahnsteigListe) {
-            return Collections.unmodifiableList(new ArrayList<>(bahnsteigListe));
+            return Collections
+                    .unmodifiableList(new ArrayList<>(bahnsteigListe));
         }
     }
 
@@ -164,7 +98,8 @@ public class Bahnhof {
         }
     }
 
-    public void addBahnhofLabel(LabelContainer bahnhofLabel, List<Bahnsteig> bahnsteige) {
+    public void addBahnhofLabel(LabelContainer bahnhofLabel,
+            List<Bahnsteig> bahnsteige) {
         BahnhofTeil bt = new BahnhofTeil(bahnhofLabel, bahnsteige);
         synchronized (bahnhofTeile) {
             bahnhofTeile.add(bt);
@@ -209,7 +144,9 @@ public class Bahnhof {
         l.setTranslateX(25);
         l.setTranslateY(95);
 
-        TextField tf = new TextField(String.valueOf(bahnsteige.entrySet().iterator().next().getValue().getOrderId() + 1));
+        TextField tf = new TextField(String.valueOf(
+                bahnsteige.entrySet().iterator().next().getValue().getOrderId()
+                        + 1));
         tf.setFont(Font.font(Einstellungen.schriftgroesse - 3));
         tf.setTranslateX(25);
         tf.setTranslateY(130);
@@ -225,37 +162,39 @@ public class Bahnhof {
             final SortedSet<Bahnsteig> bahnsteigeThis = new TreeSet<>();
             Bahnhof.this.getBahnsteigOrderSet(bahnsteigeThis);
             boolean nachZiel = false;
-            for (Bahnhof bhf : Einstellungen.fenster.getStellwerk().getBahnhoefe()) {
+            for (Bahnhof bhf : Einstellungen.fenster.getStellwerk()
+                    .getBahnhoefe()) {
                 if (bhf == Bahnhof.this) {
-                  continue;
+                    continue;
                 }
                 final SortedSet<Bahnsteig> set = new TreeSet<>();
                 bhf.getBahnsteigOrderSet(set);
                 Iterator<Bahnsteig> iter = set.iterator();
-                while (!nachZiel && iter.hasNext() && newBahnsteigOrder.size() < order) {
-                  newBahnsteigOrder.add(iter.next());
+                while (!nachZiel && iter.hasNext()
+                        && newBahnsteigOrder.size() < order) {
+                    newBahnsteigOrder.add(iter.next());
                 }
                 if (!nachZiel && newBahnsteigOrder.size() == order) {
-                  // Zielposition erreicht, alle Bahnsteige dieses Bahnhofs einsortiern
-                  for (Bahnsteig bst : bahnsteigeThis) {
-                    bst.setOrderId(order++);
-                    newBahnsteigOrder.add(bst);
-                  }
-                  nachZiel = true;
+                    // Zielposition erreicht, alle Bahnsteige dieses Bahnhofs einsortiern
+                    for (Bahnsteig bst : bahnsteigeThis) {
+                        bst.setOrderId(order++);
+                        newBahnsteigOrder.add(bst);
+                    }
+                    nachZiel = true;
                 }
                 Bahnsteig bst = null;
-                while(iter.hasNext()) {
-                  bst = iter.next();
-                  if (nachZiel && bst.getOrderId() == order) {
-                    // fertig
-                    break;
-                  }
-                  bst.setOrderId(order++);
-                  newBahnsteigOrder.add(bst);
+                while (iter.hasNext()) {
+                    bst = iter.next();
+                    if (nachZiel && bst.getOrderId() == order) {
+                        // fertig
+                        break;
+                    }
+                    bst.setOrderId(order++);
+                    newBahnsteigOrder.add(bst);
                 }
                 if (nachZiel && bst != null && bst.getOrderId() == order) {
-                  // fertig
-                  break;
+                    // fertig
+                    break;
                 }
             }
 
@@ -264,7 +203,8 @@ public class Bahnhof {
             stage.close();
             Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
             Einstellungen.fenster.gleisbelegung.sortiereGleise(null);
-            Einstellungen.fenster.stellwerksuebersicht.aktualisiereBahnhofsNamen();
+            Einstellungen.fenster.stellwerksuebersicht
+                    .aktualisiereBahnhofsNamen();
         });
 
         Pane p = new Pane(name, tname, l, tf, b);
@@ -283,9 +223,9 @@ public class Bahnhof {
         });
     }
 
-    @Override
-    public String toString() {
-        return "Bahnhof{" + "id=" + id + ", name='" + name + '\'' + ", bahnsteige=" + bahnsteige + '}';
+    @Override public String toString() {
+        return "Bahnhof{" + "id=" + id + ", name='" + name + '\''
+                + ", bahnsteige=" + bahnsteige + '}';
     }
 
     public Vec2d getPos() {
@@ -298,12 +238,15 @@ public class Bahnhof {
 
     public Collection<BahnhofVerbindung> getBahnhofVerbindungen() {
         synchronized (bahnhofVerbindungen) {
-            return Collections.unmodifiableCollection(bahnhofVerbindungen.values());
+            return Collections
+                    .unmodifiableCollection(bahnhofVerbindungen.values());
         }
     }
 
-    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie, Vec2d linienPos) {
-        BahnhofVerbindung verbindung = new BahnhofVerbindung(bahnhof, laenge, linie, linienPos);
+    public void addBahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie,
+            Vec2d linienPos) {
+        BahnhofVerbindung verbindung =
+                new BahnhofVerbindung(bahnhof, laenge, linie, linienPos);
         synchronized (bahnhofVerbindungen) {
             bahnhofVerbindungen.put(Integer.valueOf(bahnhof.id), verbindung);
         }
@@ -380,7 +323,7 @@ public class Bahnhof {
 
     public void getBahnsteigOrderSet(Set<Bahnsteig> set) {
         synchronized (bahnsteige) {
-          set.addAll(bahnsteige.values());
+            set.addAll(bahnsteige.values());
         }
     }
 
@@ -389,5 +332,67 @@ public class Bahnhof {
             bahnhofTeile.clear();
         }
 
+    }
+
+    /**
+     * Vebindung zwischen Bahnhof.this and BahnhofVerbindung.ziel
+     */
+    private class BahnhofVerbindung {
+
+        private double laenge; // dead variable
+        private Line linie;
+        private Vec2d linienPos;
+        private Bahnhof ziel;
+
+        public BahnhofVerbindung(Bahnhof bahnhof, double laenge, Line linie,
+                Vec2d linienPos) {
+            this.laenge = laenge;
+            this.linie = linie;
+            this.linienPos = linienPos;
+            ziel = bahnhof;
+        }
+
+        public Vec2d getLinienPos() {
+            return linienPos;
+        }
+
+        public void setLinienPos(Vec2d linienPos) {
+            this.linienPos = linienPos;
+        }
+
+        public Bahnhof getStartBahnhof() {
+            return Bahnhof.this;
+        }
+
+        public Bahnhof getZielBahnhof() {
+            return ziel;
+        }
+    }
+
+    private class BahnhofTeil implements Iterable<Bahnsteig> {
+
+        private LabelContainer bahnhofsLabel;
+        private List<Bahnsteig> bahnsteige;
+
+        public BahnhofTeil(LabelContainer bahnhofsLabel,
+                List<Bahnsteig> bahnsteige) {
+            this.bahnhofsLabel = bahnhofsLabel;
+            this.bahnsteige = bahnsteige;
+
+        }
+
+        void hervorheben() {
+            for (Bahnsteig b : bahnsteige) {
+                b.hebeHervor();
+            }
+        }
+
+        public int getBahnsteigSize() {
+            return bahnsteige.size();
+        }
+
+        public Iterator<Bahnsteig> iterator() {
+            return bahnsteige.iterator();
+        }
     }
 }

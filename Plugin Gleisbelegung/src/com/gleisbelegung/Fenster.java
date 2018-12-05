@@ -28,26 +28,36 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Fenster{
-    private Label pluginName;                           //Textfeld welches den Namen des Plugin in der Linken oberen Ecke speichert
-    private Label simZeit;                              //Textfeld welches die Simzeit in der rechte oberen Ecke speichert
-    private Button einstellungen;                       //Button um das Fenster mit den Einstellungen zu öffnen
-    private Scene s;                                    //Hält die Scene mit der Tabelle gespeichert,
-    private TextField zugSuche;                         //Textbox um den gesuchrten Zugnamen einzugeben
 
-    static Pane informations;                               //Panel für alle Zuginformation                             (Zugnummer, Verspätung etc.)
+public class Fenster {
+
+    static Pane informations;
+    public Gleisbelegung gleisbelegung;
+    public Stellwerksuebersicht stellwerksuebersicht;
+    private Label pluginName;
+            //Textfeld welches den Namen des Plugin in der Linken oberen Ecke speichert
+    private Label simZeit;
+            //Textbox um den gesuchrten Zugnamen einzugeben
+            //Textfeld welches die Simzeit in der rechte oberen Ecke speichert
+    private Button einstellungen;
+            //Button um das Fenster mit den Einstellungen zu öffnen
+    private Scene s;
+            //Hält die Scene mit der Tabelle gespeichert,
+    private TextField zugSuche;
+            //Panel für alle Zuginformation                             (Zugnummer, Verspätung etc.)
     private PrintWriter logFile;                             //
-    private Pane pZugSuche;                                  //Panel mit der Zugsuche
-    private double stageWidth = 1000;                        //Standartmäßige Fenster-Breite                             (Wir bei Veränderung der Breite aktualisiert)
-    private double stageHeight = 500;                        //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
+    private Pane pZugSuche;
+            //Panel mit der Zugsuche
+    private double stageWidth = 1000;
+            //Standartmäßige Fenster-Breite                             (Wir bei Veränderung der Breite aktualisiert)
+    private double stageHeight = 500;
+            //Standartmäßige Fenster-Höhe                               (Wir bei Veränderung der Höhe aktualisiert)
     private Stage primaryStage;
     private Button refresh;
     private Button sichtwechsel;
+            //Scroll-Feld für das in der @Main-Klasse deklariert Feld informations
     private Pane infoFehler;
-    private ScrollPane spInformations;                  //Scroll-Feld für das in der @Main-Klasse deklariert Feld informations
-
-    public Gleisbelegung gleisbelegung;
-    public Stellwerksuebersicht stellwerksuebersicht;
+    private ScrollPane spInformations;
     private Stellwerk stellwerk;
 
     Fenster(Stellwerk stellwerk, Stage primaryStage, Button refresh) {
@@ -77,7 +87,13 @@ public class Fenster{
         einstellungen = new Button();
         einstellungen.setText("Einstellungen");
         einstellungen.setFont(Font.font(Einstellungen.schriftgroesse - 2));
-        einstellungen.setOnAction(e -> { try{ settings(); }catch(Exception ex) { ex.printStackTrace(); } });
+        einstellungen.setOnAction(e -> {
+            try {
+                settings();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
         sichtwechsel = new Button("Stellwerksübersicht");
         sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse - 2));
@@ -86,19 +102,21 @@ public class Fenster{
         refresh.setFont(Font.font(Einstellungen.schriftgroesse - 2));
 
         Pane topP = new Pane();
-        Platform.runLater(() -> topP.getChildren().addAll(pluginName, simZeit, einstellungen, refresh, sichtwechsel));
+        Platform.runLater(() -> topP.getChildren()
+                .addAll(pluginName, simZeit, einstellungen, refresh,
+                        sichtwechsel));
 
         Label lZugSuche = new Label("Zugsuche:");
-        lZugSuche.setFont(Font.font(Einstellungen.schriftgroesse-2));
+        lZugSuche.setFont(Font.font(Einstellungen.schriftgroesse - 2));
         lZugSuche.setStyle("-fx-text-fill: white;");
 
         zugSuche = new TextField();
-        zugSuche.setFont(Font.font(Einstellungen.schriftgroesse-5));
+        zugSuche.setFont(Font.font(Einstellungen.schriftgroesse - 5));
         zugSuche.setStyle("-fx-text-fill: black;");
         zugSuche.textProperty().addListener((observable, oldVal, newVal) -> {
-            try{
+            try {
                 searchTrain(zugSuche.getText());
-            } catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
             }
         });
@@ -111,7 +129,8 @@ public class Fenster{
         informations.setMinWidth(Einstellungen.informationenBreite);
         informations.setMaxWidth(Einstellungen.informationenBreite);
         spInformations = new ScrollPane(informations);
-        spInformations.setStyle("-fx-background-color: #404040; -fx-padding: 0;");
+        spInformations
+                .setStyle("-fx-background-color: #404040; -fx-padding: 0;");
         spInformations.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         spInformations.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
@@ -126,11 +145,11 @@ public class Fenster{
 
         Einstellungen.sicht = 1;
         sichtwechsel.setOnAction(e -> {
-            if(Einstellungen.sicht == 1){
+            if (Einstellungen.sicht == 1) {
                 Einstellungen.sicht = 2;
                 sichtwechsel.setText("Gleisbelegung");
                 bp.setCenter(stellwerksuebersicht.getContent());
-            } else if(Einstellungen.sicht == 2){
+            } else if (Einstellungen.sicht == 2) {
                 Einstellungen.sicht = 1;
                 sichtwechsel.setText("Stellwerksübersicht");
                 bp.setCenter(gleisbelegung.getContent());
@@ -143,8 +162,22 @@ public class Fenster{
             primaryStage.setScene(s);
         });
 
-        primaryStage.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> { try{ updateUi(); }catch(Exception e) { e.printStackTrace(); } });
-        primaryStage.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> { try{ updateUi(); }catch(Exception e) { e.printStackTrace(); } });
+        primaryStage.widthProperty().addListener(
+                (observableValue, oldSceneWidth, newSceneWidth) -> {
+                    try {
+                        updateUi();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+        primaryStage.heightProperty().addListener(
+                (observableValue, oldSceneHeight, newSceneHeight) -> {
+                    try {
+                        updateUi();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
 
         updateUi();
         updateSettings();
@@ -158,7 +191,7 @@ public class Fenster{
                 e.printStackTrace();
             }
             Platform.runLater(() -> {
-                if(primaryStage.isMaximized()){
+                if (primaryStage.isMaximized()) {
                     primaryStage.setMaximized(false);
                     primaryStage.setMaximized(true);
                 }
@@ -167,26 +200,30 @@ public class Fenster{
         new Thread(r).start();
     }
 
-    private void searchTrain(String text){
+    private void searchTrain(String text) {
         ArrayList<Zug> trains = new ArrayList<>();
-        for(Zug zTemp : stellwerk.getZuege()){
-            if(!text.equals("") && zTemp.getZugName().contains(text)){
+        for (Zug zTemp : stellwerk.getZuege()) {
+            if (!text.equals("") && zTemp.getZugName().contains(text)) {
                 trains.add(zTemp);
             }
         }
 
-        if(trains.size() > 0){
+        if (trains.size() > 0) {
             int heightCounter = 0;
             informations.getChildren().clear();
-            for(Zug z : trains){
-                Label trainName = new Label(z.getZugName() + z.getVerspaetungToString());
+            for (Zug z : trains) {
+                Label trainName =
+                        new Label(z.getZugName() + z.getVerspaetungToString());
                 trainName.setStyle("-fx-text-fill: whiteM");
-                trainName.setFont(Font.font(Einstellungen.schriftgroesse-2));
+                trainName.setFont(Font.font(Einstellungen.schriftgroesse - 2));
                 trainName.setTranslateY(heightCounter);
-                if(z.getFahrplan() != null){
-                    for(FahrplanHalt fh : z.getFahrplan()){
-                        if(fh.getFlaggedTrain() != null){
-                            trainName.setText(trainName.getText() + " => " + fh.getFlaggedTrain().getZugName() + fh.getFlaggedTrain().getVerspaetungToString());
+                if (z.getFahrplan() != null) {
+                    for (FahrplanHalt fh : z.getFahrplan()) {
+                        if (fh.getFlaggedTrain() != null) {
+                            trainName.setText(trainName.getText() + " => " + fh
+                                    .getFlaggedTrain().getZugName() + fh
+                                    .getFlaggedTrain()
+                                    .getVerspaetungToString());
                             break;
                         }
                     }
@@ -194,57 +231,79 @@ public class Fenster{
 
                 Label vonBis = new Label(z.getVon() + " - " + z.getNach());
                 vonBis.setStyle("-fx-text-fill: white;");
-                vonBis.setFont(Font.font(Einstellungen.schriftgroesse-5));
+                vonBis.setFont(Font.font(Einstellungen.schriftgroesse - 5));
                 vonBis.setTranslateY(heightCounter + 25);
 
                 informations.getChildren().addAll(trainName, vonBis);
 
-                for(int i = 0; i < z.getFahrplan().size(); i++){
-                    if(z.getFahrplan(i).getFlaggedTrain() != null){
+                for (int i = 0; i < z.getFahrplan().size(); i++) {
+                    if (z.getFahrplan(i).getFlaggedTrain() != null) {
                         Zug flagged = z.getFahrplan(i).getFlaggedTrain();
 
-                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
-                        long lAbfahrt = flagged.getFahrplan(0).getAbfahrt() + flagged.getVerspaetungInMinuten()*1000*60;
-                        if(flagged.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
-                            lAbfahrt = lAnkunft + 4*1000*60;
+                        long lAnkunft = z.getFahrplan(i).getAnkuft()
+                                + z.getVerspaetungInMinuten() * 1000 * 60;
+                        long lAbfahrt = flagged.getFahrplan(0).getAbfahrt()
+                                + flagged.getVerspaetungInMinuten() * 1000 * 60;
+                        if (flagged.getVerspaetungInMinuten() > 3
+                                && (lAbfahrt - lAnkunft) / 1000 / 60 > 3) {
+                            lAbfahrt = lAnkunft + 4 * 1000 * 60;
                         }
 
                         Date anunft = new Date(lAnkunft);
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                        Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
-                        l.setFont(Font.font(Einstellungen.schriftgroesse-5));
+                        Label l = new Label(
+                                "Bahnsteig: " + z.getFahrplan(i).getBahnsteig()
+                                        .getName() + " " + ft.format(anunft)
+                                        + " - " + ft.format(abfahrt));
+                        l.setFont(Font.font(Einstellungen.schriftgroesse - 5));
                         l.setTranslateY(heightCounter + 55);
                         l.setPrefWidth(215);
 
-                        if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
-                            l.setStyle("-fx-text-fill: white; -fx-background-color: green;");
-                        } else{
+                        if (z.getBahnsteig().getName()
+                                .equals(z.getFahrplan(i).getBahnsteig()
+                                        .getName()) && z.getAmGleis()) {
+                            l.setStyle(
+                                    "-fx-text-fill: white; -fx-background-color: green;");
+                        } else {
                             l.setStyle("-fx-text-fill: white;");
                         }
 
                         informations.getChildren().add(l);
-                    } else{
-                        long lAnkunft = z.getFahrplan(i).getAnkuft() + z.getVerspaetungInMinuten()*1000*60;
-                        long lAbfahrt = z.getFahrplan(i).getAbfahrt() + z.getVerspaetungInMinuten()*1000*60;
-                        if(z.getVerspaetungInMinuten() > 3 && (lAbfahrt-lAnkunft)/1000/60 > 3){
-                            lAbfahrt = lAnkunft + 4*1000*60;
+                    } else {
+                        long lAnkunft = z.getFahrplan(i).getAnkuft()
+                                + z.getVerspaetungInMinuten() * 1000 * 60;
+                        long lAbfahrt = z.getFahrplan(i).getAbfahrt()
+                                + z.getVerspaetungInMinuten() * 1000 * 60;
+                        if (z.getVerspaetungInMinuten() > 3
+                                && (lAbfahrt - lAnkunft) / 1000 / 60 > 3) {
+                            lAbfahrt = lAnkunft + 4 * 1000 * 60;
                         }
                         if (z.getFahrplan(i).getVorgaenger() != null)
-                            lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() + z.getFahrplan(i).getVorgaenger().getZug().getVerspaetungInMinuten() * 1000 * 60;
+                            lAnkunft =
+                                    z.getFahrplan(i).getVorgaenger().getAnkuft()
+                                            + z.getFahrplan(i).getVorgaenger()
+                                            .getZug().getVerspaetungInMinuten()
+                                            * 1000 * 60;
                         Date anunft = new Date(lAnkunft);
                         Date abfahrt = new Date(lAbfahrt);
                         SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
-                        Label l = new Label("Bahnsteig: " + z.getFahrplan(i).getBahnsteig().getName() + " " + ft.format(anunft) + " - " + ft.format(abfahrt));
-                        l.setFont(Font.font(Einstellungen.schriftgroesse-5));
+                        Label l = new Label(
+                                "Bahnsteig: " + z.getFahrplan(i).getBahnsteig()
+                                        .getName() + " " + ft.format(anunft)
+                                        + " - " + ft.format(abfahrt));
+                        l.setFont(Font.font(Einstellungen.schriftgroesse - 5));
                         l.setTranslateY(heightCounter + 55);
                         l.setPrefWidth(215);
 
-                        if(z.getBahnsteig().getName().equals(z.getFahrplan(i).getBahnsteig().getName()) && z.getAmGleis()) {
-                            l.setStyle("-fx-text-fill: white; -fx-background-color: green;");
-                        } else{
+                        if (z.getBahnsteig().getName()
+                                .equals(z.getFahrplan(i).getBahnsteig()
+                                        .getName()) && z.getAmGleis()) {
+                            l.setStyle(
+                                    "-fx-text-fill: white; -fx-background-color: green;");
+                        } else {
                             l.setStyle("-fx-text-fill: white;");
                         }
 
@@ -257,24 +316,32 @@ public class Fenster{
                 heightCounter += 75;
             }
 
-            if(heightCounter > (stageHeight/2-70)){
+            if (heightCounter > (stageHeight / 2 - 70)) {
                 //informations.setMinHeight(heightCounter);
                 informations.setPrefHeight(heightCounter);
-            } else{
-                informations.setMinHeight(stageHeight/2-70);
+            } else {
+                informations.setMinHeight(stageHeight / 2 - 70);
             }
         }
 
         Platform.runLater(() -> {
-            if(trains.size() == 1){
-                for(FahrplanHalt fh : trains.get(0).getFahrplan()){
+            if (trains.size() == 1) {
+                for (FahrplanHalt fh : trains.get(0).getFahrplan()) {
                     if (fh != null && fh.getDrawnTo().size() > 0) {
                         LabelContainer lc = fh.getDrawnTo(0);
-                        if(lc != null){
-                            try{
-                                gleisbelegung.scrollPaneTo((double) lc.getBahnsteig().getOrderId() / (double) stellwerk.getAnzahlBahnsteige(), (double) lc.getLabelIndex() / (double) gleisbelegung.getTimeTable().getRows().size(), fh);
-                            } catch(Exception e){
-                                System.out.println("INFORMATION: Fehler beim autom. Scrollen!");
+                        if (lc != null) {
+                            try {
+                                gleisbelegung.scrollPaneTo(
+                                        (double) lc.getBahnsteig().getOrderId()
+                                                / (double) stellwerk
+                                                .getAnzahlBahnsteige(),
+                                        (double) lc.getLabelIndex()
+                                                / (double) gleisbelegung
+                                                .getTimeTable().getRows()
+                                                .size(), fh);
+                            } catch (Exception e) {
+                                System.out.println(
+                                        "INFORMATION: Fehler beim autom. Scrollen!");
                             }
 
                             Runnable r = () -> {
@@ -286,9 +353,9 @@ public class Fenster{
                                 }
                             };
 
-                            try{
+                            try {
                                 new Thread(r).start();
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -298,35 +365,40 @@ public class Fenster{
         });
     }
 
-    public void updateSimTime(int updatingIn){
+    public void updateSimTime(int updatingIn) {
         Date dNow = new Date(stellwerk.getSpielzeit());
         SimpleDateFormat ft = new SimpleDateFormat("HH:mm:ss");
 
-        Platform.runLater(() -> simZeit.setText("Simzeit: " + ft.format(dNow) + "     Aktualisierung in: " + updatingIn + "s"));
-        Date dauer = new Date(System.currentTimeMillis() - stellwerk.getStartzeit() - 1000*60*60);
+        Platform.runLater(() -> simZeit.setText(
+                "Simzeit: " + ft.format(dNow) + "     Aktualisierung in: "
+                        + updatingIn + "s"));
+        Date dauer = new Date(
+                System.currentTimeMillis() - stellwerk.getStartzeit()
+                        - 1000 * 60 * 60);
 
-        Platform.runLater(() -> pluginName.setText("Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
+        Platform.runLater(() -> pluginName.setText(
+                "Plugin: Gleisbelegung     Spieldauer: " + ft.format(dauer)));
     }
 
-    public void update(){
+    public void update() {
         gleisbelegung.update();
         stellwerksuebersicht.update();
     }
 
     public Stellwerk getStellwerk() {
-      return this.stellwerk;
+        return this.stellwerk;
     }
 
-    private void updateUi(){
+    private void updateUi() {
         Einstellungen.maximiert = primaryStage.isMaximized();
         stageHeight = primaryStage.getHeight();
         stageWidth = primaryStage.getWidth();
 
-        einstellungen.setTranslateX(stageWidth/2 - 200);
+        einstellungen.setTranslateX(stageWidth / 2 - 200);
 
-        sichtwechsel.setTranslateX(stageWidth/2 + 60);
+        sichtwechsel.setTranslateX(stageWidth / 2 + 60);
 
-        refresh.setTranslateX(stageWidth/2 - 50);
+        refresh.setTranslateX(stageWidth / 2 - 50);
 
         simZeit.setTranslateX(stageWidth - simZeit.getWidth() - 30);
 
@@ -334,10 +406,10 @@ public class Fenster{
 
         zugSuche.setTranslateX(80);
 
-        if(Einstellungen.informationenAnzeigen){
+        if (Einstellungen.informationenAnzeigen) {
             infoFehler.setMinWidth(Einstellungen.informationenBreite);
             infoFehler.setMaxWidth(Einstellungen.informationenBreite);
-        } else{
+        } else {
             infoFehler.setMinWidth(0);
             infoFehler.setMaxWidth(0);
         }
@@ -365,7 +437,8 @@ public class Fenster{
         sb.setFont(Font.font(18));
         sb.setTranslateY(70);
         sb.setTranslateX(10);
-        TextField tfsb = new TextField(String.valueOf(Einstellungen.spaltenbreite));
+        TextField tfsb =
+                new TextField(String.valueOf(Einstellungen.spaltenbreite));
         tfsb.setTranslateX(300);
         tfsb.setTranslateY(70);
 
@@ -373,7 +446,8 @@ public class Fenster{
         fs.setFont(Font.font(18));
         fs.setTranslateY(100);
         fs.setTranslateX(10);
-        TextField tffs = new TextField(String.valueOf(Einstellungen.schriftgroesse));
+        TextField tffs =
+                new TextField(String.valueOf(Einstellungen.schriftgroesse));
         tffs.setTranslateX(300);
         tffs.setTranslateY(100);
 
@@ -381,7 +455,8 @@ public class Fenster{
         zib.setFont(Font.font(18));
         zib.setTranslateY(130);
         zib.setTranslateX(10);
-        TextField tfzib = new TextField(String.valueOf(Einstellungen.informationenBreite));
+        TextField tfzib = new TextField(
+                String.valueOf(Einstellungen.informationenBreite));
         tfzib.setTranslateX(300);
         tfzib.setTranslateY(130);
 
@@ -393,8 +468,10 @@ public class Fenster{
         cbezi.setTranslateX(300);
         cbezi.setTranslateY(160);
         cbezi.setFont(Font.font(18));
-        if(Einstellungen.informationenAnzeigen) cbezi.setSelected(true);
-        if(! Einstellungen.informationenAnzeigen) cbezi.setSelected(false);
+        if (Einstellungen.informationenAnzeigen)
+            cbezi.setSelected(true);
+        if (!Einstellungen.informationenAnzeigen)
+            cbezi.setSelected(false);
 
         Pane gleise = new Pane();
         gleise.setTranslateX(0);
@@ -408,38 +485,44 @@ public class Fenster{
         int tempY = -30;
         int counterBhf = 0;
         int counterGleis = 0;
-        for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+        for (Bahnhof bahnhof : stellwerk.getBahnhoefe()) {
             // zuerst Bahnhof in die linke Spalte schreiben
             tempY += 30;
             CheckBox cb = new CheckBox(bahnhof.getName());
             if ("".equals(cb.getText())) {
                 cb.setText(stellwerk.getStellwerksname());
             }
-            if(!bahnhof.getAlternativName().equals("")){
-                if(!bahnhof.getName().equals("")) cb.setText(bahnhof.getAlternativName() + " (" + bahnhof.getName() + ")");
-                else cb.setText(bahnhof.getAlternativName());
+            if (!bahnhof.getAlternativName().equals("")) {
+                if (!bahnhof.getName().equals(""))
+                    cb.setText(bahnhof.getAlternativName() + " (" + bahnhof
+                            .getName() + ")");
+                else
+                    cb.setText(bahnhof.getAlternativName());
             }
             cbBahnhof[counterBhf] = cb;
             cbBahnhof[counterBhf].setTranslateX(10);
             cbBahnhof[counterBhf].setTranslateY(tempY);
             cbBahnhof[counterBhf].setFont(Font.font(18));
             cbBahnhof[counterBhf].setSelected(bahnhof.isSichtbar());
-            cbBahnhof[counterBhf].setOnAction(new javafx.event.EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    for (Bahnsteig b : bahnhof.getBahnsteige())
-                        b.setSichtbar(cb.isSelected());
-                }
-            });
+            cbBahnhof[counterBhf]
+                    .setOnAction(new javafx.event.EventHandler<ActionEvent>() {
+
+                        @Override public void handle(ActionEvent event) {
+                            for (Bahnsteig b : bahnhof.getBahnsteige())
+                                b.setSichtbar(cb.isSelected());
+                        }
+                    });
             gleise.getChildren().add(cbBahnhof[counterBhf]);
             counterBhf++;
             //dann alle Gleise in die mittlere und rechte Spalte schreiben
             for (int i = 0; i < bahnhof.getAnzahlBahnsteige(); i++) {
-                cbGleis[counterGleis] = new CheckBox(bahnhof.getBahnsteig(i).getName());
+                cbGleis[counterGleis] =
+                        new CheckBox(bahnhof.getBahnsteig(i).getName());
                 cbGleis[counterGleis].setTranslateX(tempX);
                 cbGleis[counterGleis].setTranslateY(tempY);
                 cbGleis[counterGleis].setFont(Font.font(18));
-                cbGleis[counterGleis].selectedProperty().bindBidirectional(bahnhof.getBahnsteig(i).getSichtbarProperty());
+                cbGleis[counterGleis].selectedProperty().bindBidirectional(
+                        bahnhof.getBahnsteig(i).getSichtbarProperty());
 
                 if (i % 2 != 0 && i < bahnhof.getBahnsteige().size() - 1) {
                     tempY += 30;
@@ -482,19 +565,21 @@ public class Fenster{
         speichern.setTranslateX(170);
         speichern.setTranslateY(stageHeight - 50);
         speichern.setOnAction(e -> {
-            try{
+            try {
                 Einstellungen.update = Integer.parseInt(tfai.getText());
                 Einstellungen.spaltenbreite = Integer.parseInt(tfsb.getText());
                 Einstellungen.schriftgroesse = Integer.parseInt(tffs.getText());
-                Einstellungen.informationenBreite = Integer.parseInt(tfzib.getText());
+                Einstellungen.informationenBreite =
+                        Integer.parseInt(tfzib.getText());
                 Einstellungen.informationenAnzeigen = cbezi.isSelected();
 
                 int counterOne = 0;
-                for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
+                for (Bahnhof bahnhof : stellwerk.getBahnhoefe()) {
                     for (Bahnsteig b : bahnhof.getBahnsteige()) {
                         if (cbGleis[counterOne].isSelected()) {
                             b.setSichtbar(true);
-                            b.setLabelContainerToWith(Einstellungen.spaltenbreite);
+                            b.setLabelContainerToWith(
+                                    Einstellungen.spaltenbreite);
                         } else {
                             b.setSichtbar(false);
                             b.setLabelContainerToWith(0);
@@ -509,7 +594,7 @@ public class Fenster{
                 updateSettings();
                 updateUi();
                 gleisbelegung.erzeugeBahnsteigLabel();
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
@@ -517,7 +602,9 @@ public class Fenster{
         Pane p = new Pane();
         p.setPrefWidth(stageWidth);
         p.setPrefHeight(stageHeight);
-        p.getChildren().addAll(ai, tfai, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw, cbaaoaw, cbezi, gleise, speichern);
+        p.getChildren()
+                .addAll(ai, tfai, sb, tfsb, fs, tffs, zib, tfzib, ezi, laaoaw,
+                        cbaaoaw, cbezi, gleise, speichern);
         p.setStyle("-fx-background: #303030; -fx-padding: 0;");
 
         ScrollPane sp = new ScrollPane(p);
@@ -526,9 +613,11 @@ public class Fenster{
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         Scene scene;
-        if(stageHeight > primaryStage.getHeight() - 100){ //Fenster kann nun nicht mehr unter der Taskleiste flimmern
-            scene = new Scene(sp, stageWidth, primaryStage.getHeight() - 100); //Fenster kann nun nicht mehr unter der Taskleiste flimmern
-        } else{
+        if (stageHeight > primaryStage.getHeight()
+                - 100) { //Fenster kann nun nicht mehr unter der Taskleiste flimmern
+            scene = new Scene(sp, stageWidth, primaryStage.getHeight()
+                    - 100); //Fenster kann nun nicht mehr unter der Taskleiste flimmern
+        } else {
             scene = new Scene(sp, stageWidth, stageHeight);
         }
 
@@ -537,10 +626,11 @@ public class Fenster{
         stage.setOnCloseRequest(e -> einstellungen.setDisable(false));
     }
 
-    private void updateSettings(){
-        for(Bahnhof bahnhof : stellwerk.getBahnhoefe()){
-            for(Bahnsteig b : bahnhof.getBahnsteige()){
-                if(b.isSichtbar()) b.setLabelContainerToWith(Einstellungen.spaltenbreite);
+    private void updateSettings() {
+        for (Bahnhof bahnhof : stellwerk.getBahnhoefe()) {
+            for (Bahnsteig b : bahnhof.getBahnsteige()) {
+                if (b.isSichtbar())
+                    b.setLabelContainerToWith(Einstellungen.spaltenbreite);
             }
         }
 
@@ -551,12 +641,15 @@ public class Fenster{
         }*/
 
         for (Bahnhof b : stellwerk.getBahnhoefe()) {
-            for(Bahnsteig ba : b.getBahnsteige()){
-                ba.getGleisLabel().getLabel().setFont(Font.font(Einstellungen.schriftgroesse - 5));
-                if(ba.isSichtbar()){
-                    ba.getGleisLabel().getLabel().setMaxWidth(Einstellungen.spaltenbreite);
-                    ba.getGleisLabel().getLabel().setMinWidth(Einstellungen.spaltenbreite);
-                } else{
+            for (Bahnsteig ba : b.getBahnsteige()) {
+                ba.getGleisLabel().getLabel()
+                        .setFont(Font.font(Einstellungen.schriftgroesse - 5));
+                if (ba.isSichtbar()) {
+                    ba.getGleisLabel().getLabel()
+                            .setMaxWidth(Einstellungen.spaltenbreite);
+                    ba.getGleisLabel().getLabel()
+                            .setMinWidth(Einstellungen.spaltenbreite);
+                } else {
                     ba.getGleisLabel().getLabel().setMaxWidth(0);
                     ba.getGleisLabel().getLabel().setMinWidth(0);
                 }
@@ -576,10 +669,11 @@ public class Fenster{
 
         pluginName.setFont(Font.font(Einstellungen.schriftgroesse));
         simZeit.setFont(Font.font(Einstellungen.schriftgroesse));
-        einstellungen.setFont(Font.font(Einstellungen.schriftgroesse-2));
-        refresh.setFont(Font.font(Einstellungen.schriftgroesse-2));
-        sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse-2));
-        gleisbelegung.getFirstLabel().setFont(Font.font(Einstellungen.schriftgroesse-5));
+        einstellungen.setFont(Font.font(Einstellungen.schriftgroesse - 2));
+        refresh.setFont(Font.font(Einstellungen.schriftgroesse - 2));
+        sichtwechsel.setFont(Font.font(Einstellungen.schriftgroesse - 2));
+        gleisbelegung.getFirstLabel()
+                .setFont(Font.font(Einstellungen.schriftgroesse - 5));
 
         gleisbelegung.getFirstLabel().setMaxWidth(Einstellungen.spaltenbreite);
         gleisbelegung.getFirstLabel().setMinWidth(Einstellungen.spaltenbreite);

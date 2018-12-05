@@ -16,23 +16,31 @@ import javafx.scene.text.Font;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Zug {
+
     private int zugId;                  //einmalige Zugidentifikationsnummer
     private String zugName;             //Name des Zuges
     private int verspaetung;            //Verspätung des Zuges
-    private Bahnsteig gleis;               //Bahnsteig auf welchem sich der zug befindet/ zuletzt befand
-    private Bahnsteig plangleis;           //Auf welchem Bahnsteig der Zug eigentlich halten sollte
-    private boolean amGleis;            //Ob sich der Zug gerade am Bahnsteig befindet oder nicht
+    private Bahnsteig gleis;
+            //Bahnsteig auf welchem sich der zug befindet/ zuletzt befand
+    private Bahnsteig plangleis;
+            //Auf welchem Bahnsteig der Zug eigentlich halten sollte
+    private boolean amGleis;
+            //Ob sich der Zug gerade am Bahnsteig befindet oder nicht
     private String von;                 //Einfahrt des Zuges in das Stellwerk
     private String nach;                //Ausfahrt des Zuges aus dem Stellwerk
-    private boolean sichtbar;           //Ist der Zug aktuell im Stellwerksichbar
-    private List<FahrplanHalt> fahrplan;    //Speichert alle Fahrplanhalt des Zuges aus der @FahrplanHalt-Klasse
-    private boolean newTrain;           //Wenn ein Zug gerade neu in die Liste zuege aus @Main aufgenommen wurde ist dieser Wert auf true
+    private boolean sichtbar;
+            //Ist der Zug aktuell im Stellwerksichbar
+    private List<FahrplanHalt> fahrplan;
+            //Speichert alle Fahrplanhalt des Zuges aus der @FahrplanHalt-Klasse
+    private boolean newTrain;
+            //Wenn ein Zug gerade neu in die Liste zuege aus @Main aufgenommen wurde ist dieser Wert auf true
     private Label stellwerksUebersichtLabel;
     private boolean schwerwiegendesUpdate;
 
     //Setzten der Daten
-    public Zug(int zugId, String zugName){
+    public Zug(int zugId, String zugName) {
         this.zugId = zugId;
         this.zugName = zugName;
 
@@ -42,7 +50,8 @@ public class Zug {
 
         stellwerksUebersichtLabel = new Label(zugName);
         stellwerksUebersichtLabel.setStyle("-fx-text-fill: #fff;");
-        stellwerksUebersichtLabel.setFont(Font.font(Einstellungen.schriftgroesse));
+        stellwerksUebersichtLabel
+                .setFont(Font.font(Einstellungen.schriftgroesse));
         schwerwiegendesUpdate = false;
     }
 
@@ -50,6 +59,7 @@ public class Zug {
     public String getZugName() {
         return zugName;
     }
+
     public void setZugName(String zugName) {
         this.zugName = zugName;
     }
@@ -58,6 +68,7 @@ public class Zug {
     public int getZugId() {
         return zugId;
     }
+
     public void setZugId(int zugId) {
         this.zugId = zugId;
     }
@@ -66,9 +77,11 @@ public class Zug {
     public int getVerspaetungInMinuten() {
         return verspaetung;
     }
-    public long getVerspaetungInMiliSekunden(){
-        return  verspaetung*1000*60;
+
+    public long getVerspaetungInMiliSekunden() {
+        return verspaetung * 1000 * 60;
     }
+
     public void setVerspaetung(int verspaetung) {
         this.verspaetung = verspaetung;
     }
@@ -77,6 +90,7 @@ public class Zug {
     public Bahnsteig getBahnsteig() {
         return gleis;
     }
+
     public void setBahnsteig(Bahnsteig gleis) {
         this.gleis = gleis;
     }
@@ -85,6 +99,7 @@ public class Zug {
     public Bahnsteig getPlangleis() {
         return plangleis;
     }
+
     public void setPlangleis(Bahnsteig plangleis) {
         this.plangleis = plangleis;
     }
@@ -93,6 +108,7 @@ public class Zug {
     public boolean getAmGleis() {
         return amGleis;
     }
+
     public void setAmGleis(boolean amGleis) {
         this.amGleis = amGleis;
     }
@@ -101,6 +117,7 @@ public class Zug {
     public String getVon() {
         return von;
     }
+
     public void setVon(String von) {
         this.von = von;
     }
@@ -109,6 +126,7 @@ public class Zug {
     public String getNach() {
         return nach;
     }
+
     public void setNach(String nach) {
         this.nach = nach;
     }
@@ -117,6 +135,7 @@ public class Zug {
     public boolean getSichtbar() {
         return sichtbar;
     }
+
     public void setSichtbar(boolean sichtbar) {
         this.sichtbar = sichtbar;
     }
@@ -125,29 +144,32 @@ public class Zug {
     public List<FahrplanHalt> getFahrplan() {
         return fahrplan;
     }
+
+    public void setFahrplan(ArrayList<FahrplanHalt> fahrplan) {
+        this.fahrplan = fahrplan;
+    }
+
     public FahrplanHalt getFahrplan(int index) {
-        if(fahrplan != null && index < fahrplan.size()){
+        if (fahrplan != null && index < fahrplan.size()) {
             return fahrplan.get(index);
         } else {
             return null;
         }
-    }
-    public void setFahrplan(ArrayList<FahrplanHalt> fahrplan) {
-        this.fahrplan = fahrplan;
     }
 
     //get-set newTrain
     public boolean isNewTrain() {
         return newTrain;
     }
+
     public void setNewTrain(boolean newTrain) {
         this.newTrain = newTrain;
     }
 
     //Entfernen den Zug aus dem LabelContainer (nur wenn hier kein Wechsel VON einem anderen Zug stattfindet)
-    public void removeFromGrid(){
-        if(fahrplan != null){
-            for(FahrplanHalt fh : fahrplan){
+    public void removeFromGrid() {
+        if (fahrplan != null) {
+            for (FahrplanHalt fh : fahrplan) {
                 if (fh != null && fh.getVorgaenger() == null) {
                     fh.removeDrawnTo();
                 }
@@ -156,7 +178,7 @@ public class Zug {
     }
 
     //Formatiert die Verspätung zu einem String
-    public String getVerspaetungToString(){
+    public String getVerspaetungToString() {
         String out = "";
 
         if (verspaetung > 0) {
@@ -168,20 +190,12 @@ public class Zug {
         return out;
     }
 
-    @Override
-    public String toString() {
-        return "Zug{" +
-                "zugId=" + zugId +
-                ", zugName='" + zugName + '\'' +
-                ", verspaetung=" + verspaetung +
-                ", gleis='" + gleis + '\'' +
-                ", plangleis='" + plangleis + '\'' +
-                ", amGleis=" + amGleis +
-                ", von='" + von + '\'' +
-                ", nach='" + nach + '\'' +
-                ", sichtbar=" + sichtbar +
-                ", newTrain=" + newTrain +
-                '}';
+    @Override public String toString() {
+        return "Zug{" + "zugId=" + zugId + ", zugName='" + zugName + '\''
+                + ", verspaetung=" + verspaetung + ", gleis='" + gleis + '\''
+                + ", plangleis='" + plangleis + '\'' + ", amGleis=" + amGleis
+                + ", von='" + von + '\'' + ", nach='" + nach + '\''
+                + ", sichtbar=" + sichtbar + ", newTrain=" + newTrain + '}';
     }
 
     public Label getStellwerksUebersichtLabel() {
@@ -192,9 +206,9 @@ public class Zug {
         this.stellwerksUebersichtLabel = stellwerksUebersichtLabel;
     }
 
-    public void setNeedUpdate(boolean value){
+    public void setNeedUpdate(boolean value) {
         schwerwiegendesUpdate = true;
-        for(FahrplanHalt fh : fahrplan){
+        for (FahrplanHalt fh : fahrplan) {
             fh.setNeedUpdate(value);
         }
     }
@@ -202,6 +216,7 @@ public class Zug {
     public boolean isSchwerwiegendesUpdate() {
         return schwerwiegendesUpdate;
     }
+
     public void setSchwerwiegendesUpdate(boolean schwerwiegendesUpdate) {
         this.schwerwiegendesUpdate = schwerwiegendesUpdate;
     }
