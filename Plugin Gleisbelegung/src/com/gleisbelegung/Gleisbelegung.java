@@ -16,8 +16,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Gleisbelegung {
     private GridPane gp;                                //Das ist die Tabelle, die alles enthält.                       (Vereinfacht einige Sachen, könnte/sollte irgendwann entfernt werden
@@ -36,10 +37,13 @@ public class Gleisbelegung {
     private Pane content;
     private Stellwerk stellwerk;
     private TimeTable timeTable;
+    private int rowCounter;
 
     public Gleisbelegung(Stellwerk stellwerk){
         this.stellwerk = stellwerk;
         timeTable = new TimeTable(stellwerk);
+
+        rowCounter = 0;
 
         firstLabel = new Label("Bahnhofsname");
         firstLabel.setFont(Font.font(Einstellungen.schriftgroesse-5));
@@ -118,6 +122,10 @@ public class Gleisbelegung {
         spPlatform.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spPlatform.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         spPlatform.setTranslateY(10);
+        spPlatform.vvalueProperty().addListener((ov, old_val, new_val) -> {
+            spContent.setHvalue(spPlatform.getHvalue());
+            spBahnhof.setHvalue(spPlatform.getHvalue());
+        });
 
         gpBahnhof = new GridPane();
         gpBahnhof.setHgap(0);
@@ -194,70 +202,60 @@ public class Gleisbelegung {
         t.start();*/
     }
 
-    private void zeichneTabelle(){
-        /*Platform.runLater(() -> {
-            content.getChildren().clear();
-        });*/
+    private void fuegeReiheHinzu(TimeTable.TimeTableRow ttr){
+        ttr.setNewRow(false);
 
-        int rowCounter = 0;
+        LabelContainer lc = new LabelContainer(rowCounter, null);
+        final int temp = rowCounter;
+        Platform.runLater(() -> {
+            lc.setTimeLabel(true, ttr.time);
+            gpTime.add(lc.getLabel(), 0, temp);
+        });
 
-        for(Iterator<TimeTable.TimeTableRow> iterRow = timeTable.rowIterator(); iterRow.hasNext(); ){
-        	TimeTable.TimeTableRow ttr = iterRow.next();
-            LabelContainer lc = new LabelContainer(rowCounter, null);
+        int colCounter = 0;
+        for(Iterator<TimeTable.TimeTableData> iterData = ttr.dataIterator(); iterData.hasNext(); ){
+            TimeTable.TimeTableData ttd = iterData.next();
+            LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.getCol().getBahnsteig());
+            lcTemp.updateLabel("", ttd.getRow().time);
 
-            final int temp = rowCounter;
-            Platform.runLater(() -> {
-                lc.setTimeLabel(true, ttr.time);
-                gpTime.add(lc.getLabel(), 0, temp);
-            });
+            ttd.setLabelContainer(lcTemp);
 
-            int colCounter = 0;
-
-            for(Iterator<TimeTable.TimeTableData> iterData = ttr.dataIterator(); iterData.hasNext(); ){
-            	TimeTable.TimeTableData ttd = iterData.next();
-                LabelContainer lcTemp = new LabelContainer(rowCounter, ttd.getCol().getBahnsteig());
-                lcTemp.updateLabel("", ttd.getRow().time);
-
-                ttd.setLabelContainer(lcTemp);
-
-                if(ttd.getZuege().size() > 0){
-                    for(FahrplanHalt fh : ttd.getZuege()){
-                        lcTemp.addTrain(fh.getZug());
-                    }
-
+            if(ttd.getZuege().size() > 0){
+                for(FahrplanHalt fh : ttd.getZuege()){
+                    lcTemp.addTrain(fh.getZug());
                 }
 
-                timeTable.getRefresh().remove(ttd);
-
-                final int tempCol = colCounter;
-                Platform.runLater(() -> {
-//                    lcTemp.getLabel().setTranslateX(tempCol*100);
-//                    lcTemp.getLabel().setTranslateY(temp*20);
-//                    gp.getChildren().add(lcTemp.getLabel());
-                    gp.add(lcTemp.getLabel(), tempCol, temp);
-                });
-
-                colCounter++;
             }
 
-            rowCounter++;
+            timeTable.getRefresh().remove(ttd);
+
+            final int tempCol = colCounter;
+            Platform.runLater(() -> {
+                gp.add(lcTemp.getLabel(), tempCol, temp);
+            });
+
+            colCounter++;
         }
+
+        rowCounter++;
     }
 
     public void aktualisiereTabelle(){
+        for(TimeTable.TimeTableRow ttr : new ArrayList<TimeTable.TimeTableRow>(timeTable.getRows())){
+            if(ttr.isNewRow()){
+                fuegeReiheHinzu(ttr);
+            }
+        }
 
-        Iterator<TimeTable.TimeTableData> iterator = timeTable.getRefresh().iterator();
-
+        Iterator<TimeTable.TimeTableData> iterator = new ArrayList<TimeTable.TimeTableData>(timeTable.getRefresh()).iterator();
         while(iterator.hasNext()){
-            TimeTable.TimeTableData ttd = iterator.next();
+            final TimeTable.TimeTableData ttd = iterator.next();
 
             Platform.runLater(() -> {
                 if(ttd.getLabelContainer() != null){
                     ttd.getLabelContainer().setTrains(ttd.getZuege());
                 }
             });
-
-            iterator.remove();
         }
         timeTable.getRefresh().clear();
     }
@@ -274,12 +272,10 @@ public class Gleisbelegung {
     }
 
     public void update(){
+        //System.out.println(new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + " start");
+
         boolean wasUpdate = false;
         for (Zug z : stellwerk.getZuege()) {
-            if(z.getZugName().equals("LT 84355")){
-                System.out.println("zug");
-            }
-
             if(z.isNewTrain()) {
                 timeTable.addZug(z);
                 wasUpdate = true;
@@ -296,8 +292,10 @@ public class Gleisbelegung {
             }
         }
 
-        if(gp.getChildren().size() == 0) zeichneTabelle();
-        else if(wasUpdate) aktualisiereTabelle();
+        //if(gp.getChildren().size() == 0) zeichneTabelle();
+        if(wasUpdate) aktualisiereTabelle();
+
+        //System.out.println(new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + " ende");
     }
 
     public void sortiereGleise(Runnable callback){
@@ -526,5 +524,9 @@ public class Gleisbelegung {
     }
     public Pane getContent() {
         return content;
+    }
+
+    public TimeTable getTimeTable(){
+        return timeTable;
     }
 }

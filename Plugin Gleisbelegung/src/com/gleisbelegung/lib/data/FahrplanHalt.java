@@ -58,7 +58,8 @@ public class FahrplanHalt {
         if(ankuft == 0 && z.getVorgaenger() != null){
             return getVorgaenger().getTatsaechlicheAnkunft();
         }
-        return  ankuft;
+
+        return ankuft + z.getVerspaetungInMiliSekunden();
     }
     public void setAnkuft(long ankuft) {
         this.ankuft = ankuft;
@@ -72,7 +73,14 @@ public class FahrplanHalt {
         if(abfahrt == 0 && z.getNachfolger() != null){
             return getNachfolger().getTatsaechlicheAbfahrt();
         }
-        return abfahrt;
+
+        if(z.getVerspaetungInMinuten() <= 0){
+            return abfahrt;
+        } else if(z.getVerspaetungInMinuten() <= 3){
+            return abfahrt + z.getVerspaetungInMiliSekunden();
+        } else {
+            return ankuft + z.getVerspaetungInMiliSekunden() + 2*60*1000;
+        }
     }
 
 
