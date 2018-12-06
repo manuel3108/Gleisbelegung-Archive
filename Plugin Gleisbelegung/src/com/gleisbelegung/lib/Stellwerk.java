@@ -127,9 +127,6 @@ public class Stellwerk {
     public long getLetzteAktualisierung() {
         return letzteAktualisierung;
     }
-    public boolean isAktualisiere(){
-        return v.isAktualisiere();
-    }
 
     @Override
     public String toString() {

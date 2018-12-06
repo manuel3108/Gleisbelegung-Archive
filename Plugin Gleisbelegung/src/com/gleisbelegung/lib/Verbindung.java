@@ -29,9 +29,6 @@ import java.util.List;
 public class Verbindung {
     private Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
     private XMLHandler xml;     //Verarbeitet die Empfangenen Daten in einer Eigenen Klasse
-    private boolean aktualisiere;
-    
-    private final Object monitorUpdate = new Object(); // Used for synchronization
     
     public Verbindung(Socket socket) throws IOException {
     	  this.socket = socket;
@@ -149,14 +146,6 @@ public class Verbindung {
 
     //Aktualisiert die Daten aller Züge
     public boolean update(Stellwerk stellwerk) {
-    	synchronized(this.monitorUpdate) {
-    		if (aktualisiere) {
-    			return false;
-    		}
-    		stellwerk.letzteAktualisierung = System.currentTimeMillis();
-        	aktualisiere = true;
-    	}
-
         try {
             setSocketCode("<zugliste />");
         } catch (Exception e) {
@@ -305,18 +294,8 @@ public class Verbindung {
                 e.printStackTrace();
             }
         }
-
-        synchronized(this.monitorUpdate) {
-        	aktualisiere = false;
-        }
         
         return true;
-    }
-
-    public boolean isAktualisiere() {
-        synchronized(this.monitorUpdate) {
-        	return aktualisiere;
-        }
     }
 
     public Socket getSocket() {
@@ -328,7 +307,6 @@ public class Verbindung {
         return "Verbindung{" +
                 "socket=" + socket +
                 ", xml=" + xml +
-                ", aktualisiere=" + aktualisiere +
                 '}';
     }
 }

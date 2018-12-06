@@ -190,19 +190,21 @@ public class TimeTable {
     }
 
     public void removeFahrplanhalt(FahrplanHalt remove) {
-        for(TimeTableRow ttr : rows){
-            for(TimeTableData ttd : ttr.fields){
-                int counter = -1;
-                for (int i = 0; i < ttd.getZuege().size(); i++) {
-                    FahrplanHalt fh = ttd.getZuege().get(i);
-                    if(fh.getId() == remove.getId()){
-                        counter = i;
-                    }
-                }
-
-                if(counter >= 0) ttd.getZuege().remove(counter);
-                if(!refresh.contains(ttd)) refresh.add(ttd);
-            }
+    	synchronized(rows) {
+	        for(TimeTableRow ttr : rows){
+	            for(TimeTableData ttd : ttr.fields){
+	                int counter = -1;
+	                for (int i = 0; i < ttd.getZuege().size(); i++) {
+	                    FahrplanHalt fh = ttd.getZuege().get(i);
+	                    if(fh.getId() == remove.getId()){
+	                        counter = i;
+	                    }
+	                }
+	
+	                if(counter >= 0) ttd.getZuege().remove(counter);
+	                if(!refresh.contains(ttd)) refresh.add(ttd);
+	            }
+	        }
         }
     }
 

@@ -82,11 +82,6 @@ public class LabelContainer extends Plugin {
 
             l.setOnMouseEntered(e -> { try{ showTrainInformations(); }catch(Exception ex) { ex.printStackTrace(); } });
 
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         } catch (Exception e){
             e.printStackTrace();
         }

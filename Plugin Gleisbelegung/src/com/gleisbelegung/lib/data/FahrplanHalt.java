@@ -71,6 +71,9 @@ public class FahrplanHalt {
     }
     public long getTatsaechlicheAbfahrt(){
         if(abfahrt == 0 && z.getNachfolger() != null){
+        	if (getNachfolger() == null) {
+        		return getTatsaechlicheAnkunft();
+        	}
             return getNachfolger().getTatsaechlicheAbfahrt();
         }
 
