@@ -10,6 +10,9 @@ Speichert alle Daten für einen Zug
  */
 
 import com.gleisbelegung.Einstellungen;
+import com.sun.xml.internal.bind.v2.runtime.reflect.ListIterator;
+
+import de.heidelbach_net.util.XML;
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 
@@ -30,7 +33,25 @@ public class Zug {
     private boolean newTrain;           //Wenn ein Zug gerade neu in die Liste zuege aus @Main aufgenommen wurde ist dieser Wert auf true
     private Label stellwerksUebersichtLabel;
     private boolean schwerwiegendesUpdate;
-
+    
+    /**
+     * Ziel von E/F
+     */
+	private Zug predecessor;
+	
+	/**
+	 * Ausgangspunkt von E/K 
+	 */
+	private Zug successor;
+  
+    public static Zug parseXml(final XML xmlZug) {
+		final Integer id = Integer.valueOf(xmlZug.get("zid"));
+		final String name = xmlZug.get("name");
+		assert id != null;
+		assert name != null;
+		return new Zug(id, name);
+	}
+    
     //Setzten der Daten
     public Zug(int zugId, String zugName){
         this.zugId = zugId;
@@ -183,6 +204,10 @@ public class Zug {
                 ", newTrain=" + newTrain +
                 '}';
     }
+    
+    public boolean equals(Zug o) {
+    	return this.zugId == o.zugId;
+    }
 
     public Label getStellwerksUebersichtLabel() {
         return stellwerksUebersichtLabel;
@@ -205,4 +230,52 @@ public class Zug {
     public void setSchwerwiegendesUpdate(boolean schwerwiegendesUpdate) {
         this.schwerwiegendesUpdate = schwerwiegendesUpdate;
     }
+
+    /**
+     * 
+     * @param zug Ein Zug mit E/K-Flag
+     */
+	public void setVorgaenger(Zug zug) {
+		this.predecessor = zug;
+	}
+	
+	/**
+	 * 
+	 * @return Ein Zug mit E/K-Flag
+	 */
+	public Zug getVorgaenger()
+	{
+		return this.predecessor;
+	}
+
+	/**
+	 * 
+	 * @param zug Ein Zug der aus E/F-Flag folgt
+	 */
+	public void setNachfolger(Zug zug) {
+		this.successor = zug;
+	}
+	
+	public Zug getNachfolger() {
+		return this.successor;
+	}
+
+	public FahrplanHalt getFahrplanHalt(FahrplanHalt fahrplanHalt) {
+		if (fahrplanHalt.getAnkuft() == 0) {
+			for (java.util.ListIterator<FahrplanHalt> fhIter= this.fahrplan.listIterator(this.fahrplan.size()); fhIter.hasPrevious(); ) {
+				FahrplanHalt fh = fhIter.previous();
+				if (fh.getAnkuft() < fahrplanHalt.getAbfahrt()) {
+					return fh;
+				}
+			}
+		} else {
+			for (FahrplanHalt fh : this.fahrplan) {
+				if (fh.getAbfahrt() > fahrplanHalt.getAnkuft()) {
+					return fh;
+				}
+			}
+		}
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -18,17 +18,18 @@ public class FahrplanHalt {
     private long abfahrt;                           //Die GEPLANTE Abfahrt des Zuges
     private Bahnsteig gleis;                           //Das GEPLANTE Bahnsteig des Zuges
     private Bahnsteig plangleis;                       //Das aktuelle Bahnsteig
-    private String flags;                           //Die Flags des Haltes
+    
+    /**
+     * @NotNull
+     */
+    private final ScheduleFlags flags;                 //Die Flags des Haltes
     private ArrayList<LabelContainer> drawnTo;      //Die LabelContainer, auf welchen der Halt gezeichnet wurde
-    private boolean crossing;                       //Hat der Zug hier eine Durchfahrt
-    private FahrplanHalt vorgaenger;                          //Hat der Zug einen vorgaenger, wenn ja, dann hier der Flügelt- oder Wechselhalt gespeichert
-    private Zug flaggedTrain;                       //Hat der Zug einen nachfolger, wenn ja, dann hier gespeichert, wenn nein dann null
     private boolean needUpdate;
     private static long idCounter = 0;
     private long id;
 
     //Speichert gegebene Seite
-    public FahrplanHalt(long abfahrt, Bahnsteig gleis, String flags, Bahnsteig plangleis, long ankuft, Zug z){
+    public FahrplanHalt(long abfahrt, Bahnsteig gleis, ScheduleFlags flags, Bahnsteig plangleis, long ankuft, Zug z){
         this.z = z;
         this.abfahrt = abfahrt;
         this.gleis = gleis;
@@ -37,10 +38,7 @@ public class FahrplanHalt {
         this.ankuft = ankuft;
 
         this.drawnTo = new ArrayList<>();
-        this.vorgaenger = null;
-        flaggedTrain = null;
 
-        crossing = flags.contains("D") || flags.equals("D");
         needUpdate = true;
 
         id = idCounter;
@@ -57,8 +55,8 @@ public class FahrplanHalt {
         return ankuft;
     }
     public long getTatsaechlicheAnkunft(){
-        if(ankuft == 0 && vorgaenger != null){
-            return vorgaenger.getTatsaechlicheAnkunft();
+        if(ankuft == 0 && z.getVorgaenger() != null){
+            return getVorgaenger().getTatsaechlicheAnkunft();
         }
 
         return ankuft + z.getVerspaetungInMiliSekunden();
@@ -72,8 +70,11 @@ public class FahrplanHalt {
         return abfahrt;
     }
     public long getTatsaechlicheAbfahrt(){
-        if(abfahrt == 0 && flaggedTrain != null){
-            return flaggedTrain.getFahrplan(0).getTatsaechlicheAbfahrt();
+        if(abfahrt == 0 && z.getNachfolger() != null){
+        	if (getNachfolger() == null) {
+        		return getTatsaechlicheAnkunft();
+        	}
+            return getNachfolger().getTatsaechlicheAbfahrt();
         }
 
         if(z.getVerspaetungInMinuten() <= 0){
@@ -84,7 +85,9 @@ public class FahrplanHalt {
             return ankuft + z.getVerspaetungInMiliSekunden() + 2*60*1000;
         }
     }
-    public void setAbfahrt(long abfahrt) {
+
+
+	public void setAbfahrt(long abfahrt) {
         this.abfahrt = abfahrt;
     }
 
@@ -104,21 +107,16 @@ public class FahrplanHalt {
         this.plangleis = plangleis;
     }
 
-    //get-set Flags
-    public String getFlags() {
+    //get Flags
+    public ScheduleFlags getFlags() {
         return flags;
     }
-    public void setFlags(String flags) {
-        this.flags = flags;
-    }
 
-    //get-set FlaggedTrain
+    //get
     public Zug getFlaggedTrain() {
-        return flaggedTrain;
+        return flags.getE(); // f,k auch?
     }
-    public void setFlaggedTrain(Zug flaggedTrain) {
-        this.flaggedTrain = flaggedTrain;
-    }
+   
 
     //Entferne den Halt überall wo er gemalt wurde
     public void removeDrawnTo() {
@@ -127,8 +125,8 @@ public class FahrplanHalt {
                 if (lc != null) {
                     lc.removeTrain(z);
                 }
-                if (lc != null && flaggedTrain != null && flaggedTrain.getFahrplan() != null && flaggedTrain.getFahrplan().size() > 0 && flaggedTrain.getFahrplan(0) != null)
-                    lc.removeTrain(flaggedTrain);
+                if (lc != null && z.getVorgaenger() != null && z.getVorgaenger().getFahrplan() != null && !z.getVorgaenger().getFahrplan().isEmpty() )
+                    lc.removeTrain(z.getVorgaenger());
             }
         } catch (Exception e){
             System.out.println("Fehler koennen passieren :(");
@@ -143,10 +141,10 @@ public class FahrplanHalt {
             if (drawnTo != null) {
                 this.drawnTo.add(lc);
             }
-            if (flaggedTrain != null) {
-                lc.addTrain(flaggedTrain);
-                if (drawnTo != null && flaggedTrain.getFahrplan() != null && flaggedTrain.getFahrplan().size() > 0 && flaggedTrain.getFahrplan(0) != null) {
-                    flaggedTrain.getFahrplan(0).drawnTo.add(lc);
+            if (z.getNachfolger() != null) {
+                lc.addTrain(z.getNachfolger());
+                if (drawnTo != null && z.getNachfolger().getFahrplan() != null && !z.getNachfolger().getFahrplan().isEmpty() && z.getNachfolger().getFahrplan(0) != null) {
+                    z.getNachfolger().getFahrplan(0).drawnTo.add(lc);
                 }
             }
         } catch (Exception e) {
@@ -167,20 +165,13 @@ public class FahrplanHalt {
         return drawnTo;
     }
 
-    public boolean isCrossing() {
-        return this.crossing;
-    }
-    public void setCrossing(boolean crossing) {
-        this.crossing = crossing;
-    }
-
     public FahrplanHalt getVorgaenger() {
-        return vorgaenger;
+        return z.getVorgaenger() == null ? null : z.getVorgaenger().getFahrplanHalt(this);
     }
-
-    public void setVorgaenger(FahrplanHalt vorgaenger) {
-        this.vorgaenger = vorgaenger;
-    }
+    
+    private FahrplanHalt getNachfolger() {
+  		return z.getNachfolger() == null ? null : z.getNachfolger().getFahrplanHalt(this);
+  	}
 
     public boolean isNeedUpdate() {
         return needUpdate;
@@ -198,9 +189,6 @@ public class FahrplanHalt {
                 ", plangleis='" + plangleis + '\'' +
                 ", flags='" + flags + '\'' +
                 ", drawnTo=" + drawnTo +
-                ", vorgaenger=" + vorgaenger +
-                ", crossing=" + crossing +
-                ", flaggedTrain=" + flaggedTrain +
                 '}';
     }
 

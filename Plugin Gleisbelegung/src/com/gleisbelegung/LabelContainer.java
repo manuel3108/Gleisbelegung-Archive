@@ -82,11 +82,6 @@ public class LabelContainer extends Plugin {
 
             l.setOnMouseEntered(e -> { try{ showTrainInformations(); }catch(Exception ex) { ex.printStackTrace(); } });
 
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -377,7 +372,7 @@ public class LabelContainer extends Plugin {
                 }
 
                 String durchfahrt = "";
-                if(z.getFahrplan(i).isCrossing()) durchfahrt = " Df.";
+                if(z.getFahrplan(i).getFlags().getD()) durchfahrt = " Df.";
 
                 Date anunft = new Date(lAnkunft);
                 Date abfahrt = new Date(lAbfahrt);

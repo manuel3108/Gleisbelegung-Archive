@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javafx.scene.shape.Line;
@@ -29,6 +31,7 @@ public class Stellwerksuebersicht {
     private Pane content;
     private Bahnhof bewegeBahnhof;
     private ArrayList<Label> bahnhofsLabel;
+    private Map<Label, Bahnhof> bahnhofLabelMap = new HashMap<>();
     private ArrayList<Label> uebergabePunkte;
     private ArrayList<Label> gezeichneteBahnhofsInformationen;
 
@@ -80,6 +83,7 @@ public class Stellwerksuebersicht {
             });
             l.setOnMouseExited(mouse -> entferneBahnhofsInformationen());
             bahnhofsLabel.add(l);
+            bahnhofLabelMap.put(l, b);
 
             Platform.runLater(() -> {
                 if(content != null) content.getChildren().add(l);
@@ -359,9 +363,8 @@ public class Stellwerksuebersicht {
     }
 
     public void aktualisiereBahnhofsNamen(){
-        int counter = 0;
-        for(Label l : bahnhofsLabel){
-            Bahnhof b = stellwerk.getBahnhoefe().get(counter);
+        for(Label l : bahnhofsLabel) {
+            Bahnhof b = bahnhofLabelMap.get(l);
             String text = "";
 
             if(b.getAlternativName().equals("")){
@@ -376,8 +379,6 @@ public class Stellwerksuebersicht {
             Platform.runLater(() -> {
                 l.setText(tempText);
             });
-
-            counter++;
         }
     }
 }
