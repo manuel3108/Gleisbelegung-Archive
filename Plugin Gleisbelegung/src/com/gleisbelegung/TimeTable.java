@@ -1,9 +1,9 @@
 package com.gleisbelegung;
 
-import com.gleisbelegung.lib.Stellwerk;
-import com.gleisbelegung.lib.data.Bahnsteig;
-import com.gleisbelegung.lib.data.FahrplanHalt;
-import com.gleisbelegung.lib.data.Zug;
+import com.gleisbelegung.lib.SignalBox;
+import com.gleisbelegung.lib.data.Platform;
+import com.gleisbelegung.lib.data.Train;
+import com.gleisbelegung.lib.data.TrainStop;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,33 +18,33 @@ public class TimeTable {
     private List<TimeTableColumn> cols; //Spalten
     private List<TimeTableRow> rows;    //Reihen
     private List<TimeTableData> refresh;
-    private Stellwerk stellwerk;
+    private SignalBox signalBox;
 
-    public TimeTable(Stellwerk stellwerk) {
-        this.stellwerk = stellwerk;
+    public TimeTable(SignalBox signalBox) {
+        this.signalBox = signalBox;
 
         cols = new ArrayList<TimeTableColumn>();
         rows = new ArrayList<TimeTableRow>();
         refresh = new ArrayList<TimeTableData>();
 
-        for (Bahnsteig b : stellwerk.getBahnsteige()) {
+        for (Platform b : signalBox.getBahnsteige()) {
             cols.add(new TimeTableColumn(b));
         }
 
         //erste Zeile erstellen, um Inhalt zu haben
-        TimeTableRow ttr = new TimeTableRow(stellwerk.getSpielzeit());
+        TimeTableRow ttr = new TimeTableRow(signalBox.getPlayingTime());
         rows.add(ttr);
     }
 
-    public void addZug(Zug z) {
-        for (FahrplanHalt fh : z.getFahrplan()) {
+    public void addZug(Train z) {
+        for (TrainStop fh : z.getSchedule()) {
             addFahrplanHalt(fh);
         }
         z.setSchwerwiegendesUpdate(false);
         z.setNewTrain(false);
     }
 
-    public void addFahrplanHalt(FahrplanHalt fh) {
+    public void addFahrplanHalt(TrainStop fh) {
         //TODO Ein Fahrplanhalt wird geändert, hier kann die Kollisionsabfrage und Benachrichtigung erfolgen
 
         int counter = 0;
@@ -53,7 +53,7 @@ public class TimeTable {
                 if (ttr.time >= fh.getTatsaechlicheAnkunft() && ttr.time
                         <= fh.getTatsaechlicheAbfahrt() + 1000 * 60) {
                     for (TimeTableData ttd : ttr.fields) {
-                        if (fh.getBahnsteig().getId() == ttd.col.getBahnsteig()
+                        if (fh.getBahnsteig().getId() == ttd.col.getPlatform()
                                 .getId()) {
                             ttd.addZug(fh);
                             if (!refresh.contains(ttd))
@@ -70,7 +70,7 @@ public class TimeTable {
             if (haltInMinuten > counter && rows.size() > 0) {
 
                 TimeTableRow lastRow = rows.get(rows.size() - 1);
-                while (fh.getAbfahrt() + fh.getZug()
+                while (fh.getDepartureTime() + fh.getZug()
                         .getVerspaetungInMiliSekunden() > lastRow.time) {
                     lastRow = new TimeTableRow(lastRow.time + 1000 * 60);
                     rows.add(lastRow);
@@ -79,7 +79,7 @@ public class TimeTable {
                             <= fh.getTatsaechlicheAbfahrt() + 1000 * 60) {
                         for (TimeTableData ttd : lastRow.fields) {
                             if (fh.getBahnsteig().getId() == ttd.col
-                                    .getBahnsteig().getId()) {
+                                    .getPlatform().getId()) {
                                 ttd.addZug(fh);
                                 if (!refresh.contains(ttd))
                                     refresh.add(ttd);
@@ -91,31 +91,31 @@ public class TimeTable {
         }
     }
 
-    public void updateZug(Zug z) {
-        for (FahrplanHalt fh : z.getFahrplan()) {
+    public void updateZug(Train z) {
+        for (TrainStop fh : z.getSchedule()) {
             updateFahrplanhalt(fh);
         }
     }
 
-    public void updateFahrplanhalt(FahrplanHalt fh) {
+    public void updateFahrplanhalt(TrainStop fh) {
         removeFahrplanhalt(fh);
         addFahrplanHalt(fh);
         fh.setNeedUpdate(false);
     }
 
-    public void removeZug(Zug z) {
-        for (FahrplanHalt fh : z.getFahrplan()) {
+    public void removeZug(Train z) {
+        for (TrainStop fh : z.getSchedule()) {
             //removeFahrplanhalt(fh);
         }
     }
 
-    public void removeFahrplanhalt(FahrplanHalt remove) {
+    public void removeFahrplanhalt(TrainStop remove) {
         synchronized (rows) {
             for (TimeTableRow ttr : rows) {
                 for (TimeTableData ttd : ttr.fields) {
                     int counter = -1;
                     for (int i = 0; i < ttd.getZuege().size(); i++) {
-                        FahrplanHalt fh = ttd.getZuege().get(i);
+                        TrainStop fh = ttd.getZuege().get(i);
                         if (fh.getId() == remove.getId()) {
                             counter = i;
                         }
@@ -135,7 +135,7 @@ public class TimeTable {
             rows.removeIf(new Predicate<TimeTableRow>() {
 
                 @Override public boolean test(TimeTableRow ttr) {
-                    return ttr.time < stellwerk.getSpielzeit();
+                    return ttr.time < signalBox.getPlayingTime();
                 }
 
             });
@@ -164,14 +164,14 @@ public class TimeTable {
 
     class TimeTableColumn {
 
-        private Bahnsteig bahnsteig;
+        private Platform platform;
 
-        TimeTableColumn(Bahnsteig b) {
-            this.bahnsteig = b;
+        TimeTableColumn(Platform b) {
+            this.platform = b;
         }
 
-        public Bahnsteig getBahnsteig() {
-            return bahnsteig;
+        public Platform getPlatform() {
+            return platform;
         }
     }
 
@@ -208,7 +208,7 @@ public class TimeTable {
 
     class TimeTableData {
 
-        private List<FahrplanHalt> zuege;
+        private List<TrainStop> zuege;
         private TimeTableRow row;
         private TimeTableColumn col;
         private LabelContainer labelContainer;
@@ -216,7 +216,7 @@ public class TimeTable {
         TimeTableData(TimeTableColumn col, TimeTableRow row) {
             this.col = col;
             this.row = row;
-            this.zuege = new ArrayList<FahrplanHalt>();
+            this.zuege = new ArrayList<TrainStop>();
             labelContainer = null;
         }
 
@@ -228,7 +228,7 @@ public class TimeTable {
             return row;
         }
 
-        public List<FahrplanHalt> getZuege() {
+        public List<TrainStop> getZuege() {
             return zuege;
         }
 
@@ -240,10 +240,10 @@ public class TimeTable {
             this.labelContainer = labelContainer;
         }
 
-        public void addZug(FahrplanHalt fh) {
+        public void addZug(TrainStop fh) {
             boolean add = true;
             if (fh.getFlaggedTrain() != null) {
-                if (fh.getFlaggedTrain().getFahrplan().size() >= 1) {
+                if (fh.getFlaggedTrain().getSchedule().size() >= 1) {
                     if (zuege.contains(fh.getFlaggedTrain().getFahrplan(0))) {
                         add = false;
                     }

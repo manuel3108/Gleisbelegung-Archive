@@ -1,6 +1,6 @@
 package com.gleisbelegung.lib.data;
 
-import com.gleisbelegung.Einstellungen;
+import com.gleisbelegung.Settings;
 import com.gleisbelegung.LabelContainer;
 import com.gleisbelegung.Plugin;
 import javafx.beans.property.BooleanProperty;
@@ -19,34 +19,34 @@ import java.util.List;
 import java.util.SortedSet;
 
 
-public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
+public class Platform extends Plugin implements Comparable<Platform> {
 
     private LabelContainer gleisLabel;
     private String name;
-    private BooleanProperty sichtbar;
-    private boolean hervorgehoben;
+    private BooleanProperty visible;
+    private boolean highlighted;
     private int orderId;
     private int id;
-    private Bahnhof bahnhof;
+    private Station station;
     private boolean sorting = false;
-    private List<Bahnsteig> nachbarn;
+    private List<Platform> neighbors;
 
-    public Bahnsteig(Bahnhof b, String name, int orderId) {
-        this.bahnhof = b;
+    public Platform(Station b, String name, int orderId) {
+        this.station = b;
         this.name = name;
-        this.sichtbar = new SimpleBooleanProperty(true);
+        this.visible = new SimpleBooleanProperty(true);
         this.orderId = orderId;
         id = orderId;
 
-        hervorgehoben = false;
+        highlighted = false;
 
-        nachbarn = new ArrayList<Bahnsteig>();
+        neighbors = new ArrayList<Platform>();
     }
 
-    public static void applySorting(SortedSet<Bahnsteig> bahnsteige) {
-        for (Bahnsteig bahnsteig : bahnsteige) {
-            bahnsteig.setSortActive();
-            bahnsteig.aendereReihenfolge();
+    public static void applySorting(SortedSet<Platform> bahnsteige) {
+        for (Platform platform : bahnsteige) {
+            platform.setSortActive();
+            platform.aendereReihenfolge();
         }
     }
 
@@ -59,15 +59,15 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
     }
 
     public BooleanProperty getSichtbarProperty() {
-        return sichtbar;
+        return visible;
     }
 
-    public boolean isSichtbar() {
-        return sichtbar.get();
+    public boolean getVisible() {
+        return visible.get();
     }
 
-    public void setSichtbar(boolean sichtbar) {
-        this.sichtbar.set(sichtbar);
+    public void setVisible(boolean visible) {
+        this.visible.set(visible);
     }
 
     public LabelContainer getGleisLabel() {
@@ -103,13 +103,13 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
     }
 
     public void hebeHervor() {
-        /*if(hervorgehoben) {
+        /*if(highlighted) {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #303030");
             for(LabelContainer lc : spalte){
                 lc.setHervorhebungDurchGleis(false);
             }
 
-            hervorgehoben = false;
+            highlighted = false;
         } else {
             gleisLabel.getLabel().setStyle(gleisLabel.getLabel().getStyle() + "; -fx-background-color: #181818");
 
@@ -117,12 +117,12 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
                 lc.setHervorhebungDurchGleis(true);
             }
 
-            hervorgehoben = true;
+            highlighted = true;
         }*/
     }
 
     public boolean getHebeHervor() {
-        return hervorgehoben;
+        return highlighted;
     }
 
     public int getOrderId() {
@@ -137,8 +137,8 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
         return id;
     }
 
-    public Bahnhof getBahnhof() {
-        return bahnhof;
+    public Station getStation() {
+        return station;
     }
 
     // Sorting active on this bahnsteig
@@ -150,7 +150,7 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
         this.sorting = false;
     }
 
-    @Override public int compareTo(final Bahnsteig o) {
+    @Override public int compareTo(final Platform o) {
         if (this == o) {
             return 0;
         }
@@ -170,34 +170,34 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
     }
 
     private void aendereReihenfolge() {
-        Einstellungen.fenster.gleisbelegung.zeigeOrderIds();
+        Settings.window.gleisbelegung.zeigeOrderIds();
 
         Stage stage = new Stage();
 
         Label l = new Label("Reihenfolge festlegen:");
         l.setStyle("-fx-text-fill: white;");
-        l.setFont(Font.font(Einstellungen.schriftgroesse));
+        l.setFont(Font.font(Settings.fontSize));
         l.setTranslateY(25);
         l.setTranslateX(25);
 
         TextField tf = new TextField(String.valueOf(orderId + 1));
-        tf.setFont(Font.font(Einstellungen.schriftgroesse - 3));
+        tf.setFont(Font.font(Settings.fontSize - 3));
         tf.setTranslateX(25);
         tf.setTranslateY(60);
 
         Button b = new Button("Speichern");
-        b.setFont(Font.font(Einstellungen.schriftgroesse));
+        b.setFont(Font.font(Settings.fontSize));
         b.setTranslateX(25);
         b.setTranslateY(120);
         b.setOnAction(e -> {
-            Bahnsteig.this.setOrderId(Integer.parseInt(tf.getText()) - 1);
-            Bahnsteig.this.setSortActive();
+            Platform.this.setOrderId(Integer.parseInt(tf.getText()) - 1);
+            Platform.this.setSortActive();
             stage.close();
-            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
-            Einstellungen.fenster.gleisbelegung.sortiereGleise(new Runnable() {
+            Settings.window.gleisbelegung.versteckeOrderIds();
+            Settings.window.gleisbelegung.sortiereGleise(new Runnable() {
 
                 public void run() {
-                    Bahnsteig.this.resetSortActive();
+                    Platform.this.resetSortActive();
                 }
             });
         });
@@ -214,25 +214,25 @@ public class Bahnsteig extends Plugin implements Comparable<Bahnsteig> {
         stage.setAlwaysOnTop(true);
 
         stage.setOnCloseRequest(e -> {
-            Einstellungen.fenster.gleisbelegung.versteckeOrderIds();
+            Settings.window.gleisbelegung.versteckeOrderIds();
         });
     }
 
     @Override public String toString() {
-        return "Bahnsteig{" + ", gleisLabel=" + gleisLabel + ", gleisName='"
-                + name + '\'' + ", sichtbar=" + sichtbar + ", hervorgehoben="
-                + hervorgehoben + ", orderId=" + orderId + ", id=" + id + '}';
+        return "Platform{" + ", gleisLabel=" + gleisLabel + ", gleisName='"
+                + name + '\'' + ", visible=" + visible + ", highlighted="
+                + highlighted + ", orderId=" + orderId + ", id=" + id + '}';
     }
 
     public boolean getSortingActive() {
         return this.sorting;
     }
 
-    public List<Bahnsteig> getNachbarn() {
-        return nachbarn;
+    public List<Platform> getNeighbors() {
+        return neighbors;
     }
 
-    public void setNachbarn(List<Bahnsteig> nachbarn) {
-        this.nachbarn = nachbarn;
+    public void setNeighbors(List<Platform> neighbors) {
+        this.neighbors = neighbors;
     }
 }

@@ -10,8 +10,8 @@ In dieser Klasse werden viele Variablen gespeichert, da jede Klasse diese Klasse
 Hier befindet sich auch die Hauptschleife des Plugins.
  */
 
-import com.gleisbelegung.lib.Stellwerk;
-import com.gleisbelegung.lib.Verbindung;
+import com.gleisbelegung.lib.Connection;
+import com.gleisbelegung.lib.SignalBox;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -36,7 +36,7 @@ import java.util.Scanner;
 
 public class Plugin extends Application implements Runnable {
 
-    public static Einstellungen einstellungen;
+    public static Settings settings;
     private Stage primaryStage;
     // angezeigt wird.
     private StackPane firstSP; // Erste Benutzeroberfläche, die beim start
@@ -48,7 +48,7 @@ public class Plugin extends Application implements Runnable {
     // Änderung beim Pluginstart
     // aktualisiert)
     private int version = 17; // Aktualle Version des Plugins
-    private Stellwerk stellwerk;
+    private SignalBox signalBox;
     private boolean update = true;
     private Button refresh;
 
@@ -104,14 +104,14 @@ public class Plugin extends Application implements Runnable {
             Label lHint = new Label(
                     "IP-Adress nur ändern, wenn SIM auf einem anderen Rechner läuft. \nWenn dies der Fall ist, muss auf dem SIM-Rechner die Windows-Firewall\n (wahrscheinlich auch jede andere), deaktiviert werden.");
             lHint.setStyle("-fx-text-fill: white;");
-            lHint.setFont(Font.font(Einstellungen.schriftgroesse));
+            lHint.setFont(Font.font(Settings.fontSize));
             lHint.setTranslateY(0);
             lHint.applyCss();
             lHint.layout();
 
             Label lHost = new Label("Bitte die IP des Rechners eingeben: ");
             lHost.setStyle("-fx-text-fill: white;");
-            lHost.setFont(Font.font(Einstellungen.schriftgroesse));
+            lHost.setFont(Font.font(Settings.fontSize));
             lHost.setTranslateY(80);
             lHost.setTranslateX(-120);
             lHost.applyCss();
@@ -122,7 +122,7 @@ public class Plugin extends Application implements Runnable {
 
             Button btLoad = new Button("Verbinden");
             btLoad.setStyle("-fx-text-fill: black;");
-            btLoad.setFont(Font.font(Einstellungen.schriftgroesse));
+            btLoad.setFont(Font.font(Settings.fontSize));
             btLoad.setTranslateX((lHost.getWidth() + tfHost.getWidth()) / 2);
             btLoad.setTranslateY(130);
             btLoad.setMinWidth(150);
@@ -132,7 +132,7 @@ public class Plugin extends Application implements Runnable {
 
             tfHost.setText("Warten...");
             tfHost.setStyle("-fx-text-fill: black;");
-            tfHost.setFont(Font.font(Einstellungen.schriftgroesse));
+            tfHost.setFont(Font.font(Settings.fontSize));
             tfHost.setTranslateX(120);
             tfHost.setTranslateY(80);
             tfHost.setMinWidth(150);
@@ -177,9 +177,9 @@ public class Plugin extends Application implements Runnable {
 
             primaryStage.setOnCloseRequest(we -> {
                 checkLogOnClosing();
-                Plugin.einstellungen.schreibeEinstellungen();
-                if (stellwerk != null)
-                    einstellungen.schreibeStellwerksEinstellungen(stellwerk);
+                Plugin.settings.schreibeEinstellungen();
+                if (signalBox != null)
+                    settings.schreibeStellwerksEinstellungen(signalBox);
             });
             this.primaryStage = primaryStage;
 
@@ -192,12 +192,12 @@ public class Plugin extends Application implements Runnable {
             u = new Update();
             u.checkForNewVersion(version);
 
-            einstellungen = new Einstellungen();
+            settings = new Settings();
             Platform.runLater(() -> {
-                this.primaryStage.setMaximized(Einstellungen.maximiert);
+                this.primaryStage.setMaximized(Settings.fullscreen);
             });
 
-            Platform.runLater(() -> tfHost.setText("Lese Einstellungen..."));
+            Platform.runLater(() -> tfHost.setText("Lese Settings..."));
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -272,20 +272,20 @@ public class Plugin extends Application implements Runnable {
             refresh.setOnAction(e -> neustart());
 
             try {
-                Verbindung v;
+                Connection v;
                 if (null == socketGefunden) {
-                    v = new Verbindung(new Socket(host, 3691));
+                    v = new Connection(new Socket(host, 3691));
                 } else {
-                    v = new Verbindung(socketGefunden);
+                    v = new Connection(socketGefunden);
                 }
-                stellwerk = v.initialisiere("Gleisbelegung",
+                signalBox = v.initialisiere("Gleisbelegung",
                         "Darstellung der Gleisbelegung", version,
                         "Manuel Serret", 1);
 
-                einstellungen.leseStellwerksEinstellungen(stellwerk);
+                settings.leseStellwerksEinstellungen(signalBox);
 
-                f = new Fenster(stellwerk, primaryStage, refresh);
-                Einstellungen.fenster = f;
+                f = new Fenster(signalBox, primaryStage, refresh);
+                Settings.window = f;
                 update = true;
 
                 Thread t = new Thread(this);
@@ -346,8 +346,8 @@ public class Plugin extends Application implements Runnable {
         Runnable r = () -> {
             try {
                 System.out.println("INFORMATION: Neustart");
-                einstellungen.schreibeEinstellungen();
-                einstellungen.schreibeStellwerksEinstellungen(stellwerk);
+                settings.schreibeEinstellungen();
+                settings.schreibeStellwerksEinstellungen(signalBox);
 
                 update = false;
                 refresh.setDisable(true);
@@ -369,7 +369,7 @@ public class Plugin extends Application implements Runnable {
     private void setOutputStreams() {
         try {
             File f = new File(
-                    Einstellungen.appOrdner + File.separator + "Log.txt");
+                    Settings.applicationFolder + File.separator + "Log.txt");
 
             if (!f.exists()) {
                 f.createNewFile();
@@ -393,7 +393,7 @@ public class Plugin extends Application implements Runnable {
     private void checkLogOnClosing() {
         try {
             File f = new File(
-                    Einstellungen.appOrdner + File.separator + "Log.txt");
+                    Settings.applicationFolder + File.separator + "Log.txt");
 
             RandomAccessFile raf = new RandomAccessFile(f, "rw");
             String temp = raf.readLine();
@@ -422,7 +422,7 @@ public class Plugin extends Application implements Runnable {
         Label l = new Label(
                 "Während deiner aktuellen Sitzung sind Fehler aufgetreten. Durch einen Klick auf Weiter wird deine Log-Datei anonym hochgeladen.");
         l.setStyle("-fx-text-fill: white");
-        l.setFont(Font.font(Einstellungen.schriftgroesse));
+        l.setFont(Font.font(Settings.fontSize));
         l.setWrapText(true);
         l.setMaxWidth(450);
         l.setTranslateY(25);
@@ -435,13 +435,13 @@ public class Plugin extends Application implements Runnable {
          */
 
         Button bno = new Button("Abbrechen");
-        bno.setFont(Font.font(Einstellungen.schriftgroesse));
+        bno.setFont(Font.font(Settings.fontSize));
         bno.setOnAction(e -> stage.close());
         bno.setTranslateX(250);
         bno.setTranslateY(150);
 
         Button byes = new Button("Weiter");
-        byes.setFont(Font.font(Einstellungen.schriftgroesse));
+        byes.setFont(Font.font(Settings.fontSize));
         byes.setTranslateX(150);
         byes.setTranslateY(150);
         byes.setOnAction(e -> {
@@ -473,7 +473,7 @@ public class Plugin extends Application implements Runnable {
             Platform.runLater(() -> l.setText("Lese Log-Datei..."));
 
             File f = new File(
-                    Einstellungen.appOrdner + File.separator + "Log.txt");
+                    Settings.applicationFolder + File.separator + "Log.txt");
 
             RandomAccessFile raf = new RandomAccessFile(f, "r");
             String newLine = raf.readLine();
@@ -588,8 +588,8 @@ public class Plugin extends Application implements Runnable {
                             updateMonitor.wait();
                             updating = true;
                         }
-                        if (stellwerk != null && f != null) {
-                            stellwerk.aktualisiereDaten();
+                        if (signalBox != null && f != null) {
+                            signalBox.aktualisiereDaten();
                             f.update();
                         }
                     } catch (InterruptedException e) {
@@ -625,12 +625,12 @@ public class Plugin extends Application implements Runnable {
                         (int) ((System.currentTimeMillis() - timeFromLastUpdate)
                                 / 1000);
                 if (!updateThread.isUpdating()) {
-                    stellwerk.aktualisiereSimZeit();
+                    signalBox.aktualisiereSimZeit();
                 } else {
-                    stellwerk.setSpielzeit(stellwerk.getSpielzeit() + 1000);
+                    signalBox.setPlayingTime(signalBox.getPlayingTime() + 1000);
                 }
 
-                if (time >= Einstellungen.update) {
+                if (time >= Settings.updateIntervall) {
                     timeFromLastUpdate = System.currentTimeMillis();
                     synchronized (updateMonitor) {
                         if (updateThread.isUpdating()) {
@@ -641,17 +641,17 @@ public class Plugin extends Application implements Runnable {
 
                 }
 
-                f.updateSimTime(Einstellungen.update - time);
+                f.updateSimTime(Settings.updateIntervall - time);
 
-                if (stellwerk.getSpielzeit() % (1000 * 60) >= 0
-                        && stellwerk.getSpielzeit() % (1000 * 60) <= 1000) {
+                if (signalBox.getPlayingTime() % (1000 * 60) >= 0
+                        && signalBox.getPlayingTime() % (1000 * 60) <= 1000) {
                     Runnable r = () -> {
                         try {
                             f.gleisbelegung.entferneVergangenheit();
                             System.out.println(
                                     "INFORMATION: Du benutzt das Plugin seit "
                                             + ((System.currentTimeMillis()
-                                            - stellwerk.getStartzeit()) / (1000
+                                            - signalBox.getStartingTime()) / (1000
                                             * 60)) + " Minute(n)!");
                         } catch (Exception e) {
                             e.printStackTrace();

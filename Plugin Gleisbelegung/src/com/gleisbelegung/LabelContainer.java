@@ -9,10 +9,9 @@ Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Metho
 Repräsentiert immer eine Tabellen-Zelle in einer Tabelle
  */
 
-import com.gleisbelegung.lib.data.Bahnsteig;
-import com.gleisbelegung.lib.data.FahrplanHalt;
-import com.gleisbelegung.lib.data.Zug;
-import javafx.application.Platform;
+import com.gleisbelegung.lib.data.Platform;
+import com.gleisbelegung.lib.data.Train;
+import com.gleisbelegung.lib.data.TrainStop;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -30,19 +29,19 @@ public class LabelContainer extends Plugin {
     //Textfeld um Text schreiben zu können
     private int labelIndex;
     //speichert den in der @Fenster-Klsse vergebenen labelIndex
-    private ArrayList<Zug> trains;
+    private ArrayList<Train> trains;
     //Speichert alle Zuüge die Gerade auf diesem Container einen Halt/Durchfahrt haben
     private long time = -1;
     //Die Zeit die in der jeweiligen Zeile die richtige ist.
-    private Bahnsteig bahnsteig;
-    //int der mit dem Bahnsteig-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
+    private Platform platform;
+    //int der mit dem Platform-Namen aus der @Main-Klasse einen Bahnsteigsnamen darstellt
     private boolean letzterBahnsteig;
     private Aussehen aussehen;
     private boolean hervorhebungDurchGleis;
     private boolean timeLabel;
 
-    public LabelContainer(int labelIndex, Bahnsteig bahnsteig) {
-        this.bahnsteig = bahnsteig;
+    public LabelContainer(int labelIndex, Platform platform) {
+        this.platform = platform;
         this.labelIndex = labelIndex;
         trains = new ArrayList<>();
         aussehen = new Aussehen();
@@ -50,12 +49,12 @@ public class LabelContainer extends Plugin {
         timeLabel = false;
 
         l = new Label();
-        l.setFont(Font.font(Einstellungen.schriftgroesse - 5));
-        l.setMinWidth(Einstellungen.spaltenbreite);
-        l.setMaxWidth(Einstellungen.spaltenbreite);
+        l.setFont(Font.font(Settings.fontSize - 5));
+        l.setMinWidth(Settings.columnWidth);
+        l.setMaxWidth(Settings.columnWidth);
         l.setAlignment(Pos.CENTER);
 
-        if (bahnsteig != null) {
+        if (platform != null) {
             try {
                 updateLabel();
             } catch (Exception e) {
@@ -84,7 +83,7 @@ public class LabelContainer extends Plugin {
         this.time = time;
     }
 
-    public void addTrain(Zug z) {
+    public void addTrain(Train z) {
         try {
             trains.add(z);
             updateLabel();
@@ -102,13 +101,13 @@ public class LabelContainer extends Plugin {
         }
     }
 
-    public void removeTrain(Zug z) {
+    public void removeTrain(Train z) {
         try {
             int size = trains.size();
             for (int i = 0; i < trains.size(); i++) {
                 if (trains.size() > 0 && i < trains.size()
                         && trains.get(i) != null
-                        && trains.get(i).getZugId() == z.getZugId()) {
+                        && trains.get(i).getTrainId() == z.getTrainId()) {
                     trains.remove(i);
                 }
             }
@@ -120,7 +119,7 @@ public class LabelContainer extends Plugin {
                     e.printStackTrace();
                 }
             }
-            Platform.runLater(() -> {
+            javafx.application.Platform.runLater(() -> {
                 try {
                     updateLabel();
                 } catch (Exception ex) {
@@ -149,7 +148,7 @@ public class LabelContainer extends Plugin {
             }
         } else {
             if (trains.size() == 0) {
-                Platform.runLater(() -> {
+                javafx.application.Platform.runLater(() -> {
                     l.setText("");
                     l.setTooltip(null);
                     if (hervorhebungDurchGleis) {
@@ -173,14 +172,14 @@ public class LabelContainer extends Plugin {
                     l.setStyle(aussehen.toCSSStyle());
                 });
             } else if (trains.size() == 1) {
-                Zug train = trains.get(0);
-                Platform.runLater(() -> {
-                    l.setText(train.getZugName() + train
+                Train train = trains.get(0);
+                javafx.application.Platform.runLater(() -> {
+                    l.setText(train.getTrainName() + train
                             .getVerspaetungToString());
-                    l.setTooltip(new Tooltip(train.getZugName() + train
+                    l.setTooltip(new Tooltip(train.getTrainName() + train
                             .getVerspaetungToString()));
                     aussehen.hintergrundFarbe =
-                            prepareTrainStyle(train.getZugName());
+                            prepareTrainStyle(train.getTrainName());
                     aussehen.textFarbe = "#fff";
                     prepareBorder();
 
@@ -193,25 +192,25 @@ public class LabelContainer extends Plugin {
             } else if (trains.size() == 2
                     && trains.get(1).getFahrplan(0).getVorgaenger()
                     != null) {  //TODO sinn dieser Alternative, identisch zu oben?
-                Zug train = trains.get(1);
-                Platform.runLater(() -> {
-                    l.setText(train.getZugName() + train
+                Train train = trains.get(1);
+                javafx.application.Platform.runLater(() -> {
+                    l.setText(train.getTrainName() + train
                             .getVerspaetungToString());
-                    l.setTooltip(new Tooltip(train.getZugName() + train
+                    l.setTooltip(new Tooltip(train.getTrainName() + train
                             .getVerspaetungToString()));
                     aussehen.hintergrundFarbe =
-                            prepareTrainStyle(train.getZugName());
+                            prepareTrainStyle(train.getTrainName());
                     aussehen.textFarbe = "#fff";
                     prepareBorder();
                     l.setStyle(aussehen.toCSSStyle());
                 });
             } else {
-                Platform.runLater(() -> {
+                javafx.application.Platform.runLater(() -> {
                     if (trains != null && trains.size() > 0) {
                         String text = "";
 
-                        for (Zug z : trains) {
-                            text += z.getZugName() + z.getVerspaetungToString()
+                        for (Train z : trains) {
+                            text += z.getTrainName() + z.getVerspaetungToString()
                                     + ", "; //TODO kann laut Log null werden
                         }
                         text = text.substring(0, text.length() - 2);
@@ -235,11 +234,11 @@ public class LabelContainer extends Plugin {
     }
 
     public void updateLabel(String text, boolean isBahnsteig) {
-        Platform.runLater(() -> {
+        javafx.application.Platform.runLater(() -> {
             try {
                 l.setText(text);
 
-                if (bahnsteig == null && !isBahnsteig) {
+                if (platform == null && !isBahnsteig) {
                     prepareBorderForLabelTime();
                 }
             } catch (Exception e) {
@@ -250,7 +249,7 @@ public class LabelContainer extends Plugin {
 
     public void updateLabel(String text, long time) {
         this.time = time;
-        Platform.runLater(() -> l.setText(text));
+        javafx.application.Platform.runLater(() -> l.setText(text));
     }
 
     private String prepareTrainStyle(String zugName) {
@@ -356,24 +355,24 @@ public class LabelContainer extends Plugin {
         l.setStyle(aussehen.toCSSStyle());
     }
 
-    public ArrayList<Zug> getTrains() {
+    public ArrayList<Train> getTrains() {
         return trains;
     }
 
-    public void setTrains(List<FahrplanHalt> halte) {
+    public void setTrains(List<TrainStop> halte) {
         trains.clear();
-        for (FahrplanHalt fh : halte) {
+        for (TrainStop fh : halte) {
             trains.add(fh.getZug());
         }
         updateLabel();
     }
 
-    public Bahnsteig getBahnsteig() {
-        return bahnsteig;
+    public Platform getPlatform() {
+        return platform;
     }
 
-    public void setBahnsteig(Bahnsteig bahnsteig) {
-        this.bahnsteig = bahnsteig;
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
     }
 
     private void showTrainInformations() {
@@ -381,36 +380,36 @@ public class LabelContainer extends Plugin {
 
         Fenster.informations.getChildren().clear();
 
-        for (Zug z : trains) {
+        for (Train z : trains) {
             Label trainName =
-                    new Label(z.getZugName() + z.getVerspaetungToString());
+                    new Label(z.getTrainName() + z.getVerspaetungToString());
             trainName.setStyle("-fx-text-fill: white;");
-            trainName.setFont(Font.font(Einstellungen.schriftgroesse - 2));
+            trainName.setFont(Font.font(Settings.fontSize - 2));
             trainName.setTranslateY(heightCounter);
             trainName.setTranslateX(5);
-            if (z.getFahrplan() != null) {
-                for (FahrplanHalt fh : z.getFahrplan()) {
+            if (z.getSchedule() != null) {
+                for (TrainStop fh : z.getSchedule()) {
                     if (fh.getFlaggedTrain() != null) {
                         trainName.setText(trainName.getText() + " => " + fh
-                                .getFlaggedTrain().getZugName() + fh
+                                .getFlaggedTrain().getTrainName() + fh
                                 .getFlaggedTrain().getVerspaetungToString());
                         break;
                     }
                 }
             }
 
-            Label vonBis = new Label(z.getVon() + " - " + z.getNach());
+            Label vonBis = new Label(z.getFrom() + " - " + z.getTo());
             vonBis.setStyle("-fx-text-fill: white;");
-            vonBis.setFont(Font.font(Einstellungen.schriftgroesse - 5));
+            vonBis.setFont(Font.font(Settings.fontSize - 5));
             vonBis.setTranslateY(heightCounter + 25);
             vonBis.setTranslateX(5);
 
             Fenster.informations.getChildren().addAll(trainName, vonBis);
 
-            for (int i = 0; i < z.getFahrplan().size(); i++) {
-                long lAnkunft = z.getFahrplan(i).getAnkuft()
+            for (int i = 0; i < z.getSchedule().size(); i++) {
+                long lAnkunft = z.getFahrplan(i).getArrivalTime()
                         + z.getVerspaetungInMinuten() * 1000 * 60;
-                long lAbfahrt = z.getFahrplan(i).getAbfahrt()
+                long lAbfahrt = z.getFahrplan(i).getDepartureTime()
                         + z.getVerspaetungInMinuten() * 1000 * 60;
                 if (z.getVerspaetungInMinuten() > 3
                         && (lAbfahrt - lAnkunft) / 1000 / 60 > 3) {
@@ -420,11 +419,11 @@ public class LabelContainer extends Plugin {
                         && z.getFahrplan(i).getFlaggedTrain().getFahrplan(0)
                         != null) {
                     lAbfahrt = z.getFahrplan(i).getFlaggedTrain().getFahrplan(0)
-                            .getAbfahrt() + z.getFahrplan(i).getFlaggedTrain()
+                            .getDepartureTime() + z.getFahrplan(i).getFlaggedTrain()
                             .getVerspaetungInMinuten() * 1000 * 60;
                 } else if (z.getFahrplan(i).getVorgaenger() != null
                         && z.getFahrplan(i).getVorgaenger().getZug() != null) {
-                    lAnkunft = z.getFahrplan(i).getVorgaenger().getAnkuft() +
+                    lAnkunft = z.getFahrplan(i).getVorgaenger().getArrivalTime() +
                             z.getFahrplan(i).getVorgaenger().getZug()
                                     .getVerspaetungInMinuten() * 1000 * 60;
                 }
@@ -438,21 +437,21 @@ public class LabelContainer extends Plugin {
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                 Label l = new Label(
-                        "Bahnsteig: " + z.getFahrplan(i).getBahnsteig()
+                        "Platform: " + z.getFahrplan(i).getBahnsteig()
                                 .getName() + " " + ft.format(anunft) + " - "
                                 + ft.format(abfahrt) + durchfahrt);
-                l.setFont(Font.font(Einstellungen.schriftgroesse - 5));
+                l.setFont(Font.font(Settings.fontSize - 5));
                 l.setTranslateY(heightCounter + 55);
-                l.setPrefWidth(Einstellungen.informationenBreite);
+                l.setPrefWidth(Settings.trainInformationWidth);
                 l.setTranslateX(5);
 
                 if (z.getBahnsteig().getName()
                         .equals(z.getFahrplan(i).getBahnsteig().getName()) && z
-                        .getAmGleis()) {
+                        .getAtPlatform()) {
                     l.setStyle(
                             "-fx-text-fill: white; -fx-background-color: green;");
                 } else if (z.getFahrplan(i).getBahnsteig().getName()
-                        .equals(bahnsteig.getName())) {
+                        .equals(platform.getName())) {
                     l.setStyle(
                             "-fx-text-fill: white; -fx-background-color: #505050;");
                 } else {
@@ -473,22 +472,22 @@ public class LabelContainer extends Plugin {
     public void highlight() {
         Runnable r = () -> {
             try {
-                Platform.runLater(() -> l.setStyle(
+                javafx.application.Platform.runLater(() -> l.setStyle(
                         "-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green;"));
                 Thread.sleep(1000);
                 updateLabel();
                 Thread.sleep(1000);
-                Platform.runLater(() -> l.setStyle(
+                javafx.application.Platform.runLater(() -> l.setStyle(
                         "-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green;"));
                 Thread.sleep(1000);
                 updateLabel();
                 Thread.sleep(1000);
-                Platform.runLater(() -> l.setStyle(
+                javafx.application.Platform.runLater(() -> l.setStyle(
                         "-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green;"));
                 Thread.sleep(1000);
                 updateLabel();
                 Thread.sleep(1000);
-                Platform.runLater(() -> l.setStyle(
+                javafx.application.Platform.runLater(() -> l.setStyle(
                         "-fx-text-fill: #fff; -fx-border-color: #505050; -fx-border-width: 0 1 1 0; -fx-background-color: green;"));
                 Thread.sleep(1000);
                 updateLabel();

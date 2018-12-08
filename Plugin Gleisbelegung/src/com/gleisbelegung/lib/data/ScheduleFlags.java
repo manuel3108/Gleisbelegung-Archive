@@ -14,11 +14,11 @@ public class ScheduleFlags {
     private boolean d;
     private boolean a;
     private boolean w, l; // either or semantics, not both may be active
-    private Zug k;
-    private Zug k_reverse;
+    private Train k;
+    private Train k_reverse;
     // helper Flag of k, train with this flag is target of k
-    private Zug e;
-    private Zug f;
+    private Train e;
+    private Train f;
     private Integer eId;
     private Integer fId;
     private Integer kId;
@@ -28,13 +28,13 @@ public class ScheduleFlags {
 
     /**
      * @param init
-     * @param Zug
+     * @param Train
      * @param zugs
      * @param string
      * @param arrival
      */
-    public ScheduleFlags(final String init, final Zug Zug,
-            final Map<Integer, Zug> zugs, final String string, long arrival) {
+    public ScheduleFlags(final String init, final Train Train,
+            final Map<Integer, Train> zugs, final String string, long arrival) {
         for (int i = 0; i < init.length(); ++i) {
             switch (init.charAt(i)) {
             case 'A':
@@ -77,7 +77,7 @@ public class ScheduleFlags {
                 this.f = zugs.get(this.fId);
                 if (this.f == null) {
                 } else {
-                    this.f.setNachfolger(Zug);
+                    this.f.setNachfolger(Train);
                 }
                 i = endFPos;
                 continue;
@@ -90,16 +90,16 @@ public class ScheduleFlags {
                 this.k = zugs.get(this.kId);
                 if (this.k == null) {
                 } else {
-                    Zug.setNachfolger(this.k);
-                    final List<FahrplanHalt> kSchedule = this.k.getFahrplan();
-                    FahrplanHalt lastMatch = null;
+                    Train.setNachfolger(this.k);
+                    final List<TrainStop> kSchedule = this.k.getSchedule();
+                    TrainStop lastMatch = null;
                     if (kSchedule == null) {
                     } else {
-                        for (final Iterator<FahrplanHalt> iter =
+                        for (final Iterator<TrainStop> iter =
                              kSchedule.iterator(); iter.hasNext(); ) {
-                            final FahrplanHalt kse = iter.next();
+                            final TrainStop kse = iter.next();
                             if (kse.getPlanBahnsteig().equals(string)) {
-                                final long kDep = kse.getAbfahrt();
+                                final long kDep = kse.getDepartureTime();
                                 if (kDep < arrival) {
                                     break;
                                 }
@@ -108,7 +108,7 @@ public class ScheduleFlags {
                         }
                     }
                     if (lastMatch != null) {
-                        lastMatch.getFlags().k_reverse = Zug;
+                        lastMatch.getFlags().k_reverse = Train;
                     }
                 }
                 i = endKPos;
@@ -122,8 +122,8 @@ public class ScheduleFlags {
                 this.e = zugs.get(this.eId);
                 if (this.e == null) {
                 } else {
-                    Zug.setNachfolger(this.e);
-                    this.e.setNachfolger(Zug);
+                    Train.setNachfolger(this.e);
+                    this.e.setNachfolger(Train);
                 }
                 i = endEPos;
                 continue;
@@ -161,13 +161,13 @@ public class ScheduleFlags {
         }
     }
 
-    public static ScheduleFlags parse(final XML xml, final Zug Zug,
-            final Map<Integer, Zug> Zugs) {
+    public static ScheduleFlags parse(final XML xml, final Train Train,
+            final Map<Integer, Train> Zugs) {
         if (!xml.getKey().equals("gleis")) {
             throw new IllegalArgumentException();
         }
         final ScheduleFlags flags =
-                new ScheduleFlags(xml.get("flags"), Zug, Zugs, xml.get("plan"),
+                new ScheduleFlags(xml.get("flags"), Train, Zugs, xml.get("plan"),
                         Integer.parseInt(xml.get("ab")));
         return flags;
     }
@@ -207,21 +207,21 @@ public class ScheduleFlags {
     /**
      * Namenaenderung
      */
-    public Zug getE() {
+    public Train getE() {
         return this.e;
     }
 
     /**
      * Fluegelung
      */
-    public Zug getF() {
+    public Train getF() {
         return this.f;
     }
 
     /**
      * Kupplung
      */
-    public Zug getK() {
+    public Train getK() {
         return this.k;
     }
 
@@ -254,10 +254,10 @@ public class ScheduleFlags {
         return this.d;
     }
 
-    public void invalidateK(final Zug Zug) {
-        if (this.k_reverse == Zug) {
+    public void invalidateK(final Train Train) {
+        if (this.k_reverse == Train) {
             this.k_reverse = null;
-            if (Zug.getZugId() < 0) {
+            if (Train.getTrainId() < 0) {
                 this.l = this.w = false;
             }
         }

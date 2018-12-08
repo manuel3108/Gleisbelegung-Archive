@@ -1,8 +1,8 @@
 package com.gleisbelegung;
 
-import com.gleisbelegung.lib.Stellwerk;
-import com.gleisbelegung.lib.data.Bahnhof;
-import com.gleisbelegung.lib.data.Bahnsteig;
+import com.gleisbelegung.lib.SignalBox;
+import com.gleisbelegung.lib.data.Platform;
+import com.gleisbelegung.lib.data.Station;
 import com.sun.javafx.geom.Vec2d;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,30 +19,30 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
-public class Einstellungen {
+public class Settings {
 
-    public static int update = 15;
-    public static int spaltenbreite = 100;
-    public static int schriftgroesse = 18;
-    public static boolean informationenAnzeigen = true;
-    public static int informationenBreite = 300;
-    public static int sicht;
-    public static String appOrdner;
-    public static boolean maximiert = true;
-    public static Fenster fenster;
-    private File einstellungen;
+    public static int updateIntervall = 15;
+    public static int columnWidth = 100;
+    public static int fontSize = 18;
+    public static boolean showTrainInformations = true;
+    public static int trainInformationWidth = 300;
+    public static int view;
+    public static String applicationFolder;
+    public static boolean fullscreen = true;
+    public static Fenster window;
+    private File settingsFile;
 
-    public Einstellungen() {
-        appOrdner =
+    public Settings() {
+        applicationFolder =
                 System.getProperty("user.home") + File.separator + "Documents"
                         + File.separator + "Plugin Gleisbelegung";
-        einstellungen =
-                new File(appOrdner + File.separator + "Einstellungen.xml");
+        settingsFile =
+                new File(applicationFolder + File.separator + "Settings.xml");
 
-        File pluginOrdner = new File(appOrdner);
+        File pluginOrdner = new File(applicationFolder);
 
         if (pluginOrdner.exists()) {
-            if (einstellungen.exists()) {
+            if (settingsFile.exists()) {
                 leseEinstellungen();
             }
         } else if (pluginOrdner.mkdirs()) {
@@ -50,28 +50,28 @@ public class Einstellungen {
                     "Ordner wurde angelegt, und für Speicherungen vorbereitet");
         } else {
             System.out.println(
-                    "Fehler beim Erzeugen des Ordners für die Einstellungen!");
+                    "Fehler beim Erzeugen des Ordners für die Settings!");
         }
     }
 
     public void schreibeEinstellungen() {
         try {
-            if (einstellungen.exists() || einstellungen.createNewFile()) {
+            if (settingsFile.exists() || settingsFile.createNewFile()) {
                 BufferedWriter bw =
-                        new BufferedWriter(new FileWriter(einstellungen));
+                        new BufferedWriter(new FileWriter(settingsFile));
                 bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                bw.write("<einstellungen version=\"1\">\n");
-                bw.write("\t<update>" + update + "</update>\n");
-                bw.write("\t<spaltenbreite>" + spaltenbreite
-                        + "</spaltenbreite>\n");
-                bw.write("\t<schriftgroesse>" + schriftgroesse
-                        + "</schriftgroesse>\n");
-                bw.write("\t<informationenAnzeigen>" + informationenAnzeigen
-                        + "</informationenAnzeigen>\n");
-                bw.write("\t<informationenBreite>" + informationenBreite
-                        + "</informationenBreite>\n");
-                bw.write("\t<maximiert>" + maximiert + "</maximiert>\n");
-                bw.write("</einstellungen>\n");
+                bw.write("<settings version=\"1\">\n");
+                bw.write("\t<updateIntervall>" + updateIntervall + "</updateIntervall>\n");
+                bw.write("\t<columnWidth>" + columnWidth
+                        + "</columnWidth>\n");
+                bw.write("\t<fontSize>" + fontSize
+                        + "</fontSize>\n");
+                bw.write("\t<showTrainInformations>" + showTrainInformations
+                        + "</showTrainInformations>\n");
+                bw.write("\t<trainInformationWidth>" + trainInformationWidth
+                        + "</trainInformationWidth>\n");
+                bw.write("\t<fullscreen>" + fullscreen + "</fullscreen>\n");
+                bw.write("</settings>\n");
 
                 bw.flush();
             }
@@ -84,33 +84,33 @@ public class Einstellungen {
         try {
             DocumentBuilder dBuilder =
                     DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(einstellungen);
+            Document doc = dBuilder.parse(settingsFile);
 
             Element e =
-                    (Element) doc.getElementsByTagName("einstellungen").item(0);
+                    (Element) doc.getElementsByTagName("settings").item(0);
             int xmlVersion = Integer.parseInt(e.getAttribute("version"));
             if (xmlVersion == 1) {
-                update = Integer.parseInt(
-                        e.getElementsByTagName("update").item(0)
+                updateIntervall = Integer.parseInt(
+                        e.getElementsByTagName("updateIntervall").item(0)
                                 .getTextContent());
-                spaltenbreite = Integer.parseInt(
-                        e.getElementsByTagName("spaltenbreite").item(0)
+                columnWidth = Integer.parseInt(
+                        e.getElementsByTagName("columnWidth").item(0)
                                 .getTextContent());
-                schriftgroesse = Integer.parseInt(
-                        e.getElementsByTagName("schriftgroesse").item(0)
+                fontSize = Integer.parseInt(
+                        e.getElementsByTagName("fontSize").item(0)
                                 .getTextContent());
-                informationenAnzeigen = Boolean.parseBoolean(
-                        e.getElementsByTagName("informationenAnzeigen").item(0)
+                showTrainInformations = Boolean.parseBoolean(
+                        e.getElementsByTagName("showTrainInformations").item(0)
                                 .getTextContent());
-                informationenBreite = Integer.parseInt(
-                        e.getElementsByTagName("informationenBreite").item(0)
+                trainInformationWidth = Integer.parseInt(
+                        e.getElementsByTagName("trainInformationWidth").item(0)
                                 .getTextContent());
-                maximiert = Boolean.parseBoolean(
-                        e.getElementsByTagName("maximiert").item(0)
+                fullscreen = Boolean.parseBoolean(
+                        e.getElementsByTagName("fullscreen").item(0)
                                 .getTextContent());
             } else {
                 System.out.println(
-                        "Einstellungsdatei niicht mehr auf dem neusten Stand. Einstellungen können erst nach einm Klick auf Speichern erneut gelesen werden.");
+                        "Einstellungsdatei niicht mehr auf dem neusten Stand. Settings können erst nach einm Klick auf Speichern erneut gelesen werden.");
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
@@ -120,15 +120,15 @@ public class Einstellungen {
         }
     }
 
-    public void schreibeStellwerksEinstellungen(Stellwerk stellwerk) {
+    public void schreibeStellwerksEinstellungen(SignalBox signalBox) {
         File stellwerksOrdner =
-                new File(appOrdner + File.separator + "Stellwerke");
+                new File(applicationFolder + File.separator + "Stellwerke");
         if (!stellwerksOrdner.exists()) {
             stellwerksOrdner.mkdir();
         }
 
         File datei = new File(
-                stellwerksOrdner + File.separator + stellwerk.getAnlagenid()
+                stellwerksOrdner + File.separator + signalBox.getSignalBoxId()
                         + ".xml");
 
         try {
@@ -137,21 +137,21 @@ public class Einstellungen {
                 bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 bw.write("<gleisbelegung version=\"2\">\n");
 
-                for (Bahnhof b : stellwerk.getBahnhoefe()) {
+                for (Station b : signalBox.getStations()) {
                     bw.write("\t<bahnhof>\n");
                     bw.write("\t\t<id>" + b.getId() + "</id>\n");
-                    bw.write("\t\t<x>" + b.getPos().x
+                    bw.write("\t\t<x>" + b.getPosition().x
                             + "</x>\n"); //notwendig für 1.6
-                    bw.write("\t\t<y>" + b.getPos().y
+                    bw.write("\t\t<y>" + b.getPosition().y
                             + "</y>\n"); //notwendig für 1.6
-                    bw.write("\t\t<alternativName>" + b.getAlternativName()
+                    bw.write("\t\t<alternativName>" + b.getNameByUser()
                             + "</alternativName>\n");
-                    for (Bahnsteig ba : b.getBahnsteige()) {
+                    for (Platform ba : b.getPlatforms()) {
                         bw.write("\t\t<bahnsteig>\n");
                         bw.write("\t\t\t<id>" + ba.getId() + "</id>\n");
                         bw.write("\t\t\t<orderId>" + ba.getOrderId()
                                 + "</orderId>\n");
-                        bw.write("\t\t\t<sichtbar>" + ba.isSichtbar()
+                        bw.write("\t\t\t<sichtbar>" + ba.getVisible()
                                 + "</sichtbar>\n");
                         bw.write("\t\t</bahnsteig>\n");
                     }
@@ -167,14 +167,14 @@ public class Einstellungen {
         }
     }
 
-    public boolean leseStellwerksEinstellungen(Stellwerk stellwerk) {
+    public boolean leseStellwerksEinstellungen(SignalBox signalBox) {
         File stellwerksOrdner =
-                new File(appOrdner + File.separator + "Stellwerke");
+                new File(applicationFolder + File.separator + "Stellwerke");
         if (!stellwerksOrdner.exists())
             return false;
 
         File datei = new File(
-                stellwerksOrdner + File.separator + stellwerk.getAnlagenid()
+                stellwerksOrdner + File.separator + signalBox.getSignalBoxId()
                         + ".xml");
         if (!datei.exists())
             return false;
@@ -190,13 +190,13 @@ public class Einstellungen {
             NodeList bahnhoefe = doc.getElementsByTagName("bahnhof");
 
             if (xmlVersion == 1) {
-                leseStellwerksEinstellungenVersionEins(bahnhoefe, stellwerk);
+                leseStellwerksEinstellungenVersionEins(bahnhoefe, signalBox);
             } else if (xmlVersion == 2) {
-                leseStellwerksEinstellungenVersionEins(bahnhoefe, stellwerk);
-                leseStellwerksEinstellungenVersionZwei(bahnhoefe, stellwerk);
+                leseStellwerksEinstellungenVersionEins(bahnhoefe, signalBox);
+                leseStellwerksEinstellungenVersionZwei(bahnhoefe, signalBox);
             } else {
                 System.out.println(
-                        "Einstellungsdatei niicht mehr auf dem neusten Stand. Einstellungen können erst nach einm Klick auf Speichern erneut gelesen werden.");
+                        "Einstellungsdatei niicht mehr auf dem neusten Stand. Settings können erst nach einm Klick auf Speichern erneut gelesen werden.");
             }
 
             return true;
@@ -211,9 +211,9 @@ public class Einstellungen {
     }
 
     private void leseStellwerksEinstellungenVersionEins(NodeList bahnhoefe,
-            Stellwerk stellwerk) {
+            SignalBox signalBox) {
         int bahnhofCounter = 0;
-        for (Bahnhof b : stellwerk.getBahnhoefe()) {
+        for (Station b : signalBox.getStations()) {
             Node bahnhofNode = bahnhoefe.item(bahnhofCounter);
             if (bahnhofNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element bahnhof = (Element) bahnhofNode;
@@ -223,12 +223,12 @@ public class Einstellungen {
                 double y = Double.parseDouble(
                         bahnhof.getElementsByTagName("y").item(0)
                                 .getTextContent());
-                b.setPos(new Vec2d(x, y));
+                b.setPosition(new Vec2d(x, y));
 
                 NodeList bahnsteige = bahnhof.getElementsByTagName("bahnsteig");
 
                 int bahnsteigCounter = 0;
-                for (Bahnsteig ba : b.getBahnsteige()) {
+                for (Platform ba : b.getPlatforms()) {
                     Node bahnsteigNode = bahnsteige.item(bahnsteigCounter);
 
                     if (bahnsteigNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -237,7 +237,7 @@ public class Einstellungen {
                         ba.setOrderId(Integer.parseInt(
                                 bahnsteig.getElementsByTagName("orderId")
                                         .item(0).getTextContent()));
-                        ba.setSichtbar(Boolean.parseBoolean(
+                        ba.setVisible(Boolean.parseBoolean(
                                 bahnsteig.getElementsByTagName("sichtbar")
                                         .item(0).getTextContent()));
                     }
@@ -249,14 +249,14 @@ public class Einstellungen {
     }
 
     private void leseStellwerksEinstellungenVersionZwei(NodeList bahnhoefe,
-            Stellwerk stellwerk) {
+            SignalBox signalBox) {
         int bahnhofCounter = 0;
-        for (Bahnhof b : stellwerk.getBahnhoefe()) {
+        for (Station b : signalBox.getStations()) {
             Node bahnhofNode = bahnhoefe.item(bahnhofCounter);
             if (bahnhofNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element bahnhof = (Element) bahnhofNode;
 
-                b.setAlternativName(
+                b.setNameByUser(
                         bahnhof.getElementsByTagName("alternativName").item(0)
                                 .getTextContent());
             }

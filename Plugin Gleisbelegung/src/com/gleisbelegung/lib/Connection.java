@@ -6,13 +6,13 @@ package com.gleisbelegung.lib;
 
 Hinweis: In jeder Klasse werden alle Klassenvariablen erklärt, sowie jede Methode. Solltest du neue Variablen oder Methoden hinzufügen, vergiss bitte nicht sie zu implementieren.
 
-Erstellt und hält die Verbindung mit der Schnitstelle aufrecht.
+Erstellt und hält die Connection mit der Schnitstelle aufrecht.
  */
 
-import com.gleisbelegung.lib.data.Bahnsteig;
-import com.gleisbelegung.lib.data.FahrplanHalt;
+import com.gleisbelegung.lib.data.Platform;
 import com.gleisbelegung.lib.data.ScheduleFlags;
-import com.gleisbelegung.lib.data.Zug;
+import com.gleisbelegung.lib.data.Train;
+import com.gleisbelegung.lib.data.TrainStop;
 import de.heidelbach_net.util.XML;
 
 import java.io.BufferedWriter;
@@ -25,19 +25,19 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class Verbindung {
+public class Connection {
 
     private Socket socket;       //Java-Socket zur Kommunikation über TCP/IP
     private XMLHandler xml;
     //Verarbeitet die Empfangenen Daten in einer Eigenen Klasse
 
-    public Verbindung(Socket socket) throws IOException {
+    public Connection(Socket socket) throws IOException {
         this.socket = socket;
         xml = new XMLHandler(socket.getInputStream());
     }
 
-    //Führt einige notwendige Kommunikationsschritte mit der Verbindung durch und Verlangt u.a. Uhrzeit und Bahnsteige
-    public Stellwerk initialisiere(String pluginName, String autor, int version,
+    //Führt einige notwendige Kommunikationsschritte mit der Connection durch und Verlangt u.a. Uhrzeit und Bahnsteige
+    public SignalBox initialisiere(String pluginName, String autor, int version,
             String pluginBeschreibung, int protokoll) {
         XML temp = xml.read();
         if (temp != null && Integer.parseInt(temp.get("code")) != 300) {
@@ -75,11 +75,11 @@ public class Verbindung {
                     "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-6);
         }
-        Stellwerk stellwerk = new Stellwerk(this, temp.get("name"),
+        SignalBox signalBox = new SignalBox(this, temp.get("name"),
                 Integer.parseInt(temp.get("aid")),
                 Integer.parseInt(temp.get("simbuild")));
         System.out.println(
-                "Die Verbindung mit dem Stellwerk " + temp.get("name")
+                "Die Connection mit dem SignalBox " + temp.get("name")
                         + " und der Anlagen-Id " + temp.get("aid")
                         + " wurde erfolgreich hergestellt. Aktuelle Simulator-Build: "
                         + temp.get("simbuild"));
@@ -98,7 +98,7 @@ public class Verbindung {
                     "Beim Empfangen der Daten von der Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-8);
         }
-        stellwerk.spielzeit =
+        signalBox.playingTime =
                 ((System.currentTimeMillis() - timeBeforeSending) / 1000) / 2
                         + Long.parseLong(temp.get("zeit")) - 1000 * 60 * 60;
 
@@ -116,29 +116,29 @@ public class Verbindung {
             XML b = bahnsteigIterator.next();
             bahnsteige[i] = b.get("name");
         }
-        stellwerk.erstelleBahnhoefe(bahnsteige);
+        signalBox.erstelleBahnhoefe(bahnsteige);
 
         bahnsteigIterator = bahnsteigeXML.iterator();
-        for (Bahnsteig bahnsteig : stellwerk.getBahnsteige()) {
+        for (Platform platform : signalBox.getBahnsteige()) {
             XML b = bahnsteigIterator.next();
 
-            List<Bahnsteig> nachbarn = new ArrayList<Bahnsteig>();
+            List<Platform> nachbarn = new ArrayList<Platform>();
             for (XML nachbarXml : b.getInternXML()) {
-                Bahnsteig nachbar =
-                        stellwerk.getBahnsteigByName(nachbarXml.get("name"));
+                Platform nachbar =
+                        signalBox.getBahnsteigByName(nachbarXml.get("name"));
                 if (nachbar != null) {
                     nachbarn.add(nachbar);
                 }
             }
-            bahnsteig.setNachbarn(nachbarn);
+            platform.setNeighbors(nachbarn);
         }
         /*if (setSocketCode("<wege />") != 1) { //auf der SIM-Seite noch nicht implementiert
             System.out.println(-10, "Beim Senden der Daten an die Plugin-Schitstelle ist ein Fehler aufgetreten.");
             System.exit(-10);
         }*/
-        update(stellwerk);
+        update(signalBox);
 
-        return stellwerk;
+        return signalBox;
     }
 
     //Sendet Daten-Anfragen an die Plugin-Schnitstelle
@@ -174,17 +174,17 @@ public class Verbindung {
     }
 
     //Aktualisiert die Daten aller Züge
-    public boolean update(Stellwerk stellwerk) {
+    public boolean update(SignalBox signalBox) {
         try {
             setSocketCode("<zugliste />");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        stellwerk.updateZugliste(xml.read());
+        signalBox.updateZugliste(xml.read());
 
-        for (Zug z : stellwerk.getZuege()) {
+        for (Train z : signalBox.getTrains()) {
             try {
-                setSocketCode("<zugdetails zid='" + z.getZugId() + "'/>");
+                setSocketCode("<zugdetails zid='" + z.getTrainId() + "'/>");
                 XML zugdetails = xml.read();
                 int counter = 0;
 
@@ -192,14 +192,14 @@ public class Verbindung {
                         .equals("zugdetails")) {
                     // Fehler
                     if (zugdetails.getKey().equals("status")) {
-                        System.out.println("INFORMATION: " + z.getZugName()
+                        System.out.println("INFORMATION: " + z.getTrainName()
                                 + " hat status 402 \"zid unbekannt\" " + z
                                 .getVerspaetungInMinuten() + " " + z
-                                .getBahnsteig().getName() + " " + z.getAmGleis()
-                                + " " + z.getVon() + " " + z.getNach() + " " + z
-                                .getPlangleis().getName() + " " + z
-                                .getSichtbar());
-                        stellwerk.removeZug(z);
+                                .getBahnsteig().getName() + " " + z.getAtPlatform()
+                                + " " + z.getFrom() + " " + z.getTo() + " " + z
+                                .getScheduledPlatform().getName() + " " + z
+                                .getVisible());
+                        signalBox.removeZug(z);
                     }
                     continue;
                 } else {
@@ -207,7 +207,7 @@ public class Verbindung {
                     if (verspaetungString != null) {
                         int verspaetung = Integer.parseInt(verspaetungString);
                         if (verspaetung != z.getVerspaetungInMinuten()) {
-                            z.setVerspaetung(verspaetung);
+                            z.setDelay(verspaetung);
                             z.setNeedUpdate(true);
                         }
                         counter++;
@@ -216,7 +216,7 @@ public class Verbindung {
                     if (gleis != null) {
                         if (z.getBahnsteig() == null || !gleis
                                 .equals(z.getBahnsteig().getName())) {
-                            z.setBahnsteig(stellwerk.getBahnsteigByName(gleis));
+                            z.setBahnsteig(signalBox.getBahnsteigByName(gleis));
                             z.setNeedUpdate(true);
                         }
                         counter++;
@@ -224,31 +224,31 @@ public class Verbindung {
                     String amgleisString = zugdetails.get("amgleis");
                     if (amgleisString != null) {
                         boolean amgleis = Boolean.parseBoolean(amgleisString);
-                        if (amgleis != z.getAmGleis()) {
-                            z.setAmGleis(amgleis);
+                        if (amgleis != z.getAtPlatform()) {
+                            z.setAtPlatform(amgleis);
                             z.setNeedUpdate(true);
                         }
                         counter++;
                     }
                     if (zugdetails.get("von") != null) {
-                        if (!zugdetails.get("von").equals(z.getVon())) {
-                            z.setVon(zugdetails.get("von"));
+                        if (!zugdetails.get("von").equals(z.getFrom())) {
+                            z.setFrom(zugdetails.get("von"));
                             z.setNeedUpdate(true);
                         }
                         counter++;
                     }
                     if (zugdetails.get("nach") != null) {
-                        if (!zugdetails.get("nach").equals(z.getNach())) {
-                            z.setNach(zugdetails.get("nach"));
+                        if (!zugdetails.get("nach").equals(z.getTo())) {
+                            z.setTo(zugdetails.get("nach"));
                             z.setNeedUpdate(true);
                         }
                         counter++;
                     }
                     if (zugdetails.get("plangleis") != null) {
-                        if (z.getPlangleis() == null || !zugdetails
+                        if (z.getScheduledPlatform() == null || !zugdetails
                                 .get("plangleis")
-                                .equals(z.getPlangleis().getName())) {
-                            z.setPlangleis(stellwerk.getBahnsteigByName(
+                                .equals(z.getScheduledPlatform().getName())) {
+                            z.setScheduledPlatform(signalBox.getBahnsteigByName(
                                     zugdetails.get("plangleis")));
                             z.setNeedUpdate(true);
                         }
@@ -256,8 +256,8 @@ public class Verbindung {
                     }
                     if (zugdetails.get("sichtbar") != null) {
                         if (Boolean.parseBoolean(zugdetails.get("sichtbar"))
-                                != z.getSichtbar()) {
-                            z.setSichtbar(Boolean.parseBoolean(
+                                != z.getVisible()) {
+                            z.setVisible(Boolean.parseBoolean(
                                     zugdetails.get("sichtbar")));
                             z.setNeedUpdate(true);
                         }
@@ -266,24 +266,24 @@ public class Verbindung {
                 }
 
                 if (counter != 7 && counter != 5) {
-                    System.out.println("INFORMATION: " + z.getZugName()
+                    System.out.println("INFORMATION: " + z.getTrainName()
                             + " es wurden nicht alle Daten gesetzt " + z
                             .getVerspaetungInMinuten() + " " + z.getBahnsteig()
-                            .getName() + " " + z.getAmGleis() + " " + z.getVon()
-                            + " " + z.getNach() + " " + z.getPlangleis()
-                            .getName() + " " + z.getSichtbar());
+                            .getName() + " " + z.getAtPlatform() + " " + z.getFrom()
+                            + " " + z.getTo() + " " + z.getScheduledPlatform()
+                            .getName() + " " + z.getVisible());
                 } else if (counter == 5) {
-                    stellwerk.removeZug(z);
+                    signalBox.removeZug(z);
                 }
 
-                setSocketCode("<zugfahrplan zid='" + z.getZugId() + "'/>");
+                setSocketCode("<zugfahrplan zid='" + z.getTrainId() + "'/>");
                 XML zugfahrplan = xml.read();
                 if (zugfahrplan == null || !zugfahrplan.getKey()
                         .equals("zugfahrplan")) {
                     // Fehler
                 } else {
                     List<XML> zugfahrplanEintraege = zugfahrplan.getInternXML();
-                    ArrayList<FahrplanHalt> fahrplan = new ArrayList<>();
+                    ArrayList<TrainStop> fahrplan = new ArrayList<>();
                     Iterator<XML> fahrplanIterator =
                             zugfahrplanEintraege.iterator();
                     for (int i = 0; i < zugfahrplanEintraege.size(); i++) {
@@ -310,12 +310,12 @@ public class Verbindung {
                             } catch (Exception e) {
                                 zugfahrplanEintrag.set("ab", "0");
                             }
-                            fahrplan.add(new FahrplanHalt(Long.parseLong(
-                                    zugfahrplanEintrag.get("ab")), stellwerk
+                            fahrplan.add(new TrainStop(Long.parseLong(
+                                    zugfahrplanEintrag.get("ab")), signalBox
                                     .getBahnsteigByName(
                                             zugfahrplanEintrag.get("name")),
                                     ScheduleFlags.parse(zugfahrplanEintrag, z,
-                                            stellwerk.getZugMap()), stellwerk
+                                            signalBox.getZugMap()), signalBox
                                     .getBahnsteigByName(
                                             zugfahrplanEintrag.get("plan")),
                                     Long.parseLong(
@@ -326,23 +326,23 @@ public class Verbindung {
                     }
 
                     if (z.isNewTrain()) {
-                        z.setFahrplan(fahrplan);
-                    } else if (z.getFahrplan() != null
-                            && z.getFahrplan().size() != fahrplan.size()) {
+                        z.setSchedule(fahrplan);
+                    } else if (z.getSchedule() != null
+                            && z.getSchedule().size() != fahrplan.size()) {
                         z.setNeedUpdate(true);
-                    } else if (z.getFahrplan() != null) {
-                        for (int i = 0; i < z.getFahrplan().size(); i++) {
+                    } else if (z.getSchedule() != null) {
+                        for (int i = 0; i < z.getSchedule().size(); i++) {
                             if (z.getFahrplan(i) != null
                                     && fahrplan.get(i) != null) {
-                                FahrplanHalt fh = z.getFahrplan(i);
-                                if (fh.getAnkuft() != fahrplan.get(i)
-                                        .getAnkuft()) {
+                                TrainStop fh = z.getFahrplan(i);
+                                if (fh.getArrivalTime() != fahrplan.get(i)
+                                        .getArrivalTime()) {
                                     fh.setNeedUpdate(true);
-                                    fh.setAnkuft(fahrplan.get(i).getAnkuft());
-                                } else if (fh.getAbfahrt() != fahrplan.get(i)
-                                        .getAbfahrt()) {
+                                    fh.setArrivalTime(fahrplan.get(i).getArrivalTime());
+                                } else if (fh.getDepartureTime() != fahrplan.get(i)
+                                        .getDepartureTime()) {
                                     fh.setNeedUpdate(true);
-                                    fh.setAbfahrt(fahrplan.get(i).getAbfahrt());
+                                    fh.setDepartureTime(fahrplan.get(i).getDepartureTime());
                                 } else if (!fh.getBahnsteig().getName()
                                         .equals(fahrplan.get(i).getBahnsteig()
                                                 .getName())) {
@@ -368,7 +368,7 @@ public class Verbindung {
                 }
             } catch (Exception e) {
                 System.out.println(
-                        "ZUG: " + z.getZugName() + ": Verbindungsfehler!");
+                        "ZUG: " + z.getTrainName() + ": Verbindungsfehler!");
                 e.printStackTrace();
             }
         }
@@ -381,6 +381,6 @@ public class Verbindung {
     }
 
     @Override public String toString() {
-        return "Verbindung{" + "socket=" + socket + ", xml=" + xml + '}';
+        return "Connection{" + "socket=" + socket + ", xml=" + xml + '}';
     }
 }

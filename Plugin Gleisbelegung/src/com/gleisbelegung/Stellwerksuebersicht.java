@@ -1,9 +1,9 @@
 package com.gleisbelegung;
 
-import com.gleisbelegung.lib.Stellwerk;
-import com.gleisbelegung.lib.data.Bahnhof;
-import com.gleisbelegung.lib.data.FahrplanHalt;
-import com.gleisbelegung.lib.data.Zug;
+import com.gleisbelegung.lib.SignalBox;
+import com.gleisbelegung.lib.data.Station;
+import com.gleisbelegung.lib.data.Train;
+import com.gleisbelegung.lib.data.TrainStop;
 import com.sun.javafx.geom.Vec2d;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -21,16 +21,16 @@ import java.util.*;
 
 public class Stellwerksuebersicht {
 
-    private Stellwerk stellwerk;
+    private SignalBox signalBox;
     private Pane content;
-    private Bahnhof bewegeBahnhof;
+    private Station bewegeStation;
     private ArrayList<Label> bahnhofsLabel;
-    private Map<Label, Bahnhof> bahnhofLabelMap = new HashMap<>();
+    private Map<Label, Station> bahnhofLabelMap = new HashMap<>();
     private ArrayList<Label> uebergabePunkte;
     private ArrayList<Label> gezeichneteBahnhofsInformationen;
 
-    public Stellwerksuebersicht(Stellwerk stellwerk) {
-        this.stellwerk = stellwerk;
+    public Stellwerksuebersicht(SignalBox signalBox) {
+        this.signalBox = signalBox;
         bahnhofsLabel = new ArrayList<>();
         uebergabePunkte = new ArrayList<>();
         gezeichneteBahnhofsInformationen = new ArrayList<>();
@@ -38,20 +38,20 @@ public class Stellwerksuebersicht {
 
         /*gc.setFill(Paint.valueOf("#fff"));
         gc.setStroke(Paint.valueOf("#4e8abf"));//blau
-        gc.setFont(Font.font(Einstellungen.schriftgroesse));*/
+        gc.setFont(Font.font(Settings.fontSize));*/
 
-        for (Bahnhof b : stellwerk.getBahnhoefe()) {
-            if (b.getBahnhofVerbindungen() != null)
+        for (Station b : signalBox.getStations()) {
+            if (b.getPlatformConnections() != null)
                 b.clearBahnhofVerbindungen();
 
             String text = "";
             if (b.getName().equals(""))
-                text = stellwerk.getStellwerksname();
+                text = signalBox.getSignalBoxName();
             else
                 text = b.getName();
 
             Text temp = new Text(text);
-            temp.setFont(Font.font(Einstellungen.schriftgroesse));
+            temp.setFont(Font.font(Settings.fontSize));
             temp.applyCss();
 
             Label l = new Label(text);
@@ -67,14 +67,14 @@ public class Stellwerksuebersicht {
             l.setAlignment(Pos.CENTER);
             l.setStyle(
                     "-fx-text-fill: #fff; -fx-border-width: 2; -fx-border-color: #4e8abf"); //blau
-            l.setFont(Font.font(Einstellungen.schriftgroesse));
-            if (b.getPos().x != 0 && b.getPos().y != 0) {
-                l.setTranslateX(b.getPos().x);
-                l.setTranslateY(b.getPos().y);
+            l.setFont(Font.font(Settings.fontSize));
+            if (b.getPosition().x != 0 && b.getPosition().y != 0) {
+                l.setTranslateX(b.getPosition().x);
+                l.setTranslateY(b.getPosition().y);
             } else {
-                l.setTranslateX(b.getPos().x);
-                l.setTranslateY(b.getPos().y + counter * 50);
-                b.getPos().y = b.getPos().y + counter * 50;
+                l.setTranslateX(b.getPosition().x);
+                l.setTranslateY(b.getPosition().y + counter * 50);
+                b.getPosition().y = b.getPosition().y + counter * 50;
             }
             l.setOnMouseEntered(mouse -> zeigeBahnhofsInformationen(b));
             l.setOnMouseClicked(mouse -> {
@@ -99,59 +99,59 @@ public class Stellwerksuebersicht {
         content = new Pane();
         content.setStyle("-fx-background-color: #303030");
         content.setOnDragDetected(mouse -> {
-            Bahnhof b = getBahnhof(mouse.getX(), mouse.getY());
+            Station b = getBahnhof(mouse.getX(), mouse.getY());
 
             if (b != null) {
-                bewegeBahnhof = b;
+                bewegeStation = b;
             } else {
-                bewegeBahnhof = null;
+                bewegeStation = null;
             }
         });
         content.setOnMouseReleased(mouse -> {
-            if (bewegeBahnhof != null)
-                bewegeBahnhof = null;
+            if (bewegeStation != null)
+                bewegeStation = null;
         });
         content.setOnMouseDragged(mouse -> {
-            if (bewegeBahnhof != null) {
-                bewegeBahnhof.getPos().x = mouse.getX() - 100;
-                bewegeBahnhof.getPos().y = mouse.getY() - 15;
-                bahnhofsLabel.get(bewegeBahnhof.getId())
-                        .setTranslateX(bewegeBahnhof.getPos().x);
-                bahnhofsLabel.get(bewegeBahnhof.getId())
-                        .setTranslateY(bewegeBahnhof.getPos().y);
-                updateLinie(bewegeBahnhof);
+            if (bewegeStation != null) {
+                bewegeStation.getPosition().x = mouse.getX() - 100;
+                bewegeStation.getPosition().y = mouse.getY() - 15;
+                bahnhofsLabel.get(bewegeStation.getId())
+                        .setTranslateX(bewegeStation.getPosition().x);
+                bahnhofsLabel.get(bewegeStation.getId())
+                        .setTranslateY(bewegeStation.getPosition().y);
+                updateLinie(bewegeStation);
                 zeichneZuege();
-                verschiebeBahnhofsInformationen(bewegeBahnhof);
+                verschiebeBahnhofsInformationen(bewegeStation);
             }
         });
 
         erstelleVerbindungsLinien();
     }
 
-    private Bahnhof getBahnhof(double x, double y) {
-        for (Bahnhof b : stellwerk.getBahnhoefe()) {
+    private Station getBahnhof(double x, double y) {
+        for (Station b : signalBox.getStations()) {
             String text;
 
-            if (b.getAlternativName().equals("")) {
+            if (b.getNameByUser().equals("")) {
                 if (b.getName().equals(""))
-                    text = stellwerk.getStellwerksname();
+                    text = signalBox.getSignalBoxName();
                 else
                     text = b.getName();
             } else {
                 if (b.getName().equals(""))
-                    text = b.getAlternativName() + " (" + stellwerk
-                            .getStellwerksname() + ")";
+                    text = b.getNameByUser() + " (" + signalBox
+                            .getSignalBoxName() + ")";
                 else
-                    text = b.getAlternativName() + " (" + b.getName() + ")";
+                    text = b.getNameByUser() + " (" + b.getName() + ")";
             }
 
 
             Text temp = new Text(text);
-            temp.setFont(Font.font(Einstellungen.schriftgroesse));
+            temp.setFont(Font.font(Settings.fontSize));
             temp.applyCss();
 
-            if (x > b.getPos().x && x < b.getPos().x + 200 && y > b.getPos().y
-                    && y < b.getPos().y + temp.getBoundsInLocal().getHeight()
+            if (x > b.getPosition().x && x < b.getPosition().x + 200 && y > b.getPosition().y
+                    && y < b.getPosition().y + temp.getBoundsInLocal().getHeight()
                     + 10) {
                 return b;
             }
@@ -160,7 +160,7 @@ public class Stellwerksuebersicht {
     }
 
     public void updateUi(double stageWidth, double stageHight) {
-        /*canvas.setWidth(stageWidth - Einstellungen.informationenBreite - 20);
+        /*canvas.setWidth(stageWidth - Settings.trainInformationWidth - 20);
         canvas.setHeight(stageHight - 80);*/
 
         update();
@@ -171,16 +171,16 @@ public class Stellwerksuebersicht {
     }
 
     private void erstelleVerbindungsLinien() {
-        for (Zug z : stellwerk.getZuege()) {
-            if (z.getFahrplan().size() > 1) {
-                FahrplanHalt letzterFH = null;
-                for (FahrplanHalt fh : z.getFahrplan()) {
+        for (Train z : signalBox.getTrains()) {
+            if (z.getSchedule().size() > 1) {
+                TrainStop letzterFH = null;
+                for (TrainStop fh : z.getSchedule()) {
                     if (letzterFH != null) {
-                        if (!letzterFH.getBahnsteig().getBahnhof()
+                        if (!letzterFH.getBahnsteig().getStation()
                                 .getVerbindungsBahnhoefe()
-                                .contains(fh.getBahnsteig().getBahnhof())) {
-                            neueLinie(letzterFH.getBahnsteig().getBahnhof(),
-                                    fh.getBahnsteig().getBahnhof());
+                                .contains(fh.getBahnsteig().getStation())) {
+                            neueLinie(letzterFH.getBahnsteig().getStation(),
+                                    fh.getBahnsteig().getStation());
                         }
                     }
 
@@ -190,7 +190,7 @@ public class Stellwerksuebersicht {
         }
     }
 
-    private void neueLinie(Bahnhof b1, Bahnhof b2) {
+    private void neueLinie(Station b1, Station b2) {
         Vec2d linienPosB1 = new Vec2d();
         Vec2d linienPosB2 = new Vec2d();
 
@@ -209,10 +209,10 @@ public class Stellwerksuebersicht {
         updateLinie(b2);
     }
 
-    private void updateLinie(Bahnhof b) {
-        Set<Bahnhof> verbindungsBahnhoefe = b.getVerbindungsBahnhoefe();
+    private void updateLinie(Station b) {
+        Set<Station> verbindungsBahnhoefe = b.getVerbindungsBahnhoefe();
 
-        for (Bahnhof vb : verbindungsBahnhoefe) {
+        for (Station vb : verbindungsBahnhoefe) {
             Line linie = b.getLinie(vb);
             if (linie == null) {
                 continue;
@@ -220,28 +220,28 @@ public class Stellwerksuebersicht {
             Vec2d linienPosB1 = new Vec2d();
             Vec2d linienPosB2 = new Vec2d();
 
-            if (b.getPos().x < vb.getPos().x && b.getPos().x + 200 < vb
-                    .getPos().x) {
-                linienPosB1.x = b.getPos().x + 200;
-                linienPosB1.y = b.getPos().y + 15;
-                linienPosB2.x = vb.getPos().x;
-                linienPosB2.y = vb.getPos().y + 15;
-            } else if (b.getPos().x > vb.getPos().x
-                    && b.getPos().x > vb.getPos().x + 200) {
-                linienPosB1.x = b.getPos().x;
-                linienPosB1.y = b.getPos().y + 15;
-                linienPosB2.x = vb.getPos().x + 200;
-                linienPosB2.y = vb.getPos().y + 15;
-            } else if (b.getPos().y < vb.getPos().y) {
-                linienPosB1.x = b.getPos().x + 100;
-                linienPosB1.y = b.getPos().y + 35;
-                linienPosB2.x = vb.getPos().x + 100;
-                linienPosB2.y = vb.getPos().y;
-            } else if (b.getPos().y > vb.getPos().y) {
-                linienPosB1.x = b.getPos().x + 100;
-                linienPosB1.y = b.getPos().y;
-                linienPosB2.x = vb.getPos().x + 100;
-                linienPosB2.y = vb.getPos().y + 35;
+            if (b.getPosition().x < vb.getPosition().x && b.getPosition().x + 200 < vb
+                    .getPosition().x) {
+                linienPosB1.x = b.getPosition().x + 200;
+                linienPosB1.y = b.getPosition().y + 15;
+                linienPosB2.x = vb.getPosition().x;
+                linienPosB2.y = vb.getPosition().y + 15;
+            } else if (b.getPosition().x > vb.getPosition().x
+                    && b.getPosition().x > vb.getPosition().x + 200) {
+                linienPosB1.x = b.getPosition().x;
+                linienPosB1.y = b.getPosition().y + 15;
+                linienPosB2.x = vb.getPosition().x + 200;
+                linienPosB2.y = vb.getPosition().y + 15;
+            } else if (b.getPosition().y < vb.getPosition().y) {
+                linienPosB1.x = b.getPosition().x + 100;
+                linienPosB1.y = b.getPosition().y + 35;
+                linienPosB2.x = vb.getPosition().x + 100;
+                linienPosB2.y = vb.getPosition().y;
+            } else if (b.getPosition().y > vb.getPosition().y) {
+                linienPosB1.x = b.getPosition().x + 100;
+                linienPosB1.y = b.getPosition().y;
+                linienPosB2.x = vb.getPosition().x + 100;
+                linienPosB2.y = vb.getPosition().y + 35;
             }
 
             linie.setStartX(linienPosB1.x);
@@ -254,40 +254,40 @@ public class Stellwerksuebersicht {
         }
     }
 
-    private double berechneVerbindungsLaenge(Bahnhof b1, Bahnhof b2) {
+    private double berechneVerbindungsLaenge(Station b1, Station b2) {
         double x;
         double y;
 
-        if (b1.getPos().x < b2.getPos().x)
-            x = b2.getPos().x - b1.getPos().x;
+        if (b1.getPosition().x < b2.getPosition().x)
+            x = b2.getPosition().x - b1.getPosition().x;
         else
-            x = b1.getPos().x - b2.getPos().x;
+            x = b1.getPosition().x - b2.getPosition().x;
 
-        if (b1.getPos().y < b2.getPos().y)
-            y = b2.getPos().y - b1.getPos().y;
+        if (b1.getPosition().y < b2.getPosition().y)
+            y = b2.getPosition().y - b1.getPosition().y;
         else
-            y = b1.getPos().y - b2.getPos().y;
+            y = b1.getPosition().y - b2.getPosition().y;
 
         return Math.round(Math.sqrt((x * x) + (y * y)));
     }
 
     private void zeichneZuege() {
-        for (Zug z : stellwerk.getZuege()) {
-            if (z.getFahrplan() != null && z.getFahrplan().size() > 1) {
-                Bahnhof b1 = z.getFahrplan(0).getBahnsteig().getBahnhof();
-                Bahnhof b2 = z.getFahrplan(1).getBahnsteig().getBahnhof();
+        for (Train z : signalBox.getTrains()) {
+            if (z.getSchedule() != null && z.getSchedule().size() > 1) {
+                Station b1 = z.getFahrplan(0).getBahnsteig().getStation();
+                Station b2 = z.getFahrplan(1).getBahnsteig().getStation();
 
-                long abfahrtsZeit = (z.getFahrplan(0).getAbfahrt()
-                        + z.getVerspaetungInMinuten() * 1000 * 60 - stellwerk
-                        .getSpielzeit()) / 1000;
-                long ankunftsZeit = (z.getFahrplan(1).getAnkuft()
-                        + z.getVerspaetungInMinuten() * 1000 * 60 - stellwerk
-                        .getSpielzeit()) / 1000;
+                long abfahrtsZeit = (z.getFahrplan(0).getDepartureTime()
+                        + z.getVerspaetungInMinuten() * 1000 * 60 - signalBox
+                        .getPlayingTime()) / 1000;
+                long ankunftsZeit = (z.getFahrplan(1).getArrivalTime()
+                        + z.getVerspaetungInMinuten() * 1000 * 60 - signalBox
+                        .getPlayingTime()) / 1000;
 
                 if (abfahrtsZeit < 0 && ankunftsZeit > 0) {
                     double aufenthalt =
-                            (double) ((z.getFahrplan(1).getAnkuft() / 1000) - (
-                                    z.getFahrplan(0).getAbfahrt() / 1000));
+                            (double) ((z.getFahrplan(1).getArrivalTime() / 1000) - (
+                                    z.getFahrplan(0).getDepartureTime() / 1000));
                     double wert = 1 - ((double) ankunftsZeit / aufenthalt);
 
                     Vec2d linienPosB1 = b1.getLinienPos(b2);
@@ -308,7 +308,7 @@ public class Stellwerksuebersicht {
                     l.setTranslateY(y);
                     l.setRotate(winkel);
                     Platform.runLater(() -> {
-                        l.setText(z.getZugName() + z.getVerspaetungToString());
+                        l.setText(z.getTrainName() + z.getVerspaetungToString());
                     });
 
                     if (!content.getChildren().contains(l)) {
@@ -331,46 +331,46 @@ public class Stellwerksuebersicht {
         }
     }
 
-    private void zeigeBahnhofsInformationen(Bahnhof b) {
-        ArrayList<FahrplanHalt> abfahrten = new ArrayList<>();
-        for (Zug z : stellwerk.getZuege()) {
-            if (z.getFahrplan()
+    private void zeigeBahnhofsInformationen(Station b) {
+        ArrayList<TrainStop> abfahrten = new ArrayList<>();
+        for (Train z : signalBox.getTrains()) {
+            if (z.getSchedule()
                     != null) { //z != null braucht nicht überprüft werden, da die durch die foreach bereits ausgeschlossen werden
-                for (FahrplanHalt fh : z.getFahrplan()) {
-                    if (fh.getBahnsteig().getBahnhof().getId() == b.getId() &&
-                            fh.getAbfahrt()
+                for (TrainStop fh : z.getSchedule()) {
+                    if (fh.getBahnsteig().getStation().getId() == b.getId() &&
+                            fh.getDepartureTime()
                                     + fh.getZug().getVerspaetungInMinuten()
-                                    * 1000 * 60 > stellwerk.getSpielzeit()) {
+                                    * 1000 * 60 > signalBox.getPlayingTime()) {
                         abfahrten.add(fh);
                     }
                 }
             }
         }
 
-        abfahrten.sort(Comparator.comparing(FahrplanHalt::getAbfahrt));
+        abfahrten.sort(Comparator.comparing(TrainStop::getDepartureTime));
 
         if (abfahrten.size() > 0) {
             Label l = new Label("Nächste Abfahrten");
             l.setStyle("-fx-text-fill: #fff;");
-            l.setFont(Font.font(Einstellungen.schriftgroesse));
-            l.setTranslateX(b.getPos().x);
-            l.setTranslateY(b.getPos().y + 30);
+            l.setFont(Font.font(Settings.fontSize));
+            l.setTranslateX(b.getPosition().x);
+            l.setTranslateY(b.getPosition().y + 30);
             content.getChildren().add(l);
             gezeichneteBahnhofsInformationen.add(l);
 
             for (int i = 0; i < abfahrten.size() && i < 5; i++) {
-                Date dNow = new Date(abfahrten.get(i).getAbfahrt()
+                Date dNow = new Date(abfahrten.get(i).getDepartureTime()
                         + abfahrten.get(i).getZug().getVerspaetungInMinuten()
                         * 1000 * 60);
                 SimpleDateFormat ft = new SimpleDateFormat("HH:mm");
 
                 l = new Label(ft.format(dNow) + " " + abfahrten.get(i).getZug()
-                        .getZugName() + abfahrten.get(i).getZug()
+                        .getTrainName() + abfahrten.get(i).getZug()
                         .getVerspaetungToString());
                 l.setStyle("-fx-text-fill: #fff;");
-                l.setFont(Font.font(Einstellungen.schriftgroesse));
-                l.setTranslateX(b.getPos().x);
-                l.setTranslateY(b.getPos().y + 50 + i * 20);
+                l.setFont(Font.font(Settings.fontSize));
+                l.setTranslateX(b.getPosition().x);
+                l.setTranslateY(b.getPosition().y + 50 + i * 20);
                 content.getChildren().add(l);
                 gezeichneteBahnhofsInformationen.add(l);
             }
@@ -384,17 +384,17 @@ public class Stellwerksuebersicht {
         });
     }
 
-    private void verschiebeBahnhofsInformationen(Bahnhof b) {
+    private void verschiebeBahnhofsInformationen(Station b) {
         if (gezeichneteBahnhofsInformationen != null
                 && gezeichneteBahnhofsInformationen.size() > 0) {
-            gezeichneteBahnhofsInformationen.get(0).setTranslateX(b.getPos().x);
+            gezeichneteBahnhofsInformationen.get(0).setTranslateX(b.getPosition().x);
             gezeichneteBahnhofsInformationen.get(0)
-                    .setTranslateY(b.getPos().y + 30);
+                    .setTranslateY(b.getPosition().y + 30);
 
             int counter = -1;
             for (Label l : gezeichneteBahnhofsInformationen) {
-                l.setTranslateX(b.getPos().x);
-                l.setTranslateY(b.getPos().y + 50 + counter * 20);
+                l.setTranslateX(b.getPosition().x);
+                l.setTranslateY(b.getPosition().y + 50 + counter * 20);
                 counter++;
             }
         }
@@ -406,20 +406,20 @@ public class Stellwerksuebersicht {
 
     public void aktualisiereBahnhofsNamen() {
         for (Label l : bahnhofsLabel) {
-            Bahnhof b = bahnhofLabelMap.get(l);
+            Station b = bahnhofLabelMap.get(l);
             String text = "";
 
-            if (b.getAlternativName().equals("")) {
+            if (b.getNameByUser().equals("")) {
                 if (b.getName().equals(""))
-                    text = stellwerk.getStellwerksname();
+                    text = signalBox.getSignalBoxName();
                 else
                     text = b.getName();
             } else {
                 if (b.getName().equals(""))
-                    text = b.getAlternativName() + " (" + stellwerk
-                            .getStellwerksname() + ")";
+                    text = b.getNameByUser() + " (" + signalBox
+                            .getSignalBoxName() + ")";
                 else
-                    text = b.getAlternativName() + " (" + b.getName() + ")";
+                    text = b.getNameByUser() + " (" + b.getName() + ")";
             }
 
             final String tempText = text;
