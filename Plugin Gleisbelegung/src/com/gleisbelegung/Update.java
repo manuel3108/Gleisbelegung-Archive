@@ -15,32 +15,34 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import java.io.File;
-import java.net.Proxy;
+
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.Scanner;
 
+
 public class Update {
+
     private int neusteVersion;
 
     //Checkt auf neue Versionen
-    public void checkForNewVersion(int currentVersion){
+    public void checkForNewVersion(int currentVersion) {
         try {
-            URL url = new URL("http://www.manuel-serret.bplaced.net/Gleisbelegung/version.txt");
+            URL url =
+                    new URL("http://www.manuel-serret.bplaced.net/Gleisbelegung/version.txt");
             Scanner sc = new Scanner(url.openStream());
 
             neusteVersion = Integer.parseInt(sc.nextLine());
             sc.close();
 
-            if(neusteVersion <= currentVersion){
+            if (neusteVersion <= currentVersion) {
                 //System.out.println("All Files are up to date!");
-            } else{
+            } else {
                 //System.out.println("Update needed!");
 
                 Stage stage = new Stage();
 
-                Label l = new Label("Es ist eine neuere Version verfügbar!\nLade es dir herunter, wann es dir passt...");
+                Label l = new Label(
+                        "Es ist eine neuere Version verfügbar!\nLade es dir herunter, wann es dir passt...");
                 l.setFont(Font.font(18));
                 l.setStyle("-fx-text-fill: #fff");
 
@@ -78,7 +80,7 @@ public class Update {
         }
     }
 
-    public int getNeusteVersion(){
+    public int getNeusteVersion() {
         return neusteVersion;
     }
 }

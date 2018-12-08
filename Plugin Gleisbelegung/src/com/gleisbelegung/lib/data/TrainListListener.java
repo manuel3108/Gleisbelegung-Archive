@@ -2,6 +2,6 @@ package com.gleisbelegung.lib.data;
 
 public interface TrainListListener {
 
-	void notifyRemoved(Zug old);
+    void notifyRemoved(Zug old);
 
 }

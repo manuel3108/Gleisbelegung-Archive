@@ -2,6 +2,7 @@ package de.heidelbach_net.util;
 
 import java.nio.charset.Charset;
 
+
 /**
  * @author interpret
  * @license LGPLv2
@@ -13,16 +14,14 @@ class ByteStringBuilder {
     private int length = 0;
 
     /**
-     * @param charset
-     *            Charset to use for encoding in {@link #toString()}
+     * @param charset Charset to use for encoding in {@link #toString()}
      */
     public ByteStringBuilder(final Charset charset) {
         this.charset = charset;
     }
 
     /**
-     * @param b
-     *            byte to append
+     * @param b byte to append
      */
     public void append(final int b) {
         this.array[this.length++] = (byte) b;
@@ -49,8 +48,7 @@ class ByteStringBuilder {
      * Converts any bytes read since last call of {@link #clear()} to a
      * {@link String} using the {@link Charset} used upon construction.
      */
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return new String(this.array, 0, this.length, this.charset);
     }
 
